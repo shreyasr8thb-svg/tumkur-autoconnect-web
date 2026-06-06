@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, IndianRupee, CreditCard, ChevronRight, MapPin, Navigation } from 'lucide-react';
+import { Bell, AlertTriangle, ShieldCheck, Bus, IndianRupee, CreditCard, ChevronRight, MapPin, Navigation, User, Edit3, Link as LinkIcon, Unlink } from 'lucide-react';
 
 export default function Dashboard({ onSOS }) {
   const [activeTab, setActiveTab] = useState('home');
@@ -29,6 +29,7 @@ export default function Dashboard({ onSOS }) {
         {activeTab === 'salary' && <SalaryView />}
         {activeTab === 'bus' && <BusTrackingView />}
         {activeTab === 'access' && <SmartAccessView />}
+        {activeTab === 'profile' && <ProfileView onNavigate={(tab) => setActiveTab(tab)} />}
       </div>
 
       {/* Bottom Navigation */}
@@ -37,6 +38,7 @@ export default function Dashboard({ onSOS }) {
         <NavTab icon={<CreditCard size={20} />} label="Access" active={activeTab === 'access'} onClick={() => setActiveTab('access')} />
         <NavTab icon={<IndianRupee size={20} />} label="Salary" active={activeTab === 'salary'} onClick={() => setActiveTab('salary')} />
         <NavTab icon={<Bus size={20} />} label="Bus" active={activeTab === 'bus'} onClick={() => setActiveTab('bus')} />
+        <NavTab icon={<User size={20} />} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
       </div>
     </div>
   );
@@ -135,14 +137,31 @@ function SkillPassportView() {
       </div>
 
       <div className="card mt-2">
-        <div className="flex justify-between mb-2">
-          <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>Path to Promotion</span>
-          <span style={{ fontSize: '0.9rem', color: '#DC3545', fontWeight: '600' }}>60%</span>
+        <h3 className="mb-3" style={{ fontSize: '1rem' }}>Path to Promotion</h3>
+        
+        <div className="flex-col gap-3 position-relative" style={{ borderLeft: '2px dashed var(--border-color)', marginLeft: '1rem', paddingLeft: '1.5rem' }}>
+           <div className="position-relative">
+             <div style={{ position: 'absolute', left: '-1.5rem', top: '0', transform: 'translate(-50%, 0)', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#28a745' }}></div>
+             <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>Lathe Master</div>
+             <div style={{ fontSize: '0.75rem', color: '#28a745' }}>Achieved</div>
+           </div>
+           
+           <div className="position-relative">
+             <div style={{ position: 'absolute', left: '-1.5rem', top: '0', transform: 'translate(-50%, 0)', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#DC3545', border: '2px solid #000' }}></div>
+             <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>CNC Programmer</div>
+             <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-light)' }}>Requires: G-Code Basics, Safety Cert II</div>
+           </div>
+           
+           <div className="position-relative">
+             <div style={{ position: 'absolute', left: '-1.5rem', top: '0', transform: 'translate(-50%, 0)', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'var(--bg-panel)', border: '2px solid var(--border-color)' }}></div>
+             <div style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-gray-dark)' }}>Floor Supervisor</div>
+             <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>Requires: Leadership Basics</div>
+           </div>
         </div>
-        <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)', marginBottom: '0.5rem' }}>Supervisor Level 1</div>
-        <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-dark)', borderRadius: '4px', overflow: 'hidden' }}>
-          <div style={{ width: '60%', height: '100%', backgroundColor: '#DC3545' }}></div>
-        </div>
+
+        <button className="btn btn-secondary mt-4 w-100" style={{ borderColor: '#DC3545', color: '#DC3545' }}>
+          Request New Badge Verification
+        </button>
       </div>
     </div>
   );
@@ -353,7 +372,12 @@ function SmartAccessView() {
               <span style={{ color: 'var(--text-gray-light)' }}>Available Balance</span>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#DC3545' }}>₹450.00</span>
             </div>
-            <button className="btn btn-primary" style={{ padding: '0.75rem' }}>Top Up Balance</button>
+            <div className="flex gap-2">
+              <button className="btn btn-primary" style={{ padding: '0.75rem', flex: 1 }}>Top Up</button>
+              <button className="btn btn-secondary flex items-center justify-center gap-2" style={{ padding: '0.75rem', flex: 1 }}>
+                <Unlink size={16} /> Unlink Card
+              </button>
+            </div>
             <h4 className="mt-3" style={{ color: 'var(--text-gray-light)' }}>Recent</h4>
             <div className="flex justify-between items-center">
               <div>
@@ -375,9 +399,90 @@ function SmartAccessView() {
               {/* Mock QR Code */}
               <div style={{ width: '100%', height: '100%', backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)', backgroundSize: '20px 20px', backgroundPosition: '0 0, 10px 10px' }}></div>
             </div>
-            <button className="btn btn-secondary">Generate Digital Pass</button>
+            <div className="flex gap-2">
+              <button className="btn btn-secondary flex-1">Digital Pass</button>
+              <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" style={{ borderColor: '#DC3545', color: '#DC3545' }}>
+                <LinkIcon size={16} /> Link New Pass
+              </button>
+            </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ProfileView({ onNavigate }) {
+  return (
+    <div className="flex-col gap-4">
+      <div className="text-center mb-2">
+        <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--border-color)', overflow: 'hidden', margin: '0 auto 1rem auto' }}>
+          <img src="https://i.pravatar.cc/150?img=11" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+        <h2 style={{ marginBottom: '0.25rem' }}>Ramesh K.</h2>
+        <p>Machinist • TMR-4492</p>
+      </div>
+
+      <div className="card flex-col gap-3" style={{ padding: '1rem' }}>
+        <h3 className="flex items-center justify-between" style={{ color: 'var(--text-gray-light)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+          <span>Personal Info</span>
+          <Edit3 size={16} />
+        </h3>
+        <div className="flex justify-between">
+          <span style={{ color: 'var(--text-gray-dark)' }}>DOB</span>
+          <span>14 Aug 1990</span>
+        </div>
+        <div className="flex justify-between">
+          <span style={{ color: 'var(--text-gray-dark)' }}>Phone</span>
+          <span>+91 98765 43210</span>
+        </div>
+        <div className="flex justify-between">
+          <span style={{ color: 'var(--text-gray-dark)' }}>Email</span>
+          <span>worker@tumkur.in</span>
+        </div>
+      </div>
+
+      <div className="card flex-col gap-3" style={{ padding: '1rem' }}>
+        <h3 className="flex items-center justify-between" style={{ color: 'var(--text-gray-light)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+          <span>Work Records</span>
+          <Edit3 size={16} />
+        </h3>
+        <div className="flex justify-between">
+          <span style={{ color: 'var(--text-gray-dark)' }}>Unit</span>
+          <span>Sri Sai Auto</span>
+        </div>
+        <div className="flex justify-between">
+          <span style={{ color: 'var(--text-gray-dark)' }}>Dept</span>
+          <span>Machining</span>
+        </div>
+        <div className="flex justify-between">
+          <span style={{ color: 'var(--text-gray-dark)' }}>Supervisor</span>
+          <span>Suresh M.</span>
+        </div>
+      </div>
+
+      <div className="card flex justify-between items-center" style={{ padding: '1.25rem 1rem', cursor: 'pointer' }} onClick={() => onNavigate('passport')}>
+        <div className="flex items-center gap-3">
+          <ShieldCheck size={24} color="#DC3545" />
+          <span style={{ fontWeight: '600' }}>Skill Passport</span>
+        </div>
+        <ChevronRight size={20} color="var(--text-gray-dark)" />
+      </div>
+
+      <div className="card flex justify-between items-center" style={{ padding: '1.25rem 1rem', cursor: 'pointer' }} onClick={() => onNavigate('access')}>
+        <div className="flex items-center gap-3">
+          <CreditCard size={24} color="#DC3545" />
+          <span style={{ fontWeight: '600' }}>Linked Cards</span>
+        </div>
+        <ChevronRight size={20} color="var(--text-gray-dark)" />
+      </div>
+
+      <div className="card flex justify-between items-center" style={{ padding: '1.25rem 1rem', cursor: 'pointer' }}>
+        <div className="flex items-center gap-3">
+          <AlertTriangle size={24} color="#DC3545" />
+          <span style={{ fontWeight: '600' }}>Emergency Contacts</span>
+        </div>
+        <ChevronRight size={20} color="var(--text-gray-dark)" />
       </div>
     </div>
   );

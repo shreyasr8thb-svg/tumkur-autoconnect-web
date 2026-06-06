@@ -4,6 +4,7 @@ import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import OwnerDashboard from './components/OwnerDashboard'
 import SOSAlert from './components/SOSAlert'
+import ProfileCreation from './components/ProfileCreation'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('splash')
@@ -27,7 +28,8 @@ function App() {
   return (
     <div className="app-container">
       {currentScreen === 'splash' && <Splash onComplete={() => navigateTo('login')} />}
-      {currentScreen === 'login' && <Login onLogin={handleLogin} />}
+      {currentScreen === 'login' && <Login onLogin={handleLogin} onCreateProfile={() => navigateTo('create-profile')} />}
+      {currentScreen === 'create-profile' && <ProfileCreation onComplete={handleLogin} onCancel={() => navigateTo('login')} />}
       {currentScreen === 'dashboard' && <Dashboard onSOS={() => setIsSOSActive(true)} />}
       {currentScreen === 'owner-dashboard' && <OwnerDashboard />}
 

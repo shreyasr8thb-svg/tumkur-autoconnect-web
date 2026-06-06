@@ -4,7 +4,7 @@ import { auth } from '../firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import logo from '../assets/logo.png';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onCreateProfile }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -105,6 +105,15 @@ export default function Login({ onLogin }) {
         >
           <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
           Sign in with Google
+        </button>
+
+        <button 
+          type="button" 
+          onClick={onCreateProfile}
+          className="btn btn-secondary mt-2" 
+          style={{ borderColor: '#DC3545', color: '#DC3545' }}
+        >
+          Create New Profile
         </button>
 
         <div className="text-center mt-3">
