@@ -1,73 +1,67 @@
 import { useState } from 'react';
 import { Settings } from 'lucide-react';
+import { auth } from '../firebase';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import logo from '../assets/logo.png';
 
 export default function Login({ onLogin }) {
-  const [step, setStep] = useState('login'); // 'login' or 'verify'
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleContinue = (e) => {
+  const handleEmailSignIn = async (e) => {
     e.preventDefault();
-    if (email) {
-      setStep('verify');
+    if (!email || !password) return;
+    
+    setLoading(true);
+    setError('');
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userEmail = userCredential.user.email || '';
+      // Route based on email for demo purposes
+      onLogin(userEmail.toLowerCase().includes('owner') ? 'owner' : 'worker');
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to sign in. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleVerify = (e) => {
-    e.preventDefault();
-    // For demo purposes, if email has 'owner', login as owner, else worker.
-    if (email.toLowerCase().includes('owner')) {
-      onLogin('owner');
-    } else {
-      onLogin('worker');
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    const provider = new GoogleAuthProvider();
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const userEmail = userCredential.user.email || '';
+      // Route based on email for demo purposes
+      onLogin(userEmail.toLowerCase().includes('owner') ? 'owner' : 'worker');
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to sign in with Google.');
+    } finally {
+      setLoading(false);
     }
   };
-
-  if (step === 'verify') {
-    return (
-      <div className="screen flex-col justify-center">
-        <div className="mb-4 text-center">
-          <Settings size={40} color="#DC3545" className="mb-2 mx-auto" />
-          <h2>Verify Your Email</h2>
-          <p>We sent a 6-digit code to {email}</p>
-        </div>
-
-        <form onSubmit={handleVerify} className="flex-col gap-3">
-          <div className="input-group">
-            <label className="input-label">Verification Code</label>
-            <input 
-              type="text" 
-              className="input-field text-center" 
-              placeholder="• • • • • •" 
-              style={{ letterSpacing: '8px', fontSize: '1.5rem' }}
-              maxLength={6}
-              autoFocus
-            />
-          </div>
-          
-          <button type="submit" className="btn btn-primary mt-2">
-            Verify & Login
-          </button>
-          
-          <div className="text-center mt-3">
-            <button type="button" className="btn-secondary" style={{ border: 'none', fontSize: '0.875rem' }} onClick={() => setStep('login')}>
-              Resend Code
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  }
 
   return (
     <div className="screen flex-col justify-center">
       <div className="mb-4 text-center">
-        <Settings size={48} color="#DC3545" className="mb-2 mx-auto" />
+        <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '60px', height: '60px', marginBottom: '0.5rem', objectFit: 'contain' }} className="mx-auto" />
         <h2 className="text-white">Welcome Back</h2>
         <p>Login to your Tumkuru Connect account</p>
         <p className="mt-1" style={{ fontSize: '0.75rem', color: '#DC3545' }}>(Tip: use 'owner' in email for Factory Owner View)</p>
       </div>
 
-      <form onSubmit={handleContinue} className="flex-col gap-3">
+      <form onSubmit={handleEmailSignIn} className="flex-col gap-3">
+        {error && (
+          <div style={{ padding: '0.75rem', backgroundColor: 'rgba(220, 53, 69, 0.1)', color: '#DC3545', borderRadius: 'var(--radius-sm)', fontSize: '0.875rem', border: '1px solid #DC3545' }}>
+            {error}
+          </div>
+        )}
+
         <div className="input-group">
           <label className="input-label">Email Address</label>
           <input 
@@ -86,12 +80,14 @@ export default function Login({ onLogin }) {
             type="password" 
             className="input-field" 
             placeholder="••••••••" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
 
-        <button type="submit" className="btn btn-primary mt-2">
-          Continue with Email
+        <button type="submit" className="btn btn-primary mt-2" disabled={loading}>
+          {loading ? 'Signing In...' : 'Continue with Email'}
         </button>
 
         <div className="flex items-center gap-2 mt-2 mb-2">
@@ -100,7 +96,13 @@ export default function Login({ onLogin }) {
           <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
         </div>
 
-        <button type="button" className="btn btn-secondary flex items-center justify-center gap-2" style={{ backgroundColor: '#ffffff', color: '#000000', border: 'none' }}>
+        <button 
+          type="button" 
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="btn btn-secondary flex items-center justify-center gap-2" 
+          style={{ backgroundColor: '#ffffff', color: '#000000', border: 'none' }}
+        >
           <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
           Sign in with Google
         </button>
