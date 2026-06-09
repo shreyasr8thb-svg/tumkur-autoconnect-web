@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Settings } from 'lucide-react';
 import { auth } from '../firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from 'firebase/auth';
 import logo from '../assets/logo.png';
 
-export default function Login({ onLogin, onCreateProfile }) {
+export default function Login({ onCreateProfile }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,17 +12,23 @@ export default function Login({ onLogin, onCreateProfile }) {
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     if (!email || !password) return;
-    
     setLoading(true);
     setError('');
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const userEmail = userCredential.user.email || '';
-      // Route based on email for demo purposes
-      onLogin(userEmail.toLowerCase().includes('owner') ? 'owner' : 'worker');
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged in UserContext handles the rest
     } catch (err) {
-      console.error(err);
-      setError(err.message || 'Failed to sign in. Please check your credentials.');
+      // Friendly error messages
+      const code = err.code || '';
+      if (code === 'auth/user-not-found' || code === 'auth/invalid-credential') {
+        setError('Account not found. Please create a profile first.');
+      } else if (code === 'auth/wrong-password') {
+        setError('Incorrect password. Please try again.');
+      } else if (code === 'auth/too-many-requests') {
+        setError('Too many attempts. Please wait a moment.');
+      } else {
+        setError(err.message || 'Sign in failed.');
+      }
     } finally {
       setLoading(false);
     }
@@ -32,15 +37,13 @@ export default function Login({ onLogin, onCreateProfile }) {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
-    const provider = new GoogleAuthProvider();
     try {
-      const userCredential = await signInWithPopup(auth, provider);
-      const userEmail = userCredential.user.email || '';
-      // Route based on email for demo purposes
-      onLogin(userEmail.toLowerCase().includes('owner') ? 'owner' : 'worker');
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
     } catch (err) {
-      console.error(err);
-      setError(err.message || 'Failed to sign in with Google.');
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError(err.message || 'Google sign in failed.');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,37 +52,36 @@ export default function Login({ onLogin, onCreateProfile }) {
   return (
     <div className="screen flex-col justify-center">
       <div className="mb-4 text-center">
-        <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '60px', height: '60px', marginBottom: '0.5rem', objectFit: 'contain' }} className="mx-auto" />
+        <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '60px', height: '60px', marginBottom: '0.5rem', objectFit: 'contain' }} />
         <h2 className="text-white">Welcome Back</h2>
         <p>Login to your Tumkuru Connect account</p>
-        <p className="mt-1" style={{ fontSize: '0.75rem', color: '#DC3545' }}>(Tip: use 'owner' in email for Factory Owner View)</p>
       </div>
 
       <form onSubmit={handleEmailSignIn} className="flex-col gap-3">
         {error && (
-          <div style={{ padding: '0.75rem', backgroundColor: 'rgba(220, 53, 69, 0.1)', color: '#DC3545', borderRadius: 'var(--radius-sm)', fontSize: '0.875rem', border: '1px solid #DC3545' }}>
+          <div className="error-banner">
             {error}
           </div>
         )}
 
         <div className="input-group">
           <label className="input-label">Email Address</label>
-          <input 
-            type="email" 
-            className="input-field" 
-            placeholder="worker@tumkur.in" 
+          <input
+            type="email"
+            className="input-field"
+            placeholder="worker@tumkur.in"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        
+
         <div className="input-group">
           <label className="input-label">Password</label>
-          <input 
-            type="password" 
-            className="input-field" 
-            placeholder="••••••••" 
+          <input
+            type="password"
+            className="input-field"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -90,35 +92,27 @@ export default function Login({ onLogin, onCreateProfile }) {
           {loading ? 'Signing In...' : 'Continue with Email'}
         </button>
 
-        <div className="flex items-center gap-2 mt-2 mb-2">
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>OR</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-color)' }}></div>
+        <div className="divider-line">
+          <span>OR</span>
         </div>
 
-        <button 
-          type="button" 
+        <button
+          type="button"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="btn btn-secondary flex items-center justify-center gap-2" 
-          style={{ backgroundColor: '#ffffff', color: '#000000', border: 'none' }}
+          className="btn btn-google"
         >
           <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
           Sign in with Google
         </button>
 
-        <button 
-          type="button" 
+        <button
+          type="button"
           onClick={onCreateProfile}
-          className="btn btn-secondary mt-2" 
-          style={{ borderColor: '#DC3545', color: '#DC3545' }}
+          className="btn btn-outline-red mt-2"
         >
           Create New Profile
         </button>
-
-        <div className="text-center mt-3">
-          <a href="#" className="text-gray" style={{ textDecoration: 'none', fontSize: '0.875rem' }}>Forgot Password?</a>
-        </div>
       </form>
     </div>
   );

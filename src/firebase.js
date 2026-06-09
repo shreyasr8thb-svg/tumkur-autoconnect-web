@@ -1,9 +1,8 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAuqvEA2_4GlnYn6dnEchUVEFJEgjbtWPA",
   authDomain: "spark-a73bb.firebaseapp.com",
@@ -14,7 +13,10 @@ const firebaseConfig = {
   measurementId: "G-7E3VJFJWEG"
 };
 
-// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
-export const auth = getAuth(app); // Also initialize and export auth since it's an authentication flow
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Persist auth state across page refreshes
+setPersistence(auth, browserLocalPersistence).catch(console.error);

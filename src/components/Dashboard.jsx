@@ -1,39 +1,51 @@
 import { useState } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, IndianRupee, CreditCard, ChevronRight, MapPin, Navigation, User, Edit3, Link as LinkIcon, Unlink } from 'lucide-react';
+import {
+  Bell, AlertTriangle, ShieldCheck, Bus, IndianRupee, CreditCard,
+  ChevronRight, MapPin, Navigation, User, Edit3, Link as LinkIcon,
+  Unlink, LogOut, Save, X, Settings, Camera, Phone, Shield
+} from 'lucide-react';
+import { useUser } from '../context/UserContext';
+import logo from '../assets/logo.png';
 
 export default function Dashboard({ onSOS }) {
+  const { profile, signOut } = useUser();
   const [activeTab, setActiveTab] = useState('home');
+  const displayName = profile?.fullName || profile?.email?.split('@')[0] || 'User';
 
   return (
     <div className="flex-col" style={{ flex: 1 }}>
       {/* Top Bar */}
       <div className="flex justify-between items-center p-4 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-panel)' }}>
-        <div className="flex items-center gap-3">
-          <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
-            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div
+          className="flex items-center gap-3"
+          style={{ cursor: 'pointer' }}
+          onClick={() => setActiveTab('profile')}
+        >
+          <div className="avatar-sm">
+            {displayName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <div style={{ fontSize: '0.875rem', color: 'var(--text-gray-light)' }}>Welcome,</div>
-            <div style={{ fontWeight: '600' }}>Ramesh K.</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Welcome,</div>
+            <div style={{ fontWeight: '600' }}>{displayName}</div>
           </div>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', cursor: 'pointer' }}>
           <Bell size={24} color="#ADB5BD" />
-          <div style={{ position: 'absolute', top: 0, right: 0, width: '8px', height: '8px', backgroundColor: '#DC3545', borderRadius: '50%' }}></div>
+          <div className="notification-dot"></div>
         </div>
       </div>
 
       <div className="screen" style={{ overflowY: 'auto' }}>
-        {activeTab === 'home' && <HomeView onSOS={onSOS} />}
+        {activeTab === 'home' && <HomeView onSOS={onSOS} onNavigate={setActiveTab} />}
         {activeTab === 'passport' && <SkillPassportView />}
         {activeTab === 'salary' && <SalaryView />}
         {activeTab === 'bus' && <BusTrackingView />}
         {activeTab === 'access' && <SmartAccessView />}
-        {activeTab === 'profile' && <ProfileView onNavigate={(tab) => setActiveTab(tab)} />}
+        {activeTab === 'profile' && <ProfileView onNavigate={setActiveTab} />}
       </div>
 
       {/* Bottom Navigation */}
-      <div className="flex" style={{ backgroundColor: 'var(--bg-panel)', borderTop: '1px solid var(--border-color)', paddingBottom: '20px' }}>
+      <div className="bottom-nav">
         <NavTab icon={<ShieldCheck size={20} />} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
         <NavTab icon={<CreditCard size={20} />} label="Access" active={activeTab === 'access'} onClick={() => setActiveTab('access')} />
         <NavTab icon={<IndianRupee size={20} />} label="Salary" active={activeTab === 'salary'} onClick={() => setActiveTab('salary')} />
@@ -44,6 +56,7 @@ export default function Dashboard({ onSOS }) {
   );
 }
 
+/* ─── NavTab ─── */
 function NavTab({ icon, label, active, onClick }) {
   return (
     <div className={`nav-tab flex-col items-center gap-1 ${active ? 'active' : ''}`} onClick={onClick}>
@@ -53,54 +66,59 @@ function NavTab({ icon, label, active, onClick }) {
   );
 }
 
-function HomeView({ onSOS }) {
+/* ─── Home View ─── */
+function HomeView({ onSOS, onNavigate }) {
   return (
     <div className="flex-col gap-4">
       {/* SOS Button */}
       <div className="card text-center" style={{ borderColor: 'rgba(220, 53, 69, 0.3)', backgroundColor: 'rgba(220, 53, 69, 0.05)' }}>
-        <button 
+        <button
           onClick={onSOS}
-          className="btn btn-primary flex-col gap-2" 
+          className="btn btn-primary flex-col gap-2"
           style={{ padding: '1.5rem', borderRadius: 'var(--radius-lg)' }}
         >
           <AlertTriangle size={32} />
           <span style={{ fontSize: '1.25rem', fontWeight: '700', letterSpacing: '1px' }}>EMERGENCY SOS</span>
         </button>
-        <p className="mt-2" style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Slide/Tap to Confirm SOS to Factory Security & Police</p>
+        <p className="mt-2" style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Tap to alert Factory Security & Police</p>
       </div>
 
       <h3 className="mt-2">Quick Access</h3>
-      
-      {/* Action Cards Grid */}
+
+      {/* Action Cards Grid — each card is now clickable */}
       <div className="grid-2">
-        <ActionCard 
-          icon={<ShieldCheck size={28} color="#DC3545" />} 
-          title="Skill Passport" 
-          subtitle="Lathe Master (Verified)" 
+        <ActionCard
+          icon={<ShieldCheck size={28} color="#DC3545" />}
+          title="Skill Passport"
+          subtitle="View your badges"
+          onClick={() => onNavigate('passport')}
         />
-        <ActionCard 
-          icon={<Bus size={28} color="#DC3545" />} 
-          title="Live Bus" 
-          subtitle="Next Shuttle: 5 mins" 
+        <ActionCard
+          icon={<Bus size={28} color="#DC3545" />}
+          title="Live Bus"
+          subtitle="Next Shuttle: 5 mins"
+          onClick={() => onNavigate('bus')}
         />
-        <ActionCard 
-          icon={<IndianRupee size={28} color="#DC3545" />} 
-          title="Your Earnings" 
-          subtitle="Total: ₹18,500" 
+        <ActionCard
+          icon={<IndianRupee size={28} color="#DC3545" />}
+          title="Your Earnings"
+          subtitle="Salary comparison"
+          onClick={() => onNavigate('salary')}
         />
-        <ActionCard 
-          icon={<CreditCard size={28} color="#DC3545" />} 
-          title="Smart Access" 
-          subtitle="Canteen Bal: ₹450" 
+        <ActionCard
+          icon={<CreditCard size={28} color="#DC3545" />}
+          title="Smart Access"
+          subtitle="Card & Canteen"
+          onClick={() => onNavigate('access')}
         />
       </div>
     </div>
   );
 }
 
-function ActionCard({ icon, title, subtitle }) {
+function ActionCard({ icon, title, subtitle, onClick }) {
   return (
-    <div className="card flex-col items-start gap-2" style={{ padding: '1rem' }}>
+    <div className="card flex-col items-start gap-2 action-card" style={{ padding: '1rem', cursor: 'pointer' }} onClick={onClick}>
       <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-dark)', borderRadius: 'var(--radius-sm)' }}>
         {icon}
       </div>
@@ -110,21 +128,23 @@ function ActionCard({ icon, title, subtitle }) {
   );
 }
 
+/* ─── Skill Passport View ─── */
 function SkillPassportView() {
+  const { profile } = useUser();
+  const displayName = profile?.fullName || 'User';
+
   return (
     <div className="flex-col gap-4">
       <div className="flex items-center gap-4 mb-2">
-        <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
-          <img src="https://i.pravatar.cc/150?img=11" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
+        <div className="avatar-md">{displayName.charAt(0).toUpperCase()}</div>
         <div>
-          <h2>Ramesh K.</h2>
-          <p>ID: TMR-4492 • Machining Dept</p>
+          <h2>{displayName}</h2>
+          <p>ID: {profile?.employeeId || 'N/A'} • {profile?.department || 'Unassigned'}</p>
         </div>
       </div>
-      
+
       <h3>My Badges</h3>
-      
+
       <div className="card flex gap-3 items-center" style={{ borderLeft: '4px solid #DC3545' }}>
         <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-dark)', borderRadius: 'var(--radius-sm)' }}>
           <Settings size={24} color="#DC3545" />
@@ -138,28 +158,25 @@ function SkillPassportView() {
 
       <div className="card mt-2">
         <h3 className="mb-3" style={{ fontSize: '1rem' }}>Path to Promotion</h3>
-        
-        <div className="flex-col gap-3 position-relative" style={{ borderLeft: '2px dashed var(--border-color)', marginLeft: '1rem', paddingLeft: '1.5rem' }}>
-           <div className="position-relative">
-             <div style={{ position: 'absolute', left: '-1.5rem', top: '0', transform: 'translate(-50%, 0)', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#28a745' }}></div>
-             <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>Lathe Master</div>
-             <div style={{ fontSize: '0.75rem', color: '#28a745' }}>Achieved</div>
-           </div>
-           
-           <div className="position-relative">
-             <div style={{ position: 'absolute', left: '-1.5rem', top: '0', transform: 'translate(-50%, 0)', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#DC3545', border: '2px solid #000' }}></div>
-             <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>CNC Programmer</div>
-             <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-light)' }}>Requires: G-Code Basics, Safety Cert II</div>
-           </div>
-           
-           <div className="position-relative">
-             <div style={{ position: 'absolute', left: '-1.5rem', top: '0', transform: 'translate(-50%, 0)', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'var(--bg-panel)', border: '2px solid var(--border-color)' }}></div>
-             <div style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-gray-dark)' }}>Floor Supervisor</div>
-             <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>Requires: Leadership Basics</div>
-           </div>
+        <div className="promotion-path">
+          <div className="path-node">
+            <div className="path-dot achieved"></div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>Lathe Master</div>
+            <div style={{ fontSize: '0.75rem', color: '#28a745' }}>✓ Achieved</div>
+          </div>
+          <div className="path-node">
+            <div className="path-dot current"></div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>CNC Programmer</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-light)' }}>Requires: G-Code Basics, Safety Cert II</div>
+          </div>
+          <div className="path-node">
+            <div className="path-dot future"></div>
+            <div style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-gray-dark)' }}>Floor Supervisor</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>Requires: Leadership Basics</div>
+          </div>
         </div>
 
-        <button className="btn btn-secondary mt-4 w-100" style={{ borderColor: '#DC3545', color: '#DC3545' }}>
+        <button className="btn btn-outline-red mt-4">
           Request New Badge Verification
         </button>
       </div>
@@ -167,6 +184,7 @@ function SkillPassportView() {
   );
 }
 
+/* ─── Salary View ─── */
 function SalaryView() {
   return (
     <div className="flex-col gap-4">
@@ -176,46 +194,19 @@ function SalaryView() {
       </div>
 
       <div className="grid-2">
-        {/* Tumkur Card */}
         <div className="card" style={{ borderTop: '4px solid #DC3545', backgroundColor: 'rgba(220, 53, 69, 0.05)' }}>
-          <h3 style={{ fontSize: '1.1rem' }}>Tumkur Factory Job</h3>
+          <h3 style={{ fontSize: '1.1rem' }}>Tumkur Factory</h3>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>₹21,000</div>
-          
-          <div className="flex-col gap-2">
-            <div className="flex justify-between">
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Factory Wage</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: '600' }}>₹16,000</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>PF & Gratuity</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: '600' }}>₹2,500</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Welfare (Bus/Med)</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#28a745' }}>+ ₹2,500</span>
-            </div>
-          </div>
+          <SalaryRow label="Factory Wage" value="₹16,000" />
+          <SalaryRow label="PF & Gratuity" value="₹2,500" />
+          <SalaryRow label="Welfare (Bus/Med)" value="+ ₹2,500" color="#28a745" />
         </div>
-
-        {/* Bangalore Card */}
         <div className="card" style={{ borderTop: '4px solid var(--text-gray-dark)' }}>
-          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-gray-light)' }}>B'lore Delivery Gig</h3>
+          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-gray-light)' }}>B'lore Gig</h3>
           <div style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-gray-light)' }}>₹18,500</div>
-          
-          <div className="flex-col gap-2">
-            <div className="flex justify-between">
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-gray-dark)' }}>Gross Earnings</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-gray-dark)' }}>₹25,000</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-gray-dark)' }}>Fuel & Maint.</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#DC3545' }}>- ₹4,000</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-gray-dark)' }}>Rent Diff.</span>
-              <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#DC3545' }}>- ₹2,500</span>
-            </div>
-          </div>
+          <SalaryRow label="Gross Earnings" value="₹25,000" dim />
+          <SalaryRow label="Fuel & Maint." value="- ₹4,000" color="#DC3545" dim />
+          <SalaryRow label="Rent Diff." value="- ₹2,500" color="#DC3545" dim />
         </div>
       </div>
 
@@ -226,41 +217,41 @@ function SalaryView() {
   );
 }
 
+function SalaryRow({ label, value, color, dim }) {
+  const textColor = dim ? 'var(--text-gray-dark)' : 'var(--text-gray-light)';
+  return (
+    <div className="flex justify-between" style={{ marginBottom: '0.5rem' }}>
+      <span style={{ fontSize: '0.8rem', color: textColor }}>{label}</span>
+      <span style={{ fontSize: '0.8rem', fontWeight: '600', color: color || (dim ? 'var(--text-gray-dark)' : 'var(--text-white)') }}>{value}</span>
+    </div>
+  );
+}
+
+/* ─── Bus Tracking View ─── */
 function BusTrackingView() {
   return (
-    <div className="flex-col gap-4 h-full">
+    <div className="flex-col gap-4" style={{ height: '100%' }}>
       <div className="flex justify-between items-center mb-2">
         <h2>Live Shuttle Tracking</h2>
         <div className="flex gap-2 items-center">
-          <div style={{ width: '8px', height: '8px', backgroundColor: '#28a745', borderRadius: '50%' }}></div>
+          <div className="live-dot"></div>
           <span style={{ fontSize: '0.8rem', color: '#28a745' }}>Live</span>
         </div>
       </div>
 
       {/* Map Placeholder */}
-      <div style={{ flex: 1, minHeight: '300px', backgroundColor: '#1a1a1a', borderRadius: 'var(--radius-lg)', position: 'relative', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-        {/* Mock Map Grid Background */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(#2a2a2a 1px, transparent 1px), linear-gradient(90deg, #2a2a2a 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.3 }}></div>
-        
-        {/* Route Line */}
+      <div className="map-container">
+        <div className="map-grid"></div>
         <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
           <path d="M 50 50 Q 150 150 250 100 T 350 250" fill="none" stroke="#DC3545" strokeWidth="4" strokeDasharray="5,5" opacity="0.5" />
         </svg>
-
-        {/* User Dot */}
-        <div style={{ position: 'absolute', left: '50px', top: '50px', transform: 'translate(-50%, -50%)' }}>
-          <div style={{ width: '16px', height: '16px', backgroundColor: '#FFF', borderRadius: '50%', boxShadow: '0 0 10px #FFF' }}></div>
-          <div style={{ position: 'absolute', left: '-4px', top: '-4px', width: '24px', height: '24px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.5)', animation: 'pulse 2s infinite' }}></div>
+        <div className="user-dot" style={{ left: '50px', top: '50px' }}>
+          <div className="dot-inner"></div>
+          <div className="dot-pulse"></div>
         </div>
-
-        {/* Bus Dot */}
-        <div className="flex-col items-center" style={{ position: 'absolute', left: '250px', top: '100px', transform: 'translate(-50%, -50%)' }}>
-          <div style={{ backgroundColor: '#DC3545', padding: '6px', borderRadius: '50%', boxShadow: '0 0 10px #DC3545' }}>
-            <Bus size={16} color="#FFF" />
-          </div>
-          <div style={{ marginTop: '4px', backgroundColor: '#000', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', border: '1px solid #DC3545' }}>
-            T-04
-          </div>
+        <div className="bus-marker" style={{ left: '250px', top: '100px' }}>
+          <div className="bus-icon-wrapper"><Bus size={16} color="#FFF" /></div>
+          <div className="bus-label">T-04</div>
         </div>
       </div>
 
@@ -285,58 +276,44 @@ function BusTrackingView() {
   );
 }
 
+/* ─── Smart Access View ─── */
 function SmartAccessView() {
+  const { profile } = useUser();
   const [activeTab, setActiveTab] = useState('log');
+  const displayName = profile?.fullName || 'User';
 
   return (
     <div className="flex-col gap-4">
       {/* Digital Card */}
-      <div className="card" style={{ 
-        background: 'linear-gradient(135deg, #111111 0%, #1a1a1a 100%)', 
-        border: '1px solid #DC3545', 
-        boxShadow: '0 10px 30px rgba(220, 53, 69, 0.15)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Decorative elements */}
-        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', border: '2px solid rgba(220,53,69,0.2)' }}></div>
-        <div style={{ position: 'absolute', top: '20px', right: '-40px', width: '80px', height: '80px', borderRadius: '50%', border: '2px solid rgba(220,53,69,0.1)' }}></div>
-        
-        <div className="flex justify-between mb-4 position-relative">
+      <div className="digital-card">
+        <div className="card-circle-1"></div>
+        <div className="card-circle-2"></div>
+        <div className="flex justify-between mb-4" style={{ position: 'relative', zIndex: 1 }}>
           <div className="flex gap-2 items-center">
-            <Settings size={20} color="#DC3545" />
-            <span style={{ fontWeight: '600', letterSpacing: '1px' }}>TUMKURU CONNECT</span>
+            <img src={logo} alt="Logo" style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontWeight: '600', letterSpacing: '1px', fontSize: '0.85rem' }}>TUMKURU CONNECT</span>
           </div>
-          <div style={{ fontSize: '0.75rem', padding: '2px 8px', backgroundColor: 'rgba(40, 167, 69, 0.2)', color: '#28a745', borderRadius: 'var(--radius-pill)', fontWeight: '600' }}>
-            ACTIVE
-          </div>
+          <div className="status-badge active">ACTIVE</div>
         </div>
-
-        <div className="flex items-center gap-4 mb-4 position-relative">
-          <div style={{ width: '70px', height: '70px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-dark)', border: '2px solid var(--border-color)', overflow: 'hidden' }}>
-            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
+        <div className="flex items-center gap-4 mb-4" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="avatar-card">{displayName.charAt(0).toUpperCase()}</div>
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: '700' }}>Ramesh Kumar</div>
-            <div style={{ color: 'var(--text-gray-light)', fontSize: '0.9rem' }}>Machinist • TMR-4492</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: '700' }}>{displayName}</div>
+            <div style={{ color: 'var(--text-gray-light)', fontSize: '0.9rem' }}>{profile?.department || 'Worker'} • {profile?.employeeId || 'N/A'}</div>
           </div>
         </div>
-
-        <div className="flex justify-between items-end position-relative">
-           <div>
-             <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>NFC ENABLED</div>
-           </div>
-           <CreditCard size={32} color="var(--text-gray-dark)" opacity={0.5} />
+        <div className="flex justify-between items-end" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>NFC ENABLED</div>
+          <CreditCard size={32} color="var(--text-gray-dark)" opacity={0.5} />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2" style={{ backgroundColor: 'var(--bg-panel)', padding: '0.25rem', borderRadius: 'var(--radius-md)' }}>
+      <div className="tab-bar">
         {['log', 'canteen', 'buspass'].map((tab) => (
-          <button 
+          <button
             key={tab}
-            className={`btn ${activeTab === tab ? '' : 'btn-secondary'}`} 
-            style={{ flex: 1, padding: '0.5rem', fontSize: '0.8rem', backgroundColor: activeTab === tab ? '#DC3545' : 'transparent', border: 'none' }}
+            className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
             onClick={() => setActiveTab(tab)}
           >
             {tab === 'log' ? 'Access Log' : tab === 'canteen' ? 'Canteen' : 'Bus Pass'}
@@ -344,12 +321,11 @@ function SmartAccessView() {
         ))}
       </div>
 
-      {/* Tab Content */}
       <div className="card" style={{ padding: '1rem' }}>
         {activeTab === 'log' && (
           <div className="flex-col gap-3">
             <h4 style={{ color: 'var(--text-gray-light)' }}>Today's Activity</h4>
-            <div className="flex justify-between items-center pb-2 border-b" style={{ borderColor: 'var(--border-color)' }}>
+            <div className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--border-color)' }}>
               <div>
                 <div style={{ fontWeight: '600' }}>Main Gate (In)</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Factory Sector A</div>
@@ -370,12 +346,12 @@ function SmartAccessView() {
           <div className="flex-col gap-3">
             <div className="flex justify-between items-center mb-2">
               <span style={{ color: 'var(--text-gray-light)' }}>Available Balance</span>
-              <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#DC3545' }}>₹450.00</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#DC3545' }}>₹{profile?.canteenBalance || 0}.00</span>
             </div>
             <div className="flex gap-2">
               <button className="btn btn-primary" style={{ padding: '0.75rem', flex: 1 }}>Top Up</button>
               <button className="btn btn-secondary flex items-center justify-center gap-2" style={{ padding: '0.75rem', flex: 1 }}>
-                <Unlink size={16} /> Unlink Card
+                <Unlink size={16} /> Unlink
               </button>
             </div>
             <h4 className="mt-3" style={{ color: 'var(--text-gray-light)' }}>Recent</h4>
@@ -393,16 +369,15 @@ function SmartAccessView() {
           <div className="flex-col gap-3 text-center">
             <div style={{ padding: '1rem', backgroundColor: 'rgba(40, 167, 69, 0.1)', borderRadius: 'var(--radius-sm)', color: '#28a745' }}>
               <div style={{ fontWeight: '600' }}>Valid State Bus Pass</div>
-              <div style={{ fontSize: '0.8rem' }}>Expires: 30 Nov 2024</div>
+              <div style={{ fontSize: '0.8rem' }}>Expires: 30 Nov 2025</div>
             </div>
-            <div style={{ margin: '1rem auto', width: '150px', height: '150px', backgroundColor: '#FFF', padding: '10px' }}>
-              {/* Mock QR Code */}
-              <div style={{ width: '100%', height: '100%', backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)', backgroundSize: '20px 20px', backgroundPosition: '0 0, 10px 10px' }}></div>
+            <div className="qr-placeholder">
+              <div className="qr-pattern"></div>
             </div>
             <div className="flex gap-2">
-              <button className="btn btn-secondary flex-1">Digital Pass</button>
-              <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" style={{ borderColor: '#DC3545', color: '#DC3545' }}>
-                <LinkIcon size={16} /> Link New Pass
+              <button className="btn btn-secondary" style={{ flex: 1 }}>Digital Pass</button>
+              <button className="btn btn-outline-red" style={{ flex: 1 }}>
+                <LinkIcon size={16} /> Link New
               </button>
             </div>
           </div>
@@ -412,78 +387,168 @@ function SmartAccessView() {
   );
 }
 
+/* ─── Profile View — Fully editable ─── */
 function ProfileView({ onNavigate }) {
+  const { profile, updateProfile, signOut } = useUser();
+  const [editing, setEditing] = useState(null); // 'personal', 'work', or null
+  const [formData, setFormData] = useState({});
+
+  const displayName = profile?.fullName || 'User';
+
+  const startEdit = (section) => {
+    if (section === 'personal') {
+      setFormData({
+        fullName: profile?.fullName || '',
+        dob: profile?.dob || '',
+        phone: profile?.phone || '',
+        email: profile?.email || '',
+      });
+    } else if (section === 'work') {
+      setFormData({
+        factoryUnit: profile?.factoryUnit || '',
+        department: profile?.department || '',
+        supervisor: profile?.supervisor || '',
+      });
+    }
+    setEditing(section);
+  };
+
+  const saveEdit = () => {
+    updateProfile(formData);
+    setEditing(null);
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setFormData({});
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   return (
     <div className="flex-col gap-4">
+      {/* Profile Header */}
       <div className="text-center mb-2">
-        <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--border-color)', overflow: 'hidden', margin: '0 auto 1rem auto' }}>
-          <img src="https://i.pravatar.cc/150?img=11" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div className="avatar-lg" style={{ margin: '0 auto 1rem auto' }}>
+          {displayName.charAt(0).toUpperCase()}
         </div>
-        <h2 style={{ marginBottom: '0.25rem' }}>Ramesh K.</h2>
-        <p>Machinist • TMR-4492</p>
+        <h2 style={{ marginBottom: '0.25rem' }}>{displayName}</h2>
+        <p>{profile?.department || 'Worker'} • {profile?.employeeId || 'N/A'}</p>
       </div>
 
+      {/* Personal Info Card */}
       <div className="card flex-col gap-3" style={{ padding: '1rem' }}>
         <h3 className="flex items-center justify-between" style={{ color: 'var(--text-gray-light)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
           <span>Personal Info</span>
-          <Edit3 size={16} />
+          {editing === 'personal' ? (
+            <div className="flex gap-2">
+              <Save size={18} color="#28a745" style={{ cursor: 'pointer' }} onClick={saveEdit} />
+              <X size={18} color="#DC3545" style={{ cursor: 'pointer' }} onClick={cancelEdit} />
+            </div>
+          ) : (
+            <Edit3 size={16} style={{ cursor: 'pointer' }} onClick={() => startEdit('personal')} />
+          )}
         </h3>
-        <div className="flex justify-between">
-          <span style={{ color: 'var(--text-gray-dark)' }}>DOB</span>
-          <span>14 Aug 1990</span>
-        </div>
-        <div className="flex justify-between">
-          <span style={{ color: 'var(--text-gray-dark)' }}>Phone</span>
-          <span>+91 98765 43210</span>
-        </div>
-        <div className="flex justify-between">
-          <span style={{ color: 'var(--text-gray-dark)' }}>Email</span>
-          <span>worker@tumkur.in</span>
-        </div>
+        {editing === 'personal' ? (
+          <div className="flex-col gap-2">
+            <div className="input-group mb-0">
+              <label className="input-label">Full Name</label>
+              <input type="text" name="fullName" className="input-field" value={formData.fullName} onChange={handleChange} />
+            </div>
+            <div className="input-group mb-0">
+              <label className="input-label">Date of Birth</label>
+              <input type="date" name="dob" className="input-field" value={formData.dob} onChange={handleChange} />
+            </div>
+            <div className="input-group mb-0">
+              <label className="input-label">Phone</label>
+              <input type="tel" name="phone" className="input-field" value={formData.phone} onChange={handleChange} />
+            </div>
+          </div>
+        ) : (
+          <>
+            <ProfileRow label="Name" value={profile?.fullName || '—'} />
+            <ProfileRow label="DOB" value={profile?.dob || '—'} />
+            <ProfileRow label="Phone" value={profile?.phone || '—'} />
+            <ProfileRow label="Email" value={profile?.email || '—'} />
+          </>
+        )}
       </div>
 
+      {/* Work Records Card */}
       <div className="card flex-col gap-3" style={{ padding: '1rem' }}>
         <h3 className="flex items-center justify-between" style={{ color: 'var(--text-gray-light)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
           <span>Work Records</span>
-          <Edit3 size={16} />
+          {editing === 'work' ? (
+            <div className="flex gap-2">
+              <Save size={18} color="#28a745" style={{ cursor: 'pointer' }} onClick={saveEdit} />
+              <X size={18} color="#DC3545" style={{ cursor: 'pointer' }} onClick={cancelEdit} />
+            </div>
+          ) : (
+            <Edit3 size={16} style={{ cursor: 'pointer' }} onClick={() => startEdit('work')} />
+          )}
         </h3>
-        <div className="flex justify-between">
-          <span style={{ color: 'var(--text-gray-dark)' }}>Unit</span>
-          <span>Sri Sai Auto</span>
-        </div>
-        <div className="flex justify-between">
-          <span style={{ color: 'var(--text-gray-dark)' }}>Dept</span>
-          <span>Machining</span>
-        </div>
-        <div className="flex justify-between">
-          <span style={{ color: 'var(--text-gray-dark)' }}>Supervisor</span>
-          <span>Suresh M.</span>
-        </div>
+        {editing === 'work' ? (
+          <div className="flex-col gap-2">
+            <div className="input-group mb-0">
+              <label className="input-label">Factory Unit</label>
+              <select name="factoryUnit" className="input-field" value={formData.factoryUnit} onChange={handleChange}>
+                <option value="">Select...</option>
+                <option value="Sri Sai Auto Components">Sri Sai Auto Components</option>
+                <option value="Tumkur Machining Hub">Tumkur Machining Hub</option>
+                <option value="Precision Parts Pvt Ltd">Precision Parts Pvt Ltd</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div className="input-group mb-0">
+              <label className="input-label">Department</label>
+              <input type="text" name="department" className="input-field" value={formData.department} onChange={handleChange} />
+            </div>
+            <div className="input-group mb-0">
+              <label className="input-label">Supervisor</label>
+              <input type="text" name="supervisor" className="input-field" value={formData.supervisor} onChange={handleChange} />
+            </div>
+          </div>
+        ) : (
+          <>
+            <ProfileRow label="Unit" value={profile?.factoryUnit || '—'} />
+            <ProfileRow label="Dept" value={profile?.department || '—'} />
+            <ProfileRow label="Supervisor" value={profile?.supervisor || '—'} />
+          </>
+        )}
       </div>
 
-      <div className="card flex justify-between items-center" style={{ padding: '1.25rem 1rem', cursor: 'pointer' }} onClick={() => onNavigate('passport')}>
-        <div className="flex items-center gap-3">
-          <ShieldCheck size={24} color="#DC3545" />
-          <span style={{ fontWeight: '600' }}>Skill Passport</span>
-        </div>
-        <ChevronRight size={20} color="var(--text-gray-dark)" />
-      </div>
+      {/* Navigation Cards */}
+      <NavCard icon={<ShieldCheck size={24} color="#DC3545" />} label="Skill Passport" onClick={() => onNavigate('passport')} />
+      <NavCard icon={<CreditCard size={24} color="#DC3545" />} label="Linked Cards" onClick={() => onNavigate('access')} />
+      <NavCard icon={<Phone size={24} color="#DC3545" />} label="Emergency Contacts" onClick={() => {}} />
 
-      <div className="card flex justify-between items-center" style={{ padding: '1.25rem 1rem', cursor: 'pointer' }} onClick={() => onNavigate('access')}>
-        <div className="flex items-center gap-3">
-          <CreditCard size={24} color="#DC3545" />
-          <span style={{ fontWeight: '600' }}>Linked Cards</span>
-        </div>
-        <ChevronRight size={20} color="var(--text-gray-dark)" />
-      </div>
+      {/* Sign Out */}
+      <button className="btn btn-secondary flex items-center justify-center gap-2 mt-2" style={{ color: '#DC3545', borderColor: '#DC3545' }} onClick={signOut}>
+        <LogOut size={18} /> Sign Out
+      </button>
+    </div>
+  );
+}
 
-      <div className="card flex justify-between items-center" style={{ padding: '1.25rem 1rem', cursor: 'pointer' }}>
-        <div className="flex items-center gap-3">
-          <AlertTriangle size={24} color="#DC3545" />
-          <span style={{ fontWeight: '600' }}>Emergency Contacts</span>
-        </div>
-        <ChevronRight size={20} color="var(--text-gray-dark)" />
+function ProfileRow({ label, value }) {
+  return (
+    <div className="flex justify-between">
+      <span style={{ color: 'var(--text-gray-dark)' }}>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
+function NavCard({ icon, label, onClick }) {
+  return (
+    <div className="card flex justify-between items-center action-card" style={{ padding: '1.25rem 1rem', cursor: 'pointer' }} onClick={onClick}>
+      <div className="flex items-center gap-3">
+        {icon}
+        <span style={{ fontWeight: '600' }}>{label}</span>
       </div>
+      <ChevronRight size={20} color="var(--text-gray-dark)" />
     </div>
   );
 }
