@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { Truck, Navigation, Users, User, AlertTriangle, Power, MessageSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Truck, Navigation, Users, User, AlertTriangle, Power, MessageSquare, Check } from 'lucide-react';
+import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
@@ -60,18 +62,56 @@ function BottomNav({ tab, setTab, tabs }) {
 }
 
 function DriveMode({ active, setActive }) {
+  const { user, profile } = useUser();
+  const [pendingRides, setPendingRides] = useState([]);
+  const [activeRide, setActiveRide] = useState(null);
+
+  useEffect(() => {
+    if (!active) { setPendingRides([]); return; }
+    const q = query(collection(db, 'rides'), where('status', '==', 'pending'));
+    const unsub = onSnapshot(q, (snap) => {
+      setPendingRides(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [active]);
+
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, 'rides'), where('driverId', '==', user.uid));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const docSnap = snap.docs[0];
+        setActiveRide({ id: docSnap.id, ...docSnap.data() });
+      } else {
+        setActiveRide(null);
+      }
+    });
+    return () => unsub();
+  }, [user]);
+
+  const acceptRide = async (ride) => {
+    await updateDoc(doc(db, 'rides', ride.id), {
+      status: 'accepted', driverId: user.uid, driverName: profile?.fullName || 'Driver'
+    });
+  };
+
+  const completeRide = async () => {
+    if (!activeRide) return;
+    await deleteDoc(doc(db, 'rides', activeRide.id));
+  };
+
   return (
     <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
       {/* Full Screen Map */}
       <div style={{ position: 'absolute', inset: 0, bottom: '60px' }}>
-        <LiveMap height="100%" showRoute={active} fullScreen={true} />
+        <LiveMap height="100%" showRoute={!!activeRide} fullScreen={true} />
       </div>
 
       {/* Floating Status Bar at Top */}
       <div style={{ position: 'absolute', top: 20, left: 20, right: 20, zIndex: 40 }} className="flex justify-between items-start">
         <div className="glass-card flex items-center gap-2 px-4 py-2" style={{ borderRadius: 30, background: 'rgba(2, 6, 23, 0.85)' }}>
            <div className={`status-dot ${active ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`} style={{ width:10, height:10, borderRadius:'50%' }}></div>
-           <strong style={{ fontSize: '0.85rem' }}>{active ? 'ONLINE • T-04' : 'OFFLINE'}</strong>
+           <strong style={{ fontSize: '0.85rem' }}>{active ? (activeRide ? 'ON TRIP' : 'ONLINE') : 'OFFLINE'}</strong>
         </div>
         {active && (
           <div className="glass-card flex-col items-center p-2" style={{ borderRadius: 16, background: 'rgba(2, 6, 23, 0.85)' }}>
@@ -81,7 +121,24 @@ function DriveMode({ active, setActive }) {
         )}
       </div>
 
-      {/* Bottom Sheet Overlay (Uber Style) */}
+      {/* Incoming Ride Requests Overlay */}
+      {active && !activeRide && pendingRides.length > 0 && (
+        <div style={{ position: 'absolute', top: 80, left: 10, right: 10, zIndex: 50, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {pendingRides.map(r => (
+            <div key={r.id} className="glass-card flex justify-between items-center" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '2px solid #3b82f6' }}>
+              <div>
+                <strong style={{ fontSize: '1.1rem', color: '#f8fafc' }}>{r.workerName}</strong>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>To: {r.dropoff}</div>
+              </div>
+              <button className="btn btn-primary flex items-center gap-2" style={{ background: '#3b82f6', border: 'none' }} onClick={() => acceptRide(r)}>
+                <Check size={16} /> Accept
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Bottom Sheet Overlay */}
       <div className="driver-bottom-sheet glass-card" style={{ 
         position: 'absolute', bottom: 80, left: 10, right: 10, 
         zIndex: 40, padding: '1.5rem', background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)' 
@@ -89,50 +146,42 @@ function DriveMode({ active, setActive }) {
         {!active ? (
           <div className="flex-col items-center gap-4">
             <h2 style={{ margin: 0 }}>You're Offline</h2>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>Go online to start receiving passenger location broadcasts and factory route updates.</p>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>Go online to start receiving passenger ride requests.</p>
             <button 
               className="btn btn-primary w-100" 
-              style={{ padding: '1.2rem', fontSize: '1.1rem', borderRadius: 30, background: 'linear-gradient(135deg, #16a34a, #22c55e)' }}
+              style={{ padding: '1.2rem', fontSize: '1.1rem', borderRadius: 30, background: 'linear-gradient(135deg, #16a34a, #22c55e)', border: 'none' }}
               onClick={() => setActive(true)}
             >
               GO ONLINE
             </button>
           </div>
-        ) : (
+        ) : activeRide ? (
           <div className="flex-col gap-4">
             <div className="flex justify-between items-center pb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                <div>
-                 <h3 style={{ margin: 0, color: '#f8fafc' }}>Next Stop</h3>
-                 <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>VasanthNagar Cross • 5 mins</p>
+                 <h3 style={{ margin: 0, color: '#f8fafc' }}>Pick Up {activeRide.workerName}</h3>
+                 <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>Dropoff: {activeRide.dropoff}</p>
                </div>
-               <div className="flex items-center justify-center bg-red-500" style={{ width: 45, height: 45, borderRadius: '50%' }}>
+               <div className="flex items-center justify-center bg-blue-500" style={{ width: 45, height: 45, borderRadius: '50%' }}>
                  <Navigation size={24} color="#fff" />
                </div>
             </div>
-            
-            <div className="flex justify-between">
-              <div className="flex-col items-center">
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Scanned</span>
-                <strong style={{ fontSize: '1.2rem' }}>32<span style={{ fontSize: '0.8rem', color: '#64748b' }}>/40</span></strong>
-              </div>
-              <div className="flex-col items-center">
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Route</span>
-                <strong style={{ fontSize: '1.2rem' }}>T-04</strong>
-              </div>
-              <div className="flex-col items-center">
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>ETA</span>
-                <strong style={{ fontSize: '1.2rem', color: '#f87171' }}>08:15 AM</strong>
-              </div>
-            </div>
-
-            <button 
-              className="btn btn-ghost w-100" 
+            <button className="btn btn-primary w-100" style={{ padding: '1rem', borderRadius: 30, background: '#3b82f6', border: 'none' }} onClick={completeRide}>
+              Complete Trip
+            </button>
+          </div>
+        ) : (
+           <div className="flex-col items-center gap-3">
+             <div className="spinner" style={{ borderColor: '#333', borderTopColor: '#3b82f6' }}></div>
+             <p style={{ margin: 0, color: '#94a3b8' }}>Finding passengers...</p>
+             <button 
+              className="btn btn-ghost w-100 mt-2" 
               style={{ padding: '1rem', borderRadius: 30, border: '1px solid rgba(239, 68, 68, 0.4)', color: '#f87171' }}
               onClick={() => setActive(false)}
             >
               GO OFFLINE
             </button>
-          </div>
+           </div>
         )}
       </div>
     </div>

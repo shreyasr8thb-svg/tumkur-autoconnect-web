@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload } from 'lucide-react';
+import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
@@ -18,7 +20,7 @@ export default function WorkerDashboard({ onSOS }) {
         {tab === 'home' && <Home onSOS={onSOS} go={setTab} />}
         {tab === 'passport' && <SkillPassport />}
         {tab === 'salary' && <Salary />}
-        {tab === 'bus' && <BusTracking />}
+        {tab === 'bus' && <RideHailing />}
         {tab === 'access' && <SmartAccess />}
         {tab === 'feed' && <Feed />}
         {tab === 'profile' && <ProfileView onNavigate={setTab} />}
@@ -27,7 +29,7 @@ export default function WorkerDashboard({ onSOS }) {
         { id: 'home', icon: <ShieldCheck size={20}/>, label: 'Home' },
         { id: 'access', icon: <CreditCard size={20}/>, label: 'Access' },
         { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
-        { id: 'bus', icon: <Bus size={20}/>, label: 'Bus' },
+        { id: 'bus', icon: <Car size={20}/>, label: 'Ride' },
         { id: 'profile', icon: <User size={20}/>, label: 'Profile' },
       ]} />
     </div>
@@ -76,7 +78,7 @@ function Home({ onSOS, go }) {
       <h3 style={{ color: '#e2e8f0' }}>Quick Access</h3>
       <div className="grid-2">
         <QCard icon={<ShieldCheck size={24} color="#f87171"/>} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
-        <QCard icon={<Bus size={24} color="#f87171"/>} title="Live Bus" sub="Track shuttle" onClick={() => go('bus')} />
+        <QCard icon={<Car size={24} color="#f87171"/>} title="Book Ride" sub="Factory cab" onClick={() => go('bus')} />
         <QCard icon={<IndianRupee size={24} color="#f87171"/>} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
         <QCard icon={<CreditCard size={24} color="#f87171"/>} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
       </div>
@@ -180,23 +182,68 @@ function SRow({ l, v, c, d }) {
   return <div className="flex justify-between" style={{ marginBottom: 4 }}><span style={{ fontSize: '0.78rem', color: d ? '#475569' : '#94a3b8' }}>{l}</span><span style={{ fontSize: '0.78rem', fontWeight: 600, color: c || (d ? '#475569' : '#e2e8f0') }}>{v}</span></div>;
 }
 
-/* ─── Bus Tracking ─── */
-function BusTracking() {
+/* ─── Ride Hailing (Cab) ─── */
+function RideHailing() {
+  const { user, profile } = useUser();
+  const [ride, setRide] = useState(null);
+  const [dropoff, setDropoff] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    const unsub = onSnapshot(doc(db, 'rides', user.uid), (docRef) => {
+      if (docRef.exists()) setRide(docRef.data());
+      else setRide(null);
+    });
+    return () => unsub();
+  }, [user]);
+
+  const requestRide = async () => {
+    if (!dropoff) return;
+    await setDoc(doc(db, 'rides', user.uid), {
+      workerId: user.uid, workerName: profile?.fullName || 'Worker',
+      pickup: 'Current Location', dropoff,
+      status: 'pending', driverId: null, driverName: null, timestamp: Date.now()
+    });
+  };
+
   return (
-    <div className="flex-col gap-3" style={{ height: '100%' }}>
-      <div className="flex justify-between items-center">
-        <h2>Live Shuttle</h2>
-        <div className="flex items-center gap-2"><div className="live-dot" /><span style={{ fontSize: '0.8rem', color: '#4ade80' }}>Live GPS</span></div>
+    <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
+      <div style={{ position: 'absolute', inset: 0, bottom: '60px' }}>
+        <LiveMap height="100%" fullScreen={true} showRoute={ride?.status === 'accepted'} />
       </div>
-      <LiveMap height="300px" showBuses showRoute />
-      <div className="glass-card">
-        <div className="flex justify-between items-center">
-          <div className="flex gap-3 items-center">
-            <div className="icon-box"><Navigation size={22} color="#f87171" /></div>
-            <div><strong>Route T-04</strong><div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>32/40 Seats</div></div>
+
+      <div className="driver-bottom-sheet glass-card" style={{ position: 'absolute', bottom: 80, left: 10, right: 10, zIndex: 40, padding: '1.2rem', background: 'rgba(15, 23, 42, 0.95)' }}>
+        {!ride ? (
+          <div className="flex-col gap-3">
+            <h3 style={{ margin: 0 }}>Where to?</h3>
+            <div className="input-group mb-0 flex items-center gap-2" style={{ background: 'rgba(0,0,0,0.3)', padding: 8, borderRadius: 8 }}>
+              <Search size={18} color="#94a3b8" />
+              <input style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%' }} placeholder="Search destination (e.g. Factory Sector B)" value={dropoff} onChange={e => setDropoff(e.target.value)} />
+            </div>
+            <button className="btn btn-primary mt-2" disabled={!dropoff} onClick={requestRide}>Request Factory Cab</button>
           </div>
-          <div className="text-right"><div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f87171' }}>5 min</div><div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>ETA</div></div>
-        </div>
+        ) : ride.status === 'pending' ? (
+          <div className="flex-col items-center gap-3 py-2">
+            <div className="spinner" style={{ borderColor: '#333', borderTopColor: '#4ade80' }} />
+            <h3 style={{ margin: 0 }}>Finding your driver...</h3>
+            <button className="btn btn-ghost mt-2" style={{ color: '#f87171' }} onClick={() => deleteDoc(doc(db, 'rides', user.uid))}>Cancel Request</button>
+          </div>
+        ) : (
+          <div className="flex-col gap-3">
+            <div className="flex justify-between items-center border-b-dark pb-2">
+              <div>
+                <h3 style={{ margin: 0, color: '#4ade80' }}>Driver Accepted!</h3>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>{ride.driverName} is arriving in 3 mins</p>
+              </div>
+              <div className="avatar-sm bg-green-500">{ride.driverName.charAt(0)}</div>
+            </div>
+            <div className="flex gap-2 items-center">
+               <Car size={20} color="#94a3b8" />
+               <strong style={{ fontSize: '1.1rem' }}>KA-06-TC-1234</strong>
+            </div>
+            <button className="btn btn-ghost mt-1" style={{ color: '#f87171' }} onClick={() => deleteDoc(doc(db, 'rides', user.uid))}>Cancel Ride</button>
+          </div>
+        )}
       </div>
     </div>
   );
