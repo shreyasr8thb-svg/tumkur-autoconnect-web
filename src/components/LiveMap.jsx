@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useUser } from '../context/UserContext';
 import 'leaflet/dist/leaflet.css';
 
-export default function LiveMap({ height = '300px', showBuses = false, showRoute = false }) {
+export default function LiveMap({ height = '300px', showBuses = false, showRoute = false, fullScreen = false }) {
   const { location } = useUser();
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -53,6 +53,7 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
       }
 
       mapInstance.current = map;
+      setTimeout(() => map.invalidateSize(), 500);
     });
 
     return () => {
@@ -67,5 +68,17 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
     }
   }, [location]);
 
-  return <div ref={mapRef} style={{ height, borderRadius: 16, overflow: 'hidden', border: '1px solid #1e293b' }} />;
+  return (
+    <div 
+      ref={mapRef} 
+      style={{ 
+        height, 
+        width: '100%',
+        borderRadius: fullScreen ? 0 : 16, 
+        overflow: 'hidden', 
+        border: fullScreen ? 'none' : '1px solid #1e293b',
+        zIndex: 10
+      }} 
+    />
+  );
 }

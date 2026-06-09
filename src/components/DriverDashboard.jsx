@@ -64,7 +64,7 @@ function DriveMode({ active, setActive }) {
     <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
       {/* Full Screen Map */}
       <div style={{ position: 'absolute', inset: 0, bottom: '60px' }}>
-        <LiveMap height="100%" showRoute={active} />
+        <LiveMap height="100%" showRoute={active} fullScreen={true} />
       </div>
 
       {/* Floating Status Bar at Top */}

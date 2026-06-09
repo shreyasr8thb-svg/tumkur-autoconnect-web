@@ -12,17 +12,13 @@ import SOSAlert from './components/SOSAlert'
 function AppContent() {
   const { user, profile, loading, toast, signOut } = useUser()
   const [showSplash, setShowSplash] = useState(true)
-  const [isSOSActive, setIsSOSActive] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
 
   const handleSOS = () => {
-    setIsSOSActive(true)
     window.location.href = 'tel:112'
   }
 
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2200); return () => clearTimeout(t); }, [])
-
-  if (isSOSActive) return <SOSAlert onCancel={() => setIsSOSActive(false)} />
 
   if (showSplash) return <div className="app-shell"><Splash /></div>
 
