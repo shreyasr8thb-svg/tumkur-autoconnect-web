@@ -4,6 +4,7 @@ import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import logo from '../assets/logo.png';
+import { useUser } from '../context/UserContext';
 
 const ROLES = [
   { id: 'worker', label: 'Factory Worker', icon: <User size={20} />, desc: 'I work in a factory' },
