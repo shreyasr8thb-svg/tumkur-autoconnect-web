@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signOut as firebaseSignOut, deleteUser } from 'firebase/auth';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 
 const UserContext = createContext(null);
 
@@ -72,10 +72,28 @@ export function UserProvider({ children }) {
   };
 
   const signOut = async () => { await firebaseSignOut(auth); setUser(null); setProfile(null); };
+  
+  const deleteProfile = async () => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, 'users', user.uid));
+      await deleteUser(user);
+      setUser(null);
+      setProfile(null);
+      showToast('Profile deleted');
+    } catch (err) {
+      if (err.code === 'auth/requires-recent-login') {
+        alert('Please sign out and sign in again before deleting your profile.');
+      } else {
+        alert('Failed to delete profile: ' + err.message);
+      }
+    }
+  };
+
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
 
   return (
-    <UserContext.Provider value={{ user, profile, loading, updateProfile, signOut, toast, showToast, location }}>
+    <UserContext.Provider value={{ user, profile, loading, updateProfile, deleteProfile, signOut, toast, showToast, location }}>
       {children}
     </UserContext.Provider>
   );

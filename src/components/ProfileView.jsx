@@ -3,7 +3,7 @@ import { useUser } from '../context/UserContext';
 import { Edit3, Save, X, LogOut, Camera, Upload, ShieldCheck, CreditCard, Phone, ChevronRight } from 'lucide-react';
 
 export default function ProfileView({ onNavigate }) {
-  const { profile, updateProfile, signOut } = useUser();
+  const { profile, updateProfile, signOut, deleteProfile } = useUser();
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({});
   const photoRef = useRef(null);
@@ -159,9 +159,18 @@ export default function ProfileView({ onNavigate }) {
         </>
       )}
 
-      <button className="btn btn-ghost mt-2" style={{ color: '#f87171' }} onClick={signOut}>
-        <LogOut size={18} /> Sign Out
-      </button>
+      <div className="flex gap-2 mt-2">
+        <button className="btn btn-ghost flex-1" style={{ color: '#94a3b8' }} onClick={signOut}>
+          <LogOut size={18} /> Sign Out
+        </button>
+        <button 
+          className="btn btn-ghost flex-1" 
+          style={{ color: '#ef4444' }} 
+          onClick={() => { if(window.confirm('Are you sure you want to permanently delete your profile?')) deleteProfile(); }}
+        >
+          <X size={18} /> Delete Profile
+        </button>
+      </div>
     </div>
   );
 }
