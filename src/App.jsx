@@ -10,7 +10,7 @@ import HRDashboard from './components/HRDashboard'
 import SOSAlert from './components/SOSAlert'
 
 function AppContent() {
-  const { user, profile, loading, toast } = useUser()
+  const { user, profile, loading, toast, signOut } = useUser()
   const [showSplash, setShowSplash] = useState(true)
   const [isSOSActive, setIsSOSActive] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
@@ -37,6 +37,17 @@ function AppContent() {
       }
     </div>
   )
+
+  if (profile && !profile.profileComplete) {
+    return (
+      <div className="app-shell">
+        <ProfileCreation 
+          isCompleting={true} 
+          onCancel={() => signOut()} 
+        />
+      </div>
+    )
+  }
 
   const role = profile?.role || 'worker'
 

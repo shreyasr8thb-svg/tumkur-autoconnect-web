@@ -12,7 +12,8 @@ const ROLES = [
   { id: 'hr', label: 'HR / Owner', icon: <Users size={20} />, desc: 'I manage a factory' },
 ];
 
-export default function ProfileCreation({ onCancel }) {
+export default function ProfileCreation({ onCancel, isCompleting = false }) {
+  const { user, updateProfile: updateCtxProfile } = useUser();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,9 +21,9 @@ export default function ProfileCreation({ onCancel }) {
   const idRef = useRef(null);
 
   const [form, setForm] = useState({
-    email: '', password: '', confirmPassword: '', fullName: '', dob: '', phone: '',
+    email: user?.email || '', password: '', confirmPassword: '', fullName: user?.displayName || '', dob: '', phone: '',
     factoryUnit: '', department: '', supervisor: '', careerGoal: '', role: 'worker',
-    photoURL: '', idCardURL: '', emergencyContact: '', bloodGroup: '', address: '',
+    photoURL: user?.photoURL || '', idCardURL: '', emergencyContact: '', bloodGroup: '', address: '',
   });
 
   const set = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,9 +39,9 @@ export default function ProfileCreation({ onCancel }) {
 
   const next = () => {
     if (step === 1) {
-      if (!form.fullName || !form.email || !form.password) { setError('Name, email and password required.'); return; }
-      if (form.password.length < 6) { setError('Password must be 6+ characters.'); return; }
-      if (form.password !== form.confirmPassword) { setError('Passwords don\'t match.'); return; }
+      if (!form.fullName || !form.email || (!isCompleting && !form.password)) { setError('Name, email and password required.'); return; }
+      if (!isCompleting && form.password.length < 6) { setError('Password must be 6+ characters.'); return; }
+      if (!isCompleting && form.password !== form.confirmPassword) { setError('Passwords don\'t match.'); return; }
     }
     setError(''); setStep(step + 1);
   };
@@ -48,13 +49,26 @@ export default function ProfileCreation({ onCancel }) {
   const submit = async (e) => {
     e.preventDefault(); setLoading(true); setError('');
     try {
-      const cred = await createUserWithEmailAndPassword(auth, form.email, form.password);
-      await updateProfile(cred.user, { displayName: form.fullName, photoURL: form.photoURL || '' });
+      let currentUid = user?.uid;
+      
+      if (!isCompleting) {
+        const cred = await createUserWithEmailAndPassword(auth, form.email, form.password);
+        await updateProfile(cred.user, { displayName: form.fullName, photoURL: form.photoURL || '' });
+        currentUid = cred.user.uid;
+      } else {
+        await updateProfile(user, { displayName: form.fullName, photoURL: form.photoURL || '' });
+      }
+      
       const data = { ...form, password: undefined, confirmPassword: undefined,
         employeeId: `TMR-${Math.floor(1000+Math.random()*9000)}`, canteenBalance: 500,
         profileComplete: true, createdAt: new Date().toISOString() };
       delete data.password; delete data.confirmPassword;
-      try { await setDoc(doc(db, 'users', cred.user.uid), data); } catch {}
+      
+      try { await setDoc(doc(db, 'users', currentUid), data, { merge: true }); } catch {}
+      
+      if (isCompleting && updateCtxProfile) {
+        updateCtxProfile(data);
+      }
     } catch (err) {
       setError(err.code === 'auth/email-already-in-use' ? 'Email already registered.' : err.message || 'Failed.');
       setLoading(false);
@@ -86,9 +100,13 @@ export default function ProfileCreation({ onCancel }) {
             <div className="flex-col gap-3 flex-1">
               <h3>Identity Details</h3>
               <Input label="Full Name *" name="fullName" value={form.fullName} onChange={set} />
-              <Input label="Email *" name="email" type="email" value={form.email} onChange={set} />
-              <Input label="Password *" name="password" type="password" value={form.password} onChange={set} placeholder="Min 6 chars" />
-              <Input label="Confirm Password *" name="confirmPassword" type="password" value={form.confirmPassword} onChange={set} />
+              <Input label="Email *" name="email" type="email" value={form.email} onChange={set} disabled={isCompleting} />
+              {!isCompleting && (
+                <>
+                  <Input label="Password *" name="password" type="password" value={form.password} onChange={set} placeholder="Min 6 chars" />
+                  <Input label="Confirm Password *" name="confirmPassword" type="password" value={form.confirmPassword} onChange={set} />
+                </>
+              )}
               <Input label="Phone" name="phone" type="tel" value={form.phone} onChange={set} placeholder="+91" />
               <Input label="Date of Birth" name="dob" type="date" value={form.dob} onChange={set} />
             </div>
