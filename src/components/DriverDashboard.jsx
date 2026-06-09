@@ -62,9 +62,10 @@ function BottomNav({ tab, setTab, tabs }) {
 }
 
 function DriveMode({ active, setActive }) {
-  const { user, profile } = useUser();
+  const { user, profile, showToast } = useUser();
   const [pendingRides, setPendingRides] = useState([]);
   const [activeRide, setActiveRide] = useState(null);
+  const [otpInput, setOtpInput] = useState('');
 
   useEffect(() => {
     if (!active) { setPendingRides([]); return; }
@@ -91,8 +92,23 @@ function DriveMode({ active, setActive }) {
 
   const acceptRide = async (ride) => {
     await updateDoc(doc(db, 'rides', ride.id), {
-      status: 'accepted', driverId: user.uid, driverName: profile?.fullName || 'Driver'
+      status: 'accepted', 
+      driverId: user.uid, 
+      driverName: profile?.fullName || 'Driver',
+      driverPhoto: profile?.photoURL || '',
+      vehicleModel: profile?.vehicleModel || 'Factory Cab',
+      vehicleNumber: profile?.vehicleNumber || 'KA-XX-XXXX'
     });
+  };
+
+  const startTrip = async () => {
+    if (otpInput === activeRide.otp) {
+      await updateDoc(doc(db, 'rides', activeRide.id), { status: 'in-progress' });
+      showToast('Trip Started!');
+      setOtpInput('');
+    } else {
+      showToast('Invalid OTP');
+    }
   };
 
   const completeRide = async () => {
@@ -162,13 +178,31 @@ function DriveMode({ active, setActive }) {
                  <h3 style={{ margin: 0, color: '#f8fafc' }}>Pick Up {activeRide.workerName}</h3>
                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>Dropoff: {activeRide.dropoff}</p>
                </div>
-               <div className="flex items-center justify-center bg-blue-500" style={{ width: 45, height: 45, borderRadius: '50%' }}>
+               <div className="flex items-center justify-center bg-red-500" style={{ width: 45, height: 45, borderRadius: '50%' }}>
                  <Navigation size={24} color="#fff" />
                </div>
             </div>
-            <button className="btn btn-primary w-100" style={{ padding: '1rem', borderRadius: 30, background: '#3b82f6', border: 'none' }} onClick={completeRide}>
-              Complete Trip
-            </button>
+            
+            {activeRide.status === 'accepted' ? (
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  className="input-field flex-1 text-center" 
+                  placeholder="Enter 4-digit OTP" 
+                  maxLength={4}
+                  value={otpInput}
+                  onChange={e => setOtpInput(e.target.value)}
+                  style={{ fontSize: '1.2rem', letterSpacing: 4, background: 'rgba(0,0,0,0.3)' }}
+                />
+                <button className="btn btn-primary" style={{ padding: '0 1.5rem', background: '#3b82f6', border: 'none' }} onClick={startTrip}>
+                  Start Trip
+                </button>
+              </div>
+            ) : (
+              <button className="btn btn-primary w-100" style={{ padding: '1rem', borderRadius: 30, background: '#22c55e', border: 'none' }} onClick={completeRide}>
+                Complete Trip
+              </button>
+            )}
           </div>
         ) : (
            <div className="flex-col items-center gap-3">

@@ -8,6 +8,7 @@ export default function ProfileView({ onNavigate }) {
   const [form, setForm] = useState({});
   const photoRef = useRef(null);
   const idRef = useRef(null);
+  const dlRef = useRef(null);
   const name = profile?.fullName || 'User';
 
   const startEdit = (s) => {
@@ -15,6 +16,8 @@ export default function ProfileView({ onNavigate }) {
       ? { fullName: profile?.fullName||'', dob: profile?.dob||'', phone: profile?.phone||'', emergencyContact: profile?.emergencyContact||'', bloodGroup: profile?.bloodGroup||'', address: profile?.address||'', aadhar: profile?.aadhar||'' }
       : s === 'emergency'
       ? { emName1: profile?.emName1||'', emPhone1: profile?.emPhone1||'', emName2: profile?.emName2||'', emPhone2: profile?.emPhone2||'' }
+      : s === 'vehicle'
+      ? { vehicleModel: profile?.vehicleModel||'', vehicleNumber: profile?.vehicleNumber||'' }
       : { factoryUnit: profile?.factoryUnit||'', department: profile?.department||'', supervisor: profile?.supervisor||'' };
     setForm(fields); setEditing(s);
   };
@@ -146,6 +149,45 @@ export default function ProfileView({ onNavigate }) {
           </div>
         )}
       </div>
+
+      {/* Driver Specifics */}
+      {profile?.role === 'driver' && (
+        <>
+          <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
+            <div className="flex justify-between items-center">
+              <h4 style={{ color: '#94a3b8', margin: 0 }}>Vehicle Details</h4>
+              {editing === 'vehicle'
+                ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
+                : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('vehicle')} />
+              }
+            </div>
+            {editing === 'vehicle' ? (
+              <div className="flex-col gap-2">
+                <MiniInput label="Model" name="vehicleModel" value={form.vehicleModel} onChange={e => setForm({...form, vehicleModel: e.target.value})} placeholder="e.g. Tata Winger" />
+                <MiniInput label="Plate No" name="vehicleNumber" value={form.vehicleNumber} onChange={e => setForm({...form, vehicleNumber: e.target.value})} placeholder="e.g. KA-06-TC-1234" />
+              </div>
+            ) : (
+              <div className="flex-col gap-1">
+                <Row label="Model" value={profile?.vehicleModel} />
+                <Row label="Plate No" value={profile?.vehicleNumber} />
+              </div>
+            )}
+          </div>
+
+          <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
+            <h4 style={{ color: '#94a3b8', margin: 0 }}>Driving License</h4>
+            {profile?.dlURL ? (
+              <div className="id-card-display">
+                <img src={profile.dlURL} alt="Driving License" />
+                <button className="btn btn-outline-sm mt-2" onClick={() => dlRef.current?.click()}><Upload size={14} /> Replace</button>
+              </div>
+            ) : (
+              <button className="btn btn-outline-sm" onClick={() => dlRef.current?.click()}><Upload size={14} /> Upload DL</button>
+            )}
+            <input ref={dlRef} type="file" accept="image/*" hidden onChange={handlePhoto('dlURL')} />
+          </div>
+        </>
+      )}
 
       {/* Nav Cards */}
       {onNavigate && (

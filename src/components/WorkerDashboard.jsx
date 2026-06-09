@@ -199,10 +199,11 @@ function RideHailing() {
 
   const requestRide = async () => {
     if (!dropoff) return;
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     await setDoc(doc(db, 'rides', user.uid), {
       workerId: user.uid, workerName: profile?.fullName || 'Worker',
       pickup: 'Current Location', dropoff,
-      status: 'pending', driverId: null, driverName: null, timestamp: Date.now()
+      status: 'pending', driverId: null, driverName: null, otp, timestamp: Date.now()
     });
   };
 
@@ -228,22 +229,42 @@ function RideHailing() {
             <h3 style={{ margin: 0 }}>Finding your driver...</h3>
             <button className="btn btn-ghost mt-2" style={{ color: '#f87171' }} onClick={() => deleteDoc(doc(db, 'rides', user.uid))}>Cancel Request</button>
           </div>
-        ) : (
+        ) : (ride.status === 'accepted' || ride.status === 'in-progress') ? (
           <div className="flex-col gap-3">
             <div className="flex justify-between items-center border-b-dark pb-2">
               <div>
-                <h3 style={{ margin: 0, color: '#4ade80' }}>Driver Accepted!</h3>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>{ride.driverName} is arriving in 3 mins</p>
+                <h3 style={{ margin: 0, color: '#4ade80' }}>{ride.status === 'in-progress' ? 'Trip in Progress!' : 'Driver Arriving!'}</h3>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>{ride.driverName} • {ride.vehicleModel || 'Factory Cab'}</p>
               </div>
-              <div className="avatar-sm bg-green-500">{ride.driverName.charAt(0)}</div>
+              {ride.driverPhoto ? (
+                <img src={ride.driverPhoto} alt="Driver" className="avatar-sm" style={{ objectFit: 'cover' }} />
+              ) : (
+                <div className="avatar-sm bg-green-500">{ride.driverName.charAt(0)}</div>
+              )}
             </div>
-            <div className="flex gap-2 items-center">
-               <Car size={20} color="#94a3b8" />
-               <strong style={{ fontSize: '1.1rem' }}>KA-06-TC-1234</strong>
+            
+            <div className="flex justify-between items-center" style={{ background: 'rgba(0,0,0,0.3)', padding: '10px 15px', borderRadius: 8 }}>
+              <div className="flex gap-2 items-center">
+                 <Car size={20} color="#94a3b8" />
+                 <strong style={{ fontSize: '1.1rem' }}>{ride.vehicleNumber || 'KA-06-TC-1234'}</strong>
+              </div>
+              {ride.status === 'accepted' && (
+                <div className="flex-col items-end">
+                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>OTP to Start</span>
+                  <strong style={{ fontSize: '1.4rem', letterSpacing: 2, color: '#f8fafc' }}>{ride.otp}</strong>
+                </div>
+              )}
             </div>
-            <button className="btn btn-ghost mt-1" style={{ color: '#f87171' }} onClick={() => deleteDoc(doc(db, 'rides', user.uid))}>Cancel Ride</button>
+            {ride.status === 'in-progress' && (
+              <div className="text-center mt-1" style={{ color: '#4ade80', fontSize: '0.85rem' }}>
+                Sit back and relax. You are on the way to {ride.dropoff}.
+              </div>
+            )}
+            {ride.status === 'accepted' && (
+              <button className="btn btn-ghost mt-1" style={{ color: '#f87171' }} onClick={() => deleteDoc(doc(db, 'rides', user.uid))}>Cancel Ride</button>
+            )}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -275,8 +296,8 @@ function SmartAccess() {
       </div>
       <div className="glass-card" style={{ padding: '1rem' }}>
         {sub === 'log' && <><h4 style={{ color: '#94a3b8' }}>Today</h4><LogRow t="Main Gate (In)" s="Sector A" time="08:14" /><LogRow t="Machining Floor" s="Zone 3" time="08:22" /></>}
-        {sub === 'canteen' && <><div className="flex justify-between items-center mb-2"><span style={{ color:'#94a3b8' }}>Balance</span><span style={{ fontSize:'1.2rem', fontWeight:700, color:'#f87171' }}>₹{profile?.canteenBalance||0}</span></div><div className="flex gap-2"><button className="btn btn-primary" style={{flex:1,padding:'0.7rem'}}>Top Up</button><button className="btn btn-ghost" style={{flex:1,padding:'0.7rem'}}><Unlink size={14}/> Unlink</button></div></>}
-        {sub === 'buspass' && <div className="text-center"><div className="badge-green" style={{padding:'0.75rem',borderRadius:8}}>Valid Bus Pass — Exp: Nov 2025</div><div className="flex gap-2 mt-3"><button className="btn btn-ghost" style={{flex:1}}>Digital Pass</button><button className="btn btn-outline-red" style={{flex:1}}><LinkIcon size={14}/> Link New</button></div></div>}
+        {sub === 'canteen' && <><div className="flex justify-between items-center mb-2"><span style={{ color:'#94a3b8' }}>Balance</span><span style={{ fontSize:'1.2rem', fontWeight:700, color:'#f87171' }}>₹{profile?.canteenBalance||0}</span></div><div className="flex gap-2"><button className="btn btn-primary" style={{flex:1,padding:'0.7rem'}} onClick={() => alert('Top up integration goes here')}>Top Up</button><button className="btn btn-ghost" style={{flex:1,padding:'0.7rem'}} onClick={() => alert('Card unlinked successfully')}><Unlink size={14}/> Unlink</button></div></>}
+        {sub === 'buspass' && <div className="text-center"><div className="badge-green" style={{padding:'0.75rem',borderRadius:8}}>Valid Bus Pass — Exp: Nov 2025</div><div className="flex gap-2 mt-3"><button className="btn btn-ghost" style={{flex:1}} onClick={() => alert('Showing digital pass QR')}>Digital Pass</button><button className="btn btn-outline-red" style={{flex:1}}><LinkIcon size={14}/> Link New</button></div></div>}
       </div>
     </div>
   );

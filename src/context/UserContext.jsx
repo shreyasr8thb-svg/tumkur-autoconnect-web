@@ -11,6 +11,7 @@ const DEFAULT_PROFILE = {
   role: 'worker', employeeId: '', canteenBalance: 450,
   profileComplete: false, photoURL: '', idCardURL: '',
   emergencyContact: '', bloodGroup: '', address: '', aadhar: '',
+  vehicleNumber: '', vehicleModel: '', dlURL: '',
 };
 
 export function UserProvider({ children }) {
