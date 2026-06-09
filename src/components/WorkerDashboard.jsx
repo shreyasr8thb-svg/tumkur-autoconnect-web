@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Bell, AlertTriangle, ShieldCheck, Bus, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
+import Feed from './Feed';
 import logo from '../assets/logo.png';
 
 export default function WorkerDashboard({ onSOS }) {
@@ -19,12 +20,13 @@ export default function WorkerDashboard({ onSOS }) {
         {tab === 'salary' && <Salary />}
         {tab === 'bus' && <BusTracking />}
         {tab === 'access' && <SmartAccess />}
+        {tab === 'feed' && <Feed />}
         {tab === 'profile' && <ProfileView onNavigate={setTab} />}
       </div>
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'home', icon: <ShieldCheck size={20}/>, label: 'Home' },
         { id: 'access', icon: <CreditCard size={20}/>, label: 'Access' },
-        { id: 'salary', icon: <IndianRupee size={20}/>, label: 'Salary' },
+        { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
         { id: 'bus', icon: <Bus size={20}/>, label: 'Bus' },
         { id: 'profile', icon: <User size={20}/>, label: 'Profile' },
       ]} />
@@ -95,25 +97,56 @@ function QCard({ icon, title, sub, onClick }) {
 /* ─── Skill Passport ─── */
 function SkillPassport() {
   const { profile } = useUser();
+  const certRef = useRef(null);
+  const [certs, setCerts] = useState([]);
+
+  const handleCert = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const r = new FileReader();
+      r.onloadend = () => setCerts([...certs, r.result]);
+      r.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="flex-col gap-3">
       <div className="flex items-center gap-3 mb-2">
         <div className="avatar-md">{(profile?.fullName||'U').charAt(0)}</div>
         <div><h2 style={{ margin: 0 }}>{profile?.fullName || 'User'}</h2><p style={{ margin: 0 }}>ID: {profile?.employeeId} • {profile?.department || 'Dept'}</p></div>
       </div>
-      <h3>Badges</h3>
+      
+      <div className="flex justify-between items-center">
+        <h3 style={{ margin: 0 }}>Badges & Certs</h3>
+        <button className="btn btn-outline-sm flex items-center gap-2" onClick={() => certRef.current?.click()}>
+          <Upload size={14} /> Add Cert
+        </button>
+        <input ref={certRef} type="file" accept="image/*" hidden onChange={handleCert} />
+      </div>
+
       <div className="glass-card flex gap-3 items-center" style={{ borderLeft: '4px solid #f87171' }}>
         <div className="icon-box"><Settings size={22} color="#f87171" /></div>
         <div><strong>Lathe Master</strong><div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Verified by: Govt. ITI Tumkur</div><div style={{ fontSize: '0.75rem', color: '#64748b' }}>Oct 2024</div></div>
       </div>
-      <div className="glass-card">
+      
+      {certs.map((c, i) => (
+        <div key={i} className="glass-card flex-col gap-2 p-2">
+           <div className="flex justify-between items-center px-2">
+             <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Uploaded Certificate</span>
+             <span className="badge-warning">Pending Auth</span>
+           </div>
+           <img src={c} alt="cert" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8 }} />
+        </div>
+      ))}
+
+      <div className="glass-card mt-2">
         <h3 style={{ fontSize: '1rem', marginBottom: 12 }}>Career Path</h3>
         <div className="career-path">
           <PathNode title="Lathe Master" sub="✓ Achieved" status="done" />
           <PathNode title="CNC Programmer" sub="G-Code, Safety Cert II" status="current" />
           <PathNode title="Floor Supervisor" sub="Leadership Basics" status="locked" />
         </div>
-        <button className="btn btn-outline-red mt-3">Request Badge Verification</button>
+        <button className="btn btn-outline-red mt-3 w-100">Request Badge Verification</button>
       </div>
     </div>
   );

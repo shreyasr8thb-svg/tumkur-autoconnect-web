@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity } from 'lucide-react';
+import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity, MessageSquare } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ProfileView from './ProfileView';
+import Feed from './Feed';
 
 export default function HRDashboard() {
   const { profile, signOut } = useUser();
@@ -24,12 +25,14 @@ export default function HRDashboard() {
       <div className="screen" style={{ overflowY: 'auto' }}>
         {tab === 'dashboard' && <HRHome />}
         {tab === 'workers' && <Workforce />}
-        {tab === 'profile' && <ProfileView />}
+        {tab === 'feed' && <div className="p-4"><Feed /></div>}
+        {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
       </div>
 
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'dashboard', icon: <PieChart size={20}/>, label: 'Analytics' },
         { id: 'workers', icon: <Users size={20}/>, label: 'Workforce' },
+        { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
       ]} />
     </div>
   );
