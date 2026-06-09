@@ -1,234 +1,197 @@
-import { useState } from 'react';
-import { User, Briefcase, Target, CheckCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { User, Briefcase, Target, CheckCircle, Truck, Search, Users, Camera, Upload } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import logo from '../assets/logo.png';
 
+const ROLES = [
+  { id: 'worker', label: 'Factory Worker', icon: <User size={20} />, desc: 'I work in a factory' },
+  { id: 'jobfinder', label: 'Job Finder', icon: <Search size={20} />, desc: 'I\'m looking for factory jobs' },
+  { id: 'driver', label: 'Bus Driver', icon: <Truck size={20} />, desc: 'I drive factory shuttles' },
+  { id: 'hr', label: 'HR / Owner', icon: <Users size={20} />, desc: 'I manage a factory' },
+];
+
 export default function ProfileCreation({ onCancel }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const photoRef = useRef(null);
+  const idRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    fullName: '',
-    dob: '',
-    phone: '',
-    factoryUnit: '',
-    department: '',
-    supervisor: '',
-    careerGoal: '',
-    role: 'worker',
+  const [form, setForm] = useState({
+    email: '', password: '', confirmPassword: '', fullName: '', dob: '', phone: '',
+    factoryUnit: '', department: '', supervisor: '', careerGoal: '', role: 'worker',
+    photoURL: '', idCardURL: '', emergencyContact: '', bloodGroup: '', address: '',
   });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const set = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleFile = (field) => (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { setError('File must be under 2MB'); return; }
+    const reader = new FileReader();
+    reader.onloadend = () => setForm({ ...form, [field]: reader.result });
+    reader.readAsDataURL(file);
   };
 
-  const nextStep = () => {
+  const next = () => {
     if (step === 1) {
-      if (!formData.fullName || !formData.email || !formData.password) {
-        setError('Full name, email, and password are required.');
-        return;
-      }
-      if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters.');
-        return;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match.');
-        return;
-      }
+      if (!form.fullName || !form.email || !form.password) { setError('Name, email and password required.'); return; }
+      if (form.password.length < 6) { setError('Password must be 6+ characters.'); return; }
+      if (form.password !== form.confirmPassword) { setError('Passwords don\'t match.'); return; }
     }
-    setError('');
-    setStep(step + 1);
+    setError(''); setStep(step + 1);
   };
 
-  const prevStep = () => {
-    setError('');
-    setStep(step - 1);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
+  const submit = async (e) => {
+    e.preventDefault(); setLoading(true); setError('');
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-
-      // Set display name
-      await updateProfile(userCredential.user, { displayName: formData.fullName });
-
-      // Save profile to Firestore
-      const profileData = {
-        fullName: formData.fullName,
-        email: formData.email,
-        dob: formData.dob,
-        phone: formData.phone,
-        factoryUnit: formData.factoryUnit,
-        department: formData.department,
-        supervisor: formData.supervisor,
-        careerGoal: formData.careerGoal,
-        role: formData.role,
-        employeeId: `TMR-${Math.floor(1000 + Math.random() * 9000)}`,
-        canteenBalance: 500,
-        profileComplete: true,
-        createdAt: new Date().toISOString(),
-      };
-
-      try {
-        await setDoc(doc(db, 'users', userCredential.user.uid), profileData);
-      } catch {
-        // Firestore write may fail due to rules — auth still works
-      }
-
-      // onAuthStateChanged in UserContext will pick up the new user
+      const cred = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      await updateProfile(cred.user, { displayName: form.fullName, photoURL: form.photoURL || '' });
+      const data = { ...form, password: undefined, confirmPassword: undefined,
+        employeeId: `TMR-${Math.floor(1000+Math.random()*9000)}`, canteenBalance: 500,
+        profileComplete: true, createdAt: new Date().toISOString() };
+      delete data.password; delete data.confirmPassword;
+      try { await setDoc(doc(db, 'users', cred.user.uid), data); } catch {}
     } catch (err) {
-      const code = err.code || '';
-      if (code === 'auth/email-already-in-use') {
-        setError('This email is already registered. Please sign in instead.');
-      } else if (code === 'auth/weak-password') {
-        setError('Password is too weak. Use at least 6 characters.');
-      } else {
-        setError(err.message || 'Failed to create profile.');
-      }
+      setError(err.code === 'auth/email-already-in-use' ? 'Email already registered.' : err.message || 'Failed.');
       setLoading(false);
     }
   };
 
-  const stepLabels = ['Identity', 'Work Details', 'Aspirations'];
-
   return (
-    <div className="screen flex-col" style={{ paddingBottom: '20px' }}>
-      <div className="flex justify-between items-center mb-4 mt-2">
+    <div className="screen flex-col" style={{ paddingBottom: 20 }}>
+      <div className="flex justify-between items-center mb-3">
         <h2 style={{ margin: 0 }}>Create Profile</h2>
-        <button onClick={onCancel} className="btn-text-cancel">← Back</button>
+        <button onClick={onCancel} className="btn-link">← Back</button>
       </div>
 
-      {/* Progress Tracker */}
-      <div className="progress-tracker mb-4">
-        <div className="progress-line">
-          <div className="progress-fill" style={{ width: `${((step - 1) / 2) * 100}%` }}></div>
-        </div>
-        {[
-          { num: 1, icon: <User size={14} /> },
-          { num: 2, icon: <Briefcase size={14} /> },
-          { num: 3, icon: <Target size={14} /> }
-        ].map(item => (
-          <div key={item.num} className={`progress-dot ${step >= item.num ? 'active' : ''}`}>
-            {item.icon}
-            <span className="progress-label">{stepLabels[item.num - 1]}</span>
+      {/* Steps */}
+      <div className="steps-bar mb-3">
+        {['Identity', 'Role & Photo', 'Work Info'].map((l, i) => (
+          <div key={i} className={`step ${step > i ? 'done' : ''} ${step === i + 1 ? 'active' : ''}`}>
+            <div className="step-num">{step > i + 1 ? '✓' : i + 1}</div>
+            <span>{l}</span>
           </div>
         ))}
       </div>
 
-      <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {error && <div className="error-banner mb-3">{error}</div>}
+      <div className="glass-card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {error && <div className="error-box mb-2">{error}</div>}
 
-        <form onSubmit={step === 3 ? handleSubmit : (e) => e.preventDefault()} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-
+        <form onSubmit={step === 3 ? submit : (e) => e.preventDefault()} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {step === 1 && (
-            <div className="flex-col gap-3" style={{ flex: 1 }}>
-              <h3 className="mb-2">Identity Details</h3>
-              <div className="input-group mb-0">
-                <label className="input-label">Full Name *</label>
-                <input type="text" name="fullName" className="input-field" placeholder="As per Aadhaar" value={formData.fullName} onChange={handleChange} required />
-              </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Date of Birth</label>
-                <input type="date" name="dob" className="input-field" value={formData.dob} onChange={handleChange} />
-              </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Phone Number</label>
-                <input type="tel" name="phone" className="input-field" placeholder="+91 XXXXX XXXXX" value={formData.phone} onChange={handleChange} />
-              </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Email Address (Login ID) *</label>
-                <input type="email" name="email" className="input-field" placeholder="you@example.com" value={formData.email} onChange={handleChange} required />
-              </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Password *</label>
-                <input type="password" name="password" className="input-field" placeholder="Min 6 characters" value={formData.password} onChange={handleChange} required />
-              </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Confirm Password *</label>
-                <input type="password" name="confirmPassword" className="input-field" placeholder="Re-enter password" value={formData.confirmPassword} onChange={handleChange} required />
-              </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Account Type</label>
-                <select name="role" className="input-field" value={formData.role} onChange={handleChange}>
-                  <option value="worker">Factory Worker</option>
-                  <option value="owner">Factory Owner</option>
-                </select>
-              </div>
+            <div className="flex-col gap-3 flex-1">
+              <h3>Identity Details</h3>
+              <Input label="Full Name *" name="fullName" value={form.fullName} onChange={set} />
+              <Input label="Email *" name="email" type="email" value={form.email} onChange={set} />
+              <Input label="Password *" name="password" type="password" value={form.password} onChange={set} placeholder="Min 6 chars" />
+              <Input label="Confirm Password *" name="confirmPassword" type="password" value={form.confirmPassword} onChange={set} />
+              <Input label="Phone" name="phone" type="tel" value={form.phone} onChange={set} placeholder="+91" />
+              <Input label="Date of Birth" name="dob" type="date" value={form.dob} onChange={set} />
             </div>
           )}
 
           {step === 2 && (
-            <div className="flex-col gap-3" style={{ flex: 1 }}>
-              <h3 className="mb-2">Work Details</h3>
-              <div className="input-group mb-0">
-                <label className="input-label">Current Factory Unit</label>
-                <select name="factoryUnit" className="input-field" value={formData.factoryUnit} onChange={handleChange}>
-                  <option value="">Select Unit...</option>
-                  <option value="Sri Sai Auto Components">Sri Sai Auto Components</option>
-                  <option value="Tumkur Machining Hub">Tumkur Machining Hub</option>
-                  <option value="Precision Parts Pvt Ltd">Precision Parts Pvt Ltd</option>
-                  <option value="Other">Other</option>
-                </select>
+            <div className="flex-col gap-3 flex-1">
+              <h3>Select Your Role</h3>
+              <div className="role-grid">
+                {ROLES.map(r => (
+                  <div key={r.id} className={`role-card ${form.role === r.id ? 'selected' : ''}`} onClick={() => setForm({ ...form, role: r.id })}>
+                    {r.icon}
+                    <strong>{r.label}</strong>
+                    <span>{r.desc}</span>
+                  </div>
+                ))}
               </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Department</label>
-                <input type="text" name="department" className="input-field" placeholder="e.g. CNC, Welding, Assembly" value={formData.department} onChange={handleChange} />
+
+              <h3 className="mt-3">Your Photo</h3>
+              <div className="flex gap-3 items-center">
+                <div className="photo-preview" onClick={() => photoRef.current?.click()}>
+                  {form.photoURL ? <img src={form.photoURL} alt="Photo" /> : <Camera size={28} />}
+                </div>
+                <div className="flex-col gap-1 flex-1">
+                  <button type="button" className="btn btn-outline-sm" onClick={() => photoRef.current?.click()}>
+                    <Upload size={14} /> Upload Photo
+                  </button>
+                  <span style={{ fontSize: '0.7rem', color: '#888' }}>Max 2MB, JPG/PNG</span>
+                </div>
+                <input ref={photoRef} type="file" accept="image/*" hidden onChange={handleFile('photoURL')} />
               </div>
-              <div className="input-group mb-0">
-                <label className="input-label">Supervisor Name</label>
-                <input type="text" name="supervisor" className="input-field" placeholder="Direct supervisor" value={formData.supervisor} onChange={handleChange} />
+
+              <h3 className="mt-3">ID Card (Optional)</h3>
+              <div className="flex gap-3 items-center">
+                <div className="id-preview" onClick={() => idRef.current?.click()}>
+                  {form.idCardURL ? <img src={form.idCardURL} alt="ID" /> : <CreditCardIcon />}
+                </div>
+                <div className="flex-col gap-1 flex-1">
+                  <button type="button" className="btn btn-outline-sm" onClick={() => idRef.current?.click()}>
+                    <Upload size={14} /> Upload ID Card
+                  </button>
+                  <span style={{ fontSize: '0.7rem', color: '#888' }}>Factory / Aadhaar / Any Govt ID</span>
+                </div>
+                <input ref={idRef} type="file" accept="image/*" hidden onChange={handleFile('idCardURL')} />
               </div>
             </div>
           )}
 
           {step === 3 && (
-            <div className="flex-col gap-3" style={{ flex: 1 }}>
-              <h3 className="mb-2">Aspirations</h3>
-              <div className="info-banner mb-3">
-                Tumkuru Connect uses your aspirations to recommend skill pathways and badge verification opportunities.
-              </div>
+            <div className="flex-col gap-3 flex-1">
+              <h3>Work Information</h3>
+              {(form.role === 'worker' || form.role === 'jobfinder') && (
+                <>
+                  <div className="input-group mb-0">
+                    <label className="input-label">Factory Unit</label>
+                    <select name="factoryUnit" className="input-field" value={form.factoryUnit} onChange={set}>
+                      <option value="">Select...</option>
+                      <option>Sri Sai Auto Components</option>
+                      <option>Tumkur Machining Hub</option>
+                      <option>Precision Parts Pvt Ltd</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <Input label="Department" name="department" value={form.department} onChange={set} placeholder="CNC, Welding..." />
+                </>
+              )}
+              <Input label="Emergency Contact" name="emergencyContact" type="tel" value={form.emergencyContact} onChange={set} />
               <div className="input-group mb-0">
-                <label className="input-label">Where do you want to be in 2 years?</label>
-                <select name="careerGoal" className="input-field" value={formData.careerGoal} onChange={handleChange}>
-                  <option value="">Select Goal...</option>
-                  <option value="Master Technician">Master Technician (CNC Programmer)</option>
-                  <option value="Floor Supervisor">Floor Supervisor</option>
-                  <option value="Quality Inspector">Quality Inspector</option>
-                  <option value="Independent Contractor">Independent Contractor</option>
+                <label className="input-label">Blood Group</label>
+                <select name="bloodGroup" className="input-field" value={form.bloodGroup} onChange={set}>
+                  <option value="">Select...</option>
+                  {['A+','A-','B+','B-','O+','O-','AB+','AB-'].map(b => <option key={b}>{b}</option>)}
                 </select>
               </div>
-              <div className="flex items-center gap-2 mt-4">
-                <CheckCircle size={20} color="#28a745" />
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Govt. ID Verification will be done post-registration.</span>
+              <Input label="Address" name="address" value={form.address} onChange={set} placeholder="Your residential address" />
+              <div className="info-box mt-2">
+                <CheckCircle size={16} color="#4ade80" /> Govt. ID verification will be done post-registration.
               </div>
             </div>
           )}
 
-          <div className="flex gap-2 mt-4" style={{ marginTop: 'auto' }}>
-            {step > 1 && (
-              <button type="button" className="btn btn-secondary" onClick={prevStep} style={{ flex: 1 }}>Back</button>
-            )}
-            {step < 3 ? (
-              <button type="button" className="btn btn-primary" onClick={nextStep} style={{ flex: 2 }}>Next Step</button>
-            ) : (
-              <button type="submit" className="btn btn-primary" disabled={loading} style={{ flex: 2 }}>
-                {loading ? 'Creating Account...' : 'Create Profile'}
-              </button>
-            )}
+          <div className="flex gap-2 mt-3" style={{ marginTop: 'auto' }}>
+            {step > 1 && <button type="button" className="btn btn-ghost" onClick={() => { setError(''); setStep(step-1); }} style={{flex:1}}>Back</button>}
+            {step < 3
+              ? <button type="button" className="btn btn-primary" onClick={next} style={{flex:2}}>Next →</button>
+              : <button type="submit" className="btn btn-primary" disabled={loading} style={{flex:2}}>{loading ? 'Creating...' : 'Create Profile'}</button>
+            }
           </div>
         </form>
       </div>
     </div>
   );
+}
+
+function Input({ label, ...props }) {
+  return (
+    <div className="input-group mb-0">
+      <label className="input-label">{label}</label>
+      <input className="input-field" {...props} />
+    </div>
+  );
+}
+
+function CreditCardIcon() {
+  return <div style={{ width: 40, height: 28, border: '2px dashed #555', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '0.6rem', color: '#555' }}>ID</span></div>;
 }
