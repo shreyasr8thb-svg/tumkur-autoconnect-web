@@ -12,7 +12,9 @@ export default function ProfileView({ onNavigate }) {
 
   const startEdit = (s) => {
     const fields = s === 'personal'
-      ? { fullName: profile?.fullName||'', dob: profile?.dob||'', phone: profile?.phone||'', emergencyContact: profile?.emergencyContact||'', bloodGroup: profile?.bloodGroup||'', address: profile?.address||'' }
+      ? { fullName: profile?.fullName||'', dob: profile?.dob||'', phone: profile?.phone||'', emergencyContact: profile?.emergencyContact||'', bloodGroup: profile?.bloodGroup||'', address: profile?.address||'', aadhar: profile?.aadhar||'' }
+      : s === 'emergency'
+      ? { emName1: profile?.emName1||'', emPhone1: profile?.emPhone1||'', emName2: profile?.emName2||'', emPhone2: profile?.emPhone2||'' }
       : { factoryUnit: profile?.factoryUnit||'', department: profile?.department||'', supervisor: profile?.supervisor||'' };
     setForm(fields); setEditing(s);
   };
@@ -74,19 +76,45 @@ export default function ProfileView({ onNavigate }) {
         {editing === 'personal' ? (
           <div className="flex-col gap-2">
             <MiniInput label="Name" name="fullName" value={form.fullName} onChange={e => setForm({...form, fullName: e.target.value})} />
+            <MiniInput label="Aadhaar" name="aadhar" value={form.aadhar} onChange={e => setForm({...form, aadhar: e.target.value})} />
             <MiniInput label="DOB" name="dob" type="date" value={form.dob} onChange={e => setForm({...form, dob: e.target.value})} />
             <MiniInput label="Phone" name="phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
-            <MiniInput label="Emergency" name="emergencyContact" value={form.emergencyContact} onChange={e => setForm({...form, emergencyContact: e.target.value})} />
+            <MiniInput label="Blood" name="bloodGroup" value={form.bloodGroup} onChange={e => setForm({...form, bloodGroup: e.target.value})} />
             <MiniInput label="Address" name="address" value={form.address} onChange={e => setForm({...form, address: e.target.value})} />
           </div>
         ) : (
           <div className="flex-col gap-1">
             <Row label="Name" value={profile?.fullName} />
+            <Row label="Aadhaar" value={profile?.aadhar} />
             <Row label="DOB" value={profile?.dob} />
             <Row label="Phone" value={profile?.phone} />
             <Row label="Email" value={profile?.email} />
             <Row label="Blood" value={profile?.bloodGroup} />
-            <Row label="Emergency" value={profile?.emergencyContact} />
+            <Row label="Address" value={profile?.address} />
+          </div>
+        )}
+      </div>
+
+      {/* Emergency Contacts */}
+      <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
+        <div className="flex justify-between items-center">
+          <h4 style={{ color: '#94a3b8', margin: 0 }}>Emergency Contacts</h4>
+          {editing === 'emergency'
+            ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
+            : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('emergency')} />
+          }
+        </div>
+        {editing === 'emergency' ? (
+          <div className="flex-col gap-2">
+            <MiniInput label="Primary Name" name="emName1" value={form.emName1} onChange={e => setForm({...form, emName1: e.target.value})} />
+            <MiniInput label="Primary Phone" name="emPhone1" value={form.emPhone1} onChange={e => setForm({...form, emPhone1: e.target.value})} />
+            <MiniInput label="Secondary Name" name="emName2" value={form.emName2} onChange={e => setForm({...form, emName2: e.target.value})} />
+            <MiniInput label="Secondary Phone" name="emPhone2" value={form.emPhone2} onChange={e => setForm({...form, emPhone2: e.target.value})} />
+          </div>
+        ) : (
+          <div className="flex-col gap-1">
+            <Row label={profile?.emName1 || 'Primary Contact'} value={profile?.emPhone1 || 'Not set'} />
+            <Row label={profile?.emName2 || 'Secondary Contact'} value={profile?.emPhone2 || 'Not set'} />
           </div>
         )}
       </div>
@@ -122,9 +150,12 @@ export default function ProfileView({ onNavigate }) {
       {/* Nav Cards */}
       {onNavigate && (
         <>
-          <NavLink icon={<ShieldCheck size={22} color="#f87171" />} label="Skill Passport" onClick={() => onNavigate('passport')} />
-          <NavLink icon={<CreditCard size={22} color="#f87171" />} label="Linked Cards" onClick={() => onNavigate('access')} />
-          <NavLink icon={<Phone size={22} color="#f87171" />} label="Emergency Contacts" />
+          {profile?.role === 'worker' && (
+            <>
+              <NavLink icon={<ShieldCheck size={22} color="#f87171" />} label="Skill Passport" onClick={() => onNavigate('passport')} />
+              <NavLink icon={<CreditCard size={22} color="#f87171" />} label="Linked Cards" onClick={() => onNavigate('access')} />
+            </>
+          )}
         </>
       )}
 

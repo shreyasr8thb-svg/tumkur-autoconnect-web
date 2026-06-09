@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity, MessageSquare } from 'lucide-react';
+import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity, MessageSquare, Briefcase, PlusCircle } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ProfileView from './ProfileView';
 import Feed from './Feed';
@@ -25,6 +25,7 @@ export default function HRDashboard() {
       <div className="screen" style={{ overflowY: 'auto' }}>
         {tab === 'dashboard' && <HRHome />}
         {tab === 'workers' && <Workforce />}
+        {tab === 'jobs' && <PostJobs factoryName={factoryName} />}
         {tab === 'feed' && <div className="p-4"><Feed /></div>}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
       </div>
@@ -32,6 +33,7 @@ export default function HRDashboard() {
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'dashboard', icon: <PieChart size={20}/>, label: 'Analytics' },
         { id: 'workers', icon: <Users size={20}/>, label: 'Workforce' },
+        { id: 'jobs', icon: <Briefcase size={20}/>, label: 'Jobs' },
         { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
       ]} />
     </div>
@@ -163,6 +165,63 @@ function StaffRow({ name, role, status }) {
       <span style={{ fontSize: '0.75rem', color: p ? '#4ade80' : '#f87171', background: p ? 'rgba(74, 222, 128, 0.1)' : 'rgba(248, 113, 113, 0.1)', padding: '4px 8px', borderRadius: 4 }}>
         {p ? 'Present' : 'Absent'}
       </span>
+    </div>
+  );
+}
+
+function PostJobs({ factoryName }) {
+  const { showToast } = useUser();
+  const [jobs, setJobs] = useState([
+    { title: 'CNC Operator', type: 'Full-time', salary: '₹15,000/mo' },
+    { title: 'Floor Supervisor', type: 'Contract', salary: '₹22,000/mo' }
+  ]);
+  const [form, setForm] = useState({ title: '', type: 'Full-time', salary: '' });
+
+  const postJob = () => {
+    if (!form.title || !form.salary) return;
+    setJobs([...jobs, form]);
+    setForm({ title: '', type: 'Full-time', salary: '' });
+    showToast('Job requirement posted!');
+  };
+
+  return (
+    <div className="flex-col gap-4 p-4">
+      <div className="flex justify-between items-center">
+        <h2 style={{ margin: 0 }}>Active Job Posts</h2>
+        <div className="badge-outline">{jobs.length} Active</div>
+      </div>
+
+      <div className="glass-card flex-col gap-3">
+        <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: 6 }}><PlusCircle size={16} color="#4ade80" /> Post New Job</h3>
+        <div className="input-group mb-0">
+          <label className="input-label">Job Title</label>
+          <input className="input-field" value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Lathe Master" />
+        </div>
+        <div className="flex gap-2">
+          <div className="input-group mb-0 flex-1">
+            <label className="input-label">Type</label>
+            <select className="input-field" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+              <option>Full-time</option><option>Contract</option><option>Temporary</option>
+            </select>
+          </div>
+          <div className="input-group mb-0 flex-1">
+            <label className="input-label">Salary</label>
+            <input className="input-field" value={form.salary} onChange={e => setForm({...form, salary: e.target.value})} placeholder="e.g. ₹15,000/mo" />
+          </div>
+        </div>
+        <button className="btn btn-primary mt-2" onClick={postJob}>Post Job</button>
+      </div>
+
+      <h3 style={{ margin: '10px 0 0 0' }}>Current Postings</h3>
+      {jobs.map((j, i) => (
+        <div key={i} className="glass-card flex justify-between items-center">
+          <div>
+            <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{j.title}</strong>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{factoryName} • {j.type}</div>
+          </div>
+          <div style={{ color: '#4ade80', fontSize: '0.85rem', fontWeight: 600 }}>{j.salary}</div>
+        </div>
+      ))}
     </div>
   );
 }

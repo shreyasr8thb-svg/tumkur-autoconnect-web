@@ -15,6 +15,11 @@ function AppContent() {
   const [isSOSActive, setIsSOSActive] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
 
+  const handleSOS = () => {
+    setIsSOSActive(true)
+    window.location.href = 'tel:112'
+  }
+
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2200); return () => clearTimeout(t); }, [])
 
   if (isSOSActive) return <SOSAlert onCancel={() => setIsSOSActive(false)} />
@@ -53,10 +58,10 @@ function AppContent() {
 
   const renderDashboard = () => {
     switch (role) {
-      case 'jobfinder': return <JobFinderDashboard onSOS={() => setIsSOSActive(true)} />
+      case 'jobfinder': return <JobFinderDashboard onSOS={handleSOS} />
       case 'driver': return <DriverDashboard />
       case 'hr': return <HRDashboard />
-      default: return <WorkerDashboard onSOS={() => setIsSOSActive(true)} />
+      default: return <WorkerDashboard onSOS={handleSOS} />
     }
   }
 

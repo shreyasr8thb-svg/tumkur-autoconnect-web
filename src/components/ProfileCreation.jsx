@@ -24,7 +24,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
   const [form, setForm] = useState({
     email: user?.email || '', password: '', confirmPassword: '', fullName: user?.displayName || '', dob: '', phone: '',
     factoryUnit: '', department: '', supervisor: '', careerGoal: '', role: 'worker',
-    photoURL: user?.photoURL || '', idCardURL: '', emergencyContact: '', bloodGroup: '', address: '',
+    photoURL: user?.photoURL || '', idCardURL: '', emergencyContact: '', bloodGroup: '', address: '', aadhar: '',
   });
 
   const set = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,6 +41,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
   const next = () => {
     if (step === 1) {
       if (!form.fullName || !form.email || (!isCompleting && !form.password)) { setError('Name, email and password required.'); return; }
+      if (!form.aadhar || form.aadhar.length !== 12) { setError('Valid 12-digit Aadhaar required.'); return; }
       if (!isCompleting && form.password.length < 6) { setError('Password must be 6+ characters.'); return; }
       if (!isCompleting && form.password !== form.confirmPassword) { setError('Passwords don\'t match.'); return; }
     }
@@ -101,6 +102,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
             <div className="flex-col gap-3 flex-1">
               <h3>Identity Details</h3>
               <Input label="Full Name *" name="fullName" value={form.fullName} onChange={set} />
+              <Input label="Aadhaar Number *" name="aadhar" value={form.aadhar} onChange={set} placeholder="12-digit Aadhaar number" type="number" />
               <Input label="Email *" name="email" type="email" value={form.email} onChange={set} disabled={isCompleting} />
               {!isCompleting && (
                 <>

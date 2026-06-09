@@ -10,7 +10,7 @@ const DEFAULT_PROFILE = {
   factoryUnit: '', department: '', supervisor: '', careerGoal: '',
   role: 'worker', employeeId: '', canteenBalance: 450,
   profileComplete: false, photoURL: '', idCardURL: '',
-  emergencyContact: '', bloodGroup: '', address: '',
+  emergencyContact: '', bloodGroup: '', address: '', aadhar: '',
 };
 
 export function UserProvider({ children }) {
