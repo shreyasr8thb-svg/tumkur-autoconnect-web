@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity, MessageSquare, Briefcase, PlusCircle } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ProfileView from './ProfileView';
-import Feed from './Feed';
+import AppFooter from './AppFooter';
 
 export default function HRDashboard() {
   const { profile, signOut } = useUser();
@@ -26,15 +26,15 @@ export default function HRDashboard() {
         {tab === 'dashboard' && <HRHome />}
         {tab === 'workers' && <Workforce />}
         {tab === 'jobs' && <PostJobs factoryName={factoryName} />}
-        {tab === 'feed' && <div className="p-4"><Feed /></div>}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
+        <AppFooter />
       </div>
 
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'dashboard', icon: <PieChart size={20}/>, label: 'Analytics' },
         { id: 'workers', icon: <Users size={20}/>, label: 'Workforce' },
         { id: 'jobs', icon: <Briefcase size={20}/>, label: 'Jobs' },
-        { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
+        { id: 'profile', icon: <Users size={20}/>, label: 'Profile' },
       ]} />
     </div>
   );

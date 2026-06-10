@@ -1,40 +1,75 @@
 import { useState, useEffect } from 'react';
-import { Truck, Navigation, Users, User, AlertTriangle, Power, MessageSquare, Check } from 'lucide-react';
+import { Truck, Navigation, Users, User, AlertTriangle, Power, MessageSquare, Check, Menu, X, Bell, Scan } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
-import Feed from './Feed';
+import AppFooter from './AppFooter';
 
 export default function DriverDashboard() {
-  const { profile } = useUser();
+  const { profile, signOut } = useUser();
   const [tab, setTab] = useState('drive');
   const [active, setActive] = useState(false);
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const name = profile?.fullName || profile?.email?.split('@')[0] || 'Driver';
 
   return (
     <div className="flex-col" style={{ flex: 1, position: 'relative' }}>
-      {tab !== 'drive' && <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} active={active} />}
+      {tab !== 'drive' && <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} active={active} onNotif={() => setShowNotifs(true)} onMenu={() => setShowMenu(true)} />}
       
       <div className={`screen ${tab === 'drive' ? 'p-0' : ''}`} style={{ overflowY: 'auto', paddingBottom: '90px' }}>
         {tab === 'drive' && <DriveMode active={active} setActive={setActive} />}
         {tab === 'passengers' && <Passengers />}
-        {tab === 'feed' && <div className="p-4"><Feed /></div>}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
+        {tab !== 'drive' && <AppFooter />}
       </div>
       
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'drive', icon: <Navigation size={20}/>, label: 'Drive' },
         { id: 'passengers', icon: <Users size={20}/>, label: 'Trips' },
-        { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
         { id: 'profile', icon: <User size={20}/>, label: 'Profile' },
       ]} />
+
+      {/* Notifications Panel */}
+      {showNotifs && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
+          <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '80%', maxWidth: '320px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
+            <div className="flex justify-between items-center p-4 border-b-dark">
+              <h3 style={{ margin: 0 }}>Notifications</h3>
+              <X size={24} color="#94a3b8" onClick={() => setShowNotifs(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div className="p-4 flex-col gap-3" style={{ overflowY: 'auto' }}>
+              <div className="info-box">Route T-04 diverted due to roadwork.</div>
+              <div className="info-box">You have a new trip schedule assigned.</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Menu Panel */}
+      {showMenu && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
+          <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '70%', maxWidth: '280px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
+            <div className="flex justify-between items-center p-4 border-b-dark">
+              <h3 style={{ margin: 0 }}>Menu</h3>
+              <X size={24} color="#94a3b8" onClick={() => setShowMenu(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div className="p-4 flex-col gap-4">
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}><User size={20} color="#94a3b8" /> <span>Profile</span></div>
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('drive'); }}><Navigation size={20} color="#94a3b8" /> <span>Drive Mode</span></div>
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('passengers'); }}><Users size={20} color="#94a3b8" /> <span>Trips</span></div>
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer', color: '#f87171', marginTop: 'auto' }} onClick={signOut}><AlertTriangle size={20} color="#f87171" /> <span>Logout</span></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function TopBar({ name, photo, onProfile, active }) {
+function TopBar({ name, photo, onProfile, active, onNotif, onMenu }) {
   return (
     <div className="top-bar">
       <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
@@ -44,7 +79,13 @@ function TopBar({ name, photo, onProfile, active }) {
           <div style={{ fontWeight: 600 }}>{name}</div>
         </div>
       </div>
-      <div className={`badge-${active ? 'green' : 'gray'}`}>{active ? 'ONLINE' : 'OFFLINE'}</div>
+      <div className="flex items-center gap-3">
+        <div className={`badge-${active ? 'green' : 'gray'}`}>{active ? 'ONLINE' : 'OFFLINE'}</div>
+        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={onNotif}>
+          <Bell size={22} color="#64748b" />
+        </div>
+        <Menu size={24} color="#f8fafc" style={{ cursor: 'pointer' }} onClick={onMenu} />
+      </div>
     </div>
   );
 }
@@ -223,6 +264,23 @@ function DriveMode({ active, setActive }) {
 }
 
 function Passengers() {
+  const [scanMode, setScanMode] = useState(false);
+  const [scans, setScans] = useState([
+    { id: '1', name: "Ramesh K.", passId: "TMR-4492", time: "07:46 AM" },
+    { id: '2', name: "Suresh M.", passId: "TMR-1123", time: "07:45 AM" },
+    { id: '3', name: "Kiran J.", passId: "TMR-8891", time: "07:32 AM" }
+  ]);
+
+  const handleSimulateScan = () => {
+    setScans([{ 
+      id: Date.now().toString(), 
+      name: "Verified User", 
+      passId: "TMR-1234", 
+      time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+    }, ...scans]);
+    setScanMode(false);
+  };
+
   return (
     <div className="flex-col gap-4 p-4">
       <div className="flex justify-between items-center">
@@ -236,15 +294,33 @@ function Passengers() {
          </div>
          <div className="glass-card flex-col items-center p-3">
             <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Passengers</span>
-            <strong style={{ fontSize: '1.5rem', color: '#f8fafc' }}>142</strong>
+            <strong style={{ fontSize: '1.5rem', color: '#f8fafc' }}>{142 + scans.length - 3}</strong>
          </div>
       </div>
 
-      <h3 className="mt-2" style={{ margin: 0 }}>Recent Scans (Route T-04)</h3>
+      <div className="flex justify-between items-center mt-2">
+        <h3 style={{ margin: 0 }}>Recent Scans (Route T-04)</h3>
+        <button className="btn btn-outline-sm flex items-center gap-2" onClick={() => setScanMode(true)}>
+          <Scan size={14} /> Scan Pass
+        </button>
+      </div>
+      
+      {scanMode && (
+        <div className="glass-card flex-col items-center gap-3">
+           <div style={{ width: '100%', height: 200, background: '#000', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Camera Viewfinder Active</span>
+           </div>
+           <button className="btn btn-primary w-100 flex items-center justify-center gap-2" onClick={handleSimulateScan}>
+              <Check size={16} /> Simulate Scan Success
+           </button>
+           <button className="btn btn-ghost w-100" onClick={() => setScanMode(false)}>Cancel</button>
+        </div>
+      )}
+
       <div className="glass-card flex-col gap-2">
-         <ScanRow name="Ramesh K." id="TMR-4492" time="07:46 AM" />
-         <ScanRow name="Suresh M." id="TMR-1123" time="07:45 AM" />
-         <ScanRow name="Kiran J." id="TMR-8891" time="07:32 AM" />
+         {scans.map(s => (
+           <ScanRow key={s.id} name={s.name} id={s.passId} time={s.time} />
+         ))}
       </div>
     </div>
   );

@@ -1,43 +1,79 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload } from 'lucide-react';
+import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload, Menu, X } from 'lucide-react';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
-import Feed from './Feed';
+import AppFooter from './AppFooter';
+import QRCode from 'react-qr-code';
 import logo from '../assets/logo.png';
 
 export default function WorkerDashboard({ onSOS }) {
-  const { profile } = useUser();
+  const { profile, signOut } = useUser();
   const [tab, setTab] = useState('home');
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const name = profile?.fullName || profile?.email?.split('@')[0] || 'User';
 
   return (
-    <div className="flex-col" style={{ flex: 1 }}>
-      <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} badge="Worker" />
+    <div className="flex-col" style={{ flex: 1, position: 'relative' }}>
+      <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} badge="Worker" onNotif={() => setShowNotifs(true)} onMenu={() => setShowMenu(true)} />
       <div className="screen" style={{ overflowY: 'auto' }}>
         {tab === 'home' && <Home onSOS={onSOS} go={setTab} />}
         {tab === 'passport' && <SkillPassport />}
         {tab === 'salary' && <Salary />}
         {tab === 'bus' && <RideHailing />}
         {tab === 'access' && <SmartAccess />}
-        {tab === 'feed' && <Feed />}
         {tab === 'profile' && <ProfileView onNavigate={setTab} />}
+        <AppFooter />
       </div>
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'home', icon: <ShieldCheck size={20}/>, label: 'Home' },
         { id: 'access', icon: <CreditCard size={20}/>, label: 'Access' },
-        { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
         { id: 'bus', icon: <Car size={20}/>, label: 'Ride' },
         { id: 'profile', icon: <User size={20}/>, label: 'Profile' },
       ]} />
+
+      {/* Notifications Panel */}
+      {showNotifs && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
+          <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '80%', maxWidth: '320px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
+            <div className="flex justify-between items-center p-4 border-b-dark">
+              <h3 style={{ margin: 0 }}>Notifications</h3>
+              <X size={24} color="#94a3b8" onClick={() => setShowNotifs(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div className="p-4 flex-col gap-3" style={{ overflowY: 'auto' }}>
+              <div className="info-box">System update: Server maintenance at 2 AM.</div>
+              <div className="info-box" style={{ borderColor: '#f87171' }}>HR: Action required on your skill passport.</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Menu Panel */}
+      {showMenu && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
+          <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '70%', maxWidth: '280px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
+            <div className="flex justify-between items-center p-4 border-b-dark">
+              <h3 style={{ margin: 0 }}>Menu</h3>
+              <X size={24} color="#94a3b8" onClick={() => setShowMenu(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div className="p-4 flex-col gap-4">
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}><User size={20} color="#94a3b8" /> <span>Profile</span></div>
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('passport'); }}><ShieldCheck size={20} color="#94a3b8" /> <span>Skill Passport</span></div>
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('salary'); }}><IndianRupee size={20} color="#94a3b8" /> <span>Salary Info</span></div>
+              <div className="flex items-center gap-3" style={{ cursor: 'pointer', color: '#f87171', marginTop: 'auto' }} onClick={signOut}><AlertTriangle size={20} color="#f87171" /> <span>Logout</span></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 /* ─── Shared UI ─── */
-function TopBar({ name, photo, onProfile, badge }) {
+function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
   return (
     <div className="top-bar">
       <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
@@ -47,7 +83,13 @@ function TopBar({ name, photo, onProfile, badge }) {
           <div style={{ fontWeight: 600 }}>{name}</div>
         </div>
       </div>
-      <div style={{ position: 'relative' }}><Bell size={22} color="#64748b" /><div className="notif-dot" /></div>
+      <div className="flex items-center gap-4">
+        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={onNotif}>
+          <Bell size={22} color="#64748b" />
+          <div className="notif-dot" style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
+        </div>
+        <Menu size={24} color="#f8fafc" style={{ cursor: 'pointer' }} onClick={onMenu} />
+      </div>
     </div>
   );
 }
@@ -297,7 +339,13 @@ function SmartAccess() {
       <div className="glass-card" style={{ padding: '1rem' }}>
         {sub === 'log' && <><h4 style={{ color: '#94a3b8' }}>Today</h4><LogRow t="Main Gate (In)" s="Sector A" time="08:14" /><LogRow t="Machining Floor" s="Zone 3" time="08:22" /></>}
         {sub === 'canteen' && <><div className="flex justify-between items-center mb-2"><span style={{ color:'#94a3b8' }}>Balance</span><span style={{ fontSize:'1.2rem', fontWeight:700, color:'#f87171' }}>₹{profile?.canteenBalance||0}</span></div><div className="flex gap-2"><button className="btn btn-primary" style={{flex:1,padding:'0.7rem'}} onClick={() => alert('Top up integration goes here')}>Top Up</button><button className="btn btn-ghost" style={{flex:1,padding:'0.7rem'}} onClick={() => alert('Card unlinked successfully')}><Unlink size={14}/> Unlink</button></div></>}
-        {sub === 'buspass' && <div className="text-center"><div className="badge-green" style={{padding:'0.75rem',borderRadius:8}}>Valid Bus Pass — Exp: Nov 2025</div><div className="flex gap-2 mt-3"><button className="btn btn-ghost" style={{flex:1}} onClick={() => alert('Showing digital pass QR')}>Digital Pass</button><button className="btn btn-outline-red" style={{flex:1}}><LinkIcon size={14}/> Link New</button></div></div>}
+        {sub === 'buspass' && <div className="text-center">
+          <div className="badge-green" style={{padding:'0.75rem',borderRadius:8, marginBottom: '1rem'}}>Valid Bus Pass — Exp: Nov 2025</div>
+          <div style={{ background: '#fff', padding: '1rem', borderRadius: 8, display: 'inline-block' }}>
+            <QRCode value={`TMR-${profile?.employeeId || 'DEMO-123'}`} size={150} />
+          </div>
+          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.5rem' }}>Scan at bus terminal</div>
+        </div>}
       </div>
     </div>
   );

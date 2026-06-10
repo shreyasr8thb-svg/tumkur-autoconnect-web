@@ -64,10 +64,6 @@ function AppContent() {
   return (
     <div className="app-shell">
       {renderDashboard()}
-      <div className="app-footer">
-        <span>Designed & crafted by Roaring Thunders with <span className="heart">❤️</span></span>
-        <a href="mailto:tumkuru.contact@gmail.com">Help & Support</a>
-      </div>
       {toast && <div className="toast">{toast}</div>}
     </div>
   )

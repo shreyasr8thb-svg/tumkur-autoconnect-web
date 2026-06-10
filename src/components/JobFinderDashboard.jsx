@@ -3,7 +3,7 @@ import { Search, MapPin, Briefcase, ChevronRight, User, Settings, Filter, Shield
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
-import Feed from './Feed';
+import AppFooter from './AppFooter';
 import logo from '../assets/logo.png';
 
 export default function JobFinderDashboard({ onSOS }) {
@@ -19,14 +19,13 @@ export default function JobFinderDashboard({ onSOS }) {
         {tab === 'map' && <JobMap />}
         {tab === 'jobs' && <JobList />}
         {tab === 'applications' && <Applications />}
-        {tab === 'feed' && <div className="p-4"><Feed /></div>}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
+        <AppFooter />
       </div>
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'home', icon: <Search size={20}/>, label: 'Explore' },
         { id: 'map', icon: <MapPin size={20}/>, label: 'Map' },
         { id: 'jobs', icon: <Briefcase size={20}/>, label: 'Jobs' },
-        { id: 'feed', icon: <MessageSquare size={20}/>, label: 'Feed' },
         { id: 'profile', icon: <User size={20}/>, label: 'Profile' },
       ]} />
     </div>
