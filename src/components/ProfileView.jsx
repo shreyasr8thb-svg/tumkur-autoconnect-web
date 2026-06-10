@@ -18,6 +18,8 @@ export default function ProfileView({ onNavigate }) {
       ? { emName1: profile?.emName1||'', emPhone1: profile?.emPhone1||'', emName2: profile?.emName2||'', emPhone2: profile?.emPhone2||'' }
       : s === 'vehicle'
       ? { vehicleModel: profile?.vehicleModel||'', vehicleNumber: profile?.vehicleNumber||'' }
+      : s === 'salary'
+      ? { baseSalary: profile?.baseSalary||'', pfDeduction: profile?.pfDeduction||'', welfareBonus: profile?.welfareBonus||'' }
       : { factoryUnit: profile?.factoryUnit||'', department: profile?.department||'', supervisor: profile?.supervisor||'' };
     setForm(fields); setEditing(s);
   };
@@ -146,6 +148,30 @@ export default function ProfileView({ onNavigate }) {
             <Row label="Unit" value={profile?.factoryUnit} />
             <Row label="Dept" value={profile?.department} />
             <Row label="Supervisor" value={profile?.supervisor} />
+          </div>
+        )}
+      </div>
+
+      {/* Salary Details */}
+      <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
+        <div className="flex justify-between items-center">
+          <h4 style={{ color: '#94a3b8', margin: 0 }}>Salary Details</h4>
+          {editing === 'salary'
+            ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
+            : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('salary')} />
+          }
+        </div>
+        {editing === 'salary' ? (
+          <div className="flex-col gap-2">
+            <MiniInput label="Base Salary (₹)" name="baseSalary" type="number" value={form.baseSalary} onChange={e => setForm({...form, baseSalary: e.target.value})} />
+            <MiniInput label="PF Deduction (₹)" name="pfDeduction" type="number" value={form.pfDeduction} onChange={e => setForm({...form, pfDeduction: e.target.value})} />
+            <MiniInput label="Welfare Bonus (₹)" name="welfareBonus" type="number" value={form.welfareBonus} onChange={e => setForm({...form, welfareBonus: e.target.value})} />
+          </div>
+        ) : (
+          <div className="flex-col gap-1">
+            <Row label="Base Salary" value={profile?.baseSalary ? `₹${profile.baseSalary}` : null} />
+            <Row label="PF Deduction" value={profile?.pfDeduction ? `₹${profile.pfDeduction}` : null} />
+            <Row label="Welfare Bonus" value={profile?.welfareBonus ? `₹${profile.welfareBonus}` : null} />
           </div>
         )}
       </div>

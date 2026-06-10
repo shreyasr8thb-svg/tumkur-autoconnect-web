@@ -168,13 +168,10 @@ function SkillPassport() {
         <input ref={certRef} type="file" accept="image/*" hidden onChange={handleCert} />
       </div>
 
-      <div className="glass-card flex gap-3 items-center" style={{ borderLeft: '4px solid #f87171' }}>
-        <div className="icon-box"><Settings size={22} color="#f87171" /></div>
-        <div><strong>Lathe Master</strong><div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Verified by: Govt. ITI Tumkur</div><div style={{ fontSize: '0.75rem', color: '#64748b' }}>Oct 2024</div></div>
-      </div>
-      
-      {certs.map((c, i) => (
-        <div key={i} className="glass-card flex-col gap-2 p-2">
+      {certs.length === 0 ? (
+        <div className="glass-card mt-2 text-center p-3" style={{ color: '#94a3b8' }}>No certificates uploaded yet.</div>
+      ) : certs.map((c, i) => (
+        <div key={i} className="glass-card flex-col gap-2 p-2 mt-2">
            <div className="flex justify-between items-center px-2">
              <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Uploaded Certificate</span>
              <span className="badge-warning">Pending Auth</span>
@@ -185,11 +182,7 @@ function SkillPassport() {
 
       <div className="glass-card mt-2">
         <h3 style={{ fontSize: '1rem', marginBottom: 12 }}>Career Path</h3>
-        <div className="career-path">
-          <PathNode title="Lathe Master" sub="✓ Achieved" status="done" />
-          <PathNode title="CNC Programmer" sub="G-Code, Safety Cert II" status="current" />
-          <PathNode title="Floor Supervisor" sub="Leadership Basics" status="locked" />
-        </div>
+        <div className="text-center p-3" style={{ color: '#94a3b8' }}>Update your skills to generate career path.</div>
         <button className="btn btn-outline-red mt-3 w-100">Request Badge Verification</button>
       </div>
     </div>
@@ -203,25 +196,30 @@ function PathNode({ title, sub, status }) {
 
 /* ─── Salary ─── */
 function Salary() {
+  const { profile } = useUser();
+  const base = Number(profile?.baseSalary) || 0;
+  const pf = Number(profile?.pfDeduction) || 0;
+  const welfare = Number(profile?.welfareBonus) || 0;
+  const takeHome = base - pf + welfare;
+
   return (
     <div className="flex-col gap-3">
-      <div className="text-center mb-2"><h2 style={{ color: '#f87171' }}>Why Tumkur Works</h2><p>Your advantage over gig work.</p></div>
-      <div className="grid-2">
-        <div className="glass-card" style={{ borderTop: '3px solid #f87171' }}>
-          <h4>Tumkur Factory</h4><div style={{ fontSize: '1.5rem', fontWeight: 700, margin: '8px 0' }}>₹21,000</div>
-          <SRow l="Wage" v="₹16,000" /><SRow l="PF" v="₹2,500" /><SRow l="Welfare" v="+₹2,500" c="#4ade80" />
-        </div>
-        <div className="glass-card" style={{ borderTop: '3px solid #475569', opacity: 0.7 }}>
-          <h4 style={{ color: '#94a3b8' }}>B'lore Gig</h4><div style={{ fontSize: '1.5rem', fontWeight: 700, margin: '8px 0', color: '#94a3b8' }}>₹18,500</div>
-          <SRow l="Gross" v="₹25,000" d /><SRow l="Fuel" v="-₹4,000" c="#f87171" d /><SRow l="Rent" v="-₹2,500" c="#f87171" d />
-        </div>
+      <div className="text-center mb-2"><h2 style={{ color: '#f87171' }}>Your Earnings</h2></div>
+      <div className="glass-card" style={{ borderTop: '3px solid #f87171' }}>
+        <h4>Monthly Take Home</h4>
+        <div style={{ fontSize: '1.5rem', fontWeight: 700, margin: '8px 0' }}>₹{takeHome.toLocaleString()}</div>
+        <SRow l="Base Salary" v={`₹${base.toLocaleString()}`} />
+        <SRow l="PF Deduction" v={`-₹${pf.toLocaleString()}`} c="#f87171" />
+        <SRow l="Welfare Bonus" v={`+₹${welfare.toLocaleString()}`} c="#4ade80" />
       </div>
-      <div className="highlight-banner">Take Home More in Tumkur. Build a Career.</div>
+      <div className="highlight-banner" style={{ textAlign: 'center', marginTop: '1rem', padding: '1rem' }}>
+        {takeHome > 0 ? 'Your salary details are up to date.' : 'Please update your salary details in Profile.'}
+      </div>
     </div>
   );
 }
-function SRow({ l, v, c, d }) {
-  return <div className="flex justify-between" style={{ marginBottom: 4 }}><span style={{ fontSize: '0.78rem', color: d ? '#475569' : '#94a3b8' }}>{l}</span><span style={{ fontSize: '0.78rem', fontWeight: 600, color: c || (d ? '#475569' : '#e2e8f0') }}>{v}</span></div>;
+function SRow({ l, v, c }) {
+  return <div className="flex justify-between" style={{ marginBottom: 4 }}><span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{l}</span><span style={{ fontSize: '0.78rem', fontWeight: 600, color: c || '#e2e8f0' }}>{v}</span></div>;
 }
 
 /* ─── Ride Hailing (Cab) ─── */
@@ -314,9 +312,19 @@ function RideHailing() {
 
 /* ─── Smart Access ─── */
 function SmartAccess() {
-  const { profile } = useUser();
+  const { profile, updateProfile } = useUser();
   const [sub, setSub] = useState('log');
+  const [amount, setAmount] = useState('');
   const name = profile?.fullName || 'User';
+
+  const handleTopUp = (method) => {
+    if (!amount || isNaN(amount) || amount <= 0) return alert('Enter a valid top-up amount');
+    const newBal = (profile?.canteenBalance || 0) + Number(amount);
+    updateProfile({ canteenBalance: newBal });
+    alert(`Successfully topped up ₹${amount} via ${method}`);
+    setAmount('');
+  };
+
   return (
     <div className="flex-col gap-3">
       <div className="digital-id-card">
@@ -337,8 +345,21 @@ function SmartAccess() {
         {['log','canteen','buspass'].map(t => <button key={t} className={`tab-btn ${sub===t?'active':''}`} onClick={() => setSub(t)}>{t==='log'?'Access Log':t==='canteen'?'Canteen':'Bus Pass'}</button>)}
       </div>
       <div className="glass-card" style={{ padding: '1rem' }}>
-        {sub === 'log' && <><h4 style={{ color: '#94a3b8' }}>Today</h4><LogRow t="Main Gate (In)" s="Sector A" time="08:14" /><LogRow t="Machining Floor" s="Zone 3" time="08:22" /></>}
-        {sub === 'canteen' && <><div className="flex justify-between items-center mb-2"><span style={{ color:'#94a3b8' }}>Balance</span><span style={{ fontSize:'1.2rem', fontWeight:700, color:'#f87171' }}>₹{profile?.canteenBalance||0}</span></div><div className="flex gap-2"><button className="btn btn-primary" style={{flex:1,padding:'0.7rem'}} onClick={() => alert('Top up integration goes here')}>Top Up</button><button className="btn btn-ghost" style={{flex:1,padding:'0.7rem'}} onClick={() => alert('Card unlinked successfully')}><Unlink size={14}/> Unlink</button></div></>}
+        {sub === 'log' && <><h4 style={{ color: '#94a3b8' }}>Access Logs</h4><div className="text-center p-3" style={{ color: '#64748b' }}>No recent access logs.</div></>}
+        {sub === 'canteen' && <>
+          <div className="flex justify-between items-center mb-3">
+            <span style={{ color:'#94a3b8' }}>Wallet Balance</span>
+            <span style={{ fontSize:'1.4rem', fontWeight:700, color:'#4ade80' }}>₹{profile?.canteenBalance||0}</span>
+          </div>
+          <div className="input-group mb-3">
+            <input type="number" className="input-field" placeholder="Enter Amount (₹)" value={amount} onChange={e => setAmount(e.target.value)} />
+          </div>
+          <div className="flex-col gap-2">
+            <button className="btn btn-primary" style={{ padding:'0.7rem' }} onClick={() => handleTopUp('Salary Deduction')}>Top Up from Salary</button>
+            <button className="btn btn-outline-red" style={{ padding:'0.7rem' }} onClick={() => handleTopUp('UPI / Cards')}>Top Up via UPI / Card</button>
+            <button className="btn btn-ghost mt-2" style={{ padding:'0.7rem' }} onClick={() => alert('Card unlinked successfully')}><Unlink size={14}/> Unlink Card</button>
+          </div>
+        </>}
         {sub === 'buspass' && <div className="text-center">
           <div className="badge-green" style={{padding:'0.75rem',borderRadius:8, marginBottom: '1rem'}}>Valid Bus Pass — Exp: Nov 2025</div>
           <div style={{ background: '#fff', padding: '1rem', borderRadius: 8, display: 'inline-block' }}>
@@ -349,7 +370,4 @@ function SmartAccess() {
       </div>
     </div>
   );
-}
-function LogRow({ t, s, time }) {
-  return <div className="flex justify-between items-center" style={{ padding: '8px 0', borderBottom: '1px solid #1e293b' }}><div><strong style={{ fontSize: '0.9rem' }}>{t}</strong><div style={{ fontSize: '0.78rem', color: '#64748b' }}>{s}</div></div><span style={{ fontWeight: 600 }}>{time}</span></div>;
 }

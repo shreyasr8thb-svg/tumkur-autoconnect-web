@@ -145,38 +145,17 @@ function SkillPassportView() {
 
       <h3>My Badges</h3>
 
-      <div className="card flex gap-3 items-center" style={{ borderLeft: '4px solid #DC3545' }}>
-        <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-dark)', borderRadius: 'var(--radius-sm)' }}>
-          <Settings size={24} color="#DC3545" />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: '600' }}>Lathe Master</div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Verified by: Govt. ITI Tumkur</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>Issued: Oct 2024</div>
-        </div>
+      <div className="card text-center p-3" style={{ color: 'var(--text-gray-dark)' }}>
+        No verified badges yet.
       </div>
 
       <div className="card mt-2">
         <h3 className="mb-3" style={{ fontSize: '1rem' }}>Path to Promotion</h3>
-        <div className="promotion-path">
-          <div className="path-node">
-            <div className="path-dot achieved"></div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>Lathe Master</div>
-            <div style={{ fontSize: '0.75rem', color: '#28a745' }}>✓ Achieved</div>
-          </div>
-          <div className="path-node">
-            <div className="path-dot current"></div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>CNC Programmer</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-light)' }}>Requires: G-Code Basics, Safety Cert II</div>
-          </div>
-          <div className="path-node">
-            <div className="path-dot future"></div>
-            <div style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--text-gray-dark)' }}>Floor Supervisor</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-gray-dark)' }}>Requires: Leadership Basics</div>
-          </div>
+        <div className="text-center p-3" style={{ color: 'var(--text-gray-dark)' }}>
+          Update your skills to generate your career path.
         </div>
 
-        <button className="btn btn-outline-red mt-4">
+        <button className="btn btn-outline-red mt-4 w-100">
           Request New Badge Verification
         </button>
       </div>
@@ -186,32 +165,30 @@ function SkillPassportView() {
 
 /* ─── Salary View ─── */
 function SalaryView() {
+  const { profile } = useUser();
+  const base = Number(profile?.baseSalary) || 0;
+  const pf = Number(profile?.pfDeduction) || 0;
+  const welfare = Number(profile?.welfareBonus) || 0;
+  const takeHome = base - pf + welfare;
+
   return (
     <div className="flex-col gap-4">
       <div className="text-center mb-2">
-        <h2 style={{ color: '#DC3545' }}>Why Tumkur Works For You</h2>
-        <p>Your clear advantage over gig work.</p>
+        <h2 style={{ color: '#DC3545' }}>Your Earnings</h2>
       </div>
 
       <div className="grid-2">
         <div className="card" style={{ borderTop: '4px solid #DC3545', backgroundColor: 'rgba(220, 53, 69, 0.05)' }}>
-          <h3 style={{ fontSize: '1.1rem' }}>Tumkur Factory</h3>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>₹21,000</div>
-          <SalaryRow label="Factory Wage" value="₹16,000" />
-          <SalaryRow label="PF & Gratuity" value="₹2,500" />
-          <SalaryRow label="Welfare (Bus/Med)" value="+ ₹2,500" color="#28a745" />
-        </div>
-        <div className="card" style={{ borderTop: '4px solid var(--text-gray-dark)' }}>
-          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-gray-light)' }}>B'lore Gig</h3>
-          <div style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-gray-light)' }}>₹18,500</div>
-          <SalaryRow label="Gross Earnings" value="₹25,000" dim />
-          <SalaryRow label="Fuel & Maint." value="- ₹4,000" color="#DC3545" dim />
-          <SalaryRow label="Rent Diff." value="- ₹2,500" color="#DC3545" dim />
+          <h3 style={{ fontSize: '1.1rem' }}>Monthly Take Home</h3>
+          <div style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>₹{takeHome.toLocaleString()}</div>
+          <SalaryRow label="Base Salary" value={`₹${base.toLocaleString()}`} />
+          <SalaryRow label="PF Deduction" value={`- ₹${pf.toLocaleString()}`} color="#DC3545" />
+          <SalaryRow label="Welfare Bonus" value={`+ ₹${welfare.toLocaleString()}`} color="#28a745" />
         </div>
       </div>
 
       <div className="text-center mt-2 p-3" style={{ backgroundColor: 'rgba(220, 53, 69, 0.1)', borderRadius: 'var(--radius-md)', color: '#DC3545', fontWeight: '600' }}>
-        Take Home More in Tumkur. Build a Career.
+        {takeHome > 0 ? 'Your salary details are up to date.' : 'Please update your salary details in Profile.'}
       </div>
     </div>
   );
@@ -278,9 +255,18 @@ function BusTrackingView() {
 
 /* ─── Smart Access View ─── */
 function SmartAccessView() {
-  const { profile } = useUser();
+  const { profile, updateProfile } = useUser();
   const [activeTab, setActiveTab] = useState('log');
+  const [amount, setAmount] = useState('');
   const displayName = profile?.fullName || 'User';
+
+  const handleTopUp = (method) => {
+    if (!amount || isNaN(amount) || amount <= 0) return alert('Enter a valid top-up amount');
+    const newBal = (profile?.canteenBalance || 0) + Number(amount);
+    updateProfile({ canteenBalance: newBal });
+    alert(`Successfully topped up ₹${amount} via ${method}`);
+    setAmount('');
+  };
 
   return (
     <div className="flex-col gap-4">
@@ -324,21 +310,8 @@ function SmartAccessView() {
       <div className="card" style={{ padding: '1rem' }}>
         {activeTab === 'log' && (
           <div className="flex-col gap-3">
-            <h4 style={{ color: 'var(--text-gray-light)' }}>Today's Activity</h4>
-            <div className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--border-color)' }}>
-              <div>
-                <div style={{ fontWeight: '600' }}>Main Gate (In)</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Factory Sector A</div>
-              </div>
-              <div style={{ fontWeight: '600' }}>08:14 AM</div>
-            </div>
-            <div className="flex justify-between items-center">
-              <div>
-                <div style={{ fontWeight: '600' }}>Machining Floor</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Zone 3 Access</div>
-              </div>
-              <div style={{ fontWeight: '600' }}>08:22 AM</div>
-            </div>
+            <h4 style={{ color: 'var(--text-gray-light)' }}>Access Logs</h4>
+            <div className="text-center p-3" style={{ color: 'var(--text-gray-dark)' }}>No recent access logs.</div>
           </div>
         )}
 
@@ -348,20 +321,20 @@ function SmartAccessView() {
               <span style={{ color: 'var(--text-gray-light)' }}>Available Balance</span>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#DC3545' }}>₹{profile?.canteenBalance || 0}.00</span>
             </div>
+            
+            <div className="input-group mb-0" style={{ marginBottom: '1rem' }}>
+              <input type="number" className="input-field" placeholder="Enter Amount (₹)" value={amount} onChange={e => setAmount(e.target.value)} />
+            </div>
+
             <div className="flex gap-2">
-              <button className="btn btn-primary" style={{ padding: '0.75rem', flex: 1 }}>Top Up</button>
-              <button className="btn btn-secondary flex items-center justify-center gap-2" style={{ padding: '0.75rem', flex: 1 }}>
-                <Unlink size={16} /> Unlink
+              <button className="btn btn-primary" style={{ padding: '0.75rem', flex: 1 }} onClick={() => handleTopUp('Salary Deduction')}>From Salary</button>
+              <button className="btn btn-secondary flex items-center justify-center gap-2" style={{ padding: '0.75rem', flex: 1 }} onClick={() => handleTopUp('UPI / Card')}>
+                UPI / Card
               </button>
             </div>
-            <h4 className="mt-3" style={{ color: 'var(--text-gray-light)' }}>Recent</h4>
-            <div className="flex justify-between items-center">
-              <div>
-                <div style={{ fontWeight: '600' }}>Lunch Thali</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Today, 1:15 PM</div>
-              </div>
-              <div style={{ fontWeight: '600', color: '#DC3545' }}>- ₹45.00</div>
-            </div>
+            <button className="btn btn-secondary flex items-center justify-center gap-2 mt-2 w-full" style={{ padding: '0.75rem' }} onClick={() => alert('Card unlinked')}>
+              <Unlink size={16} /> Unlink
+            </button>
           </div>
         )}
 
