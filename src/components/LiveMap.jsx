@@ -14,8 +14,9 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
       const center = location || { lat: 13.3379, lng: 77.1173 };
       const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([center.lat, center.lng], 14);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
+      L.tileLayer('https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}.png?apiKey=4bb73b465f696d9ed3b830e4c408b93e', {
+        maxZoom: 20,
+        attribution: '© Geoapify'
       }).addTo(map);
 
       // User marker
