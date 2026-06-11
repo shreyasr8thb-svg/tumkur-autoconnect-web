@@ -133,7 +133,10 @@ export default function RideHailing() {
     if (!user) return;
     const unsub = onSnapshot(doc(db, 'rides', user.uid), snap => {
       if (snap.exists()) { setRide(snap.data()); }
-      else { setRide(null); setStep('input'); }
+      else { 
+        setRide(null); 
+        setStep(prev => (prev === 'pending' || prev === 'tracking' ? 'home' : prev)); 
+      }
     });
     return () => unsub();
   }, [user]);
