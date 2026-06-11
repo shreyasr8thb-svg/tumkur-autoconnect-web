@@ -10,6 +10,7 @@ import QRCode from 'react-qr-code';
 import logo from '../assets/logo.png';
 import ChatBox from './ChatBox';
 import CommunityFeed from './CommunityFeed';
+import DesktopSidebar from './DesktopSidebar';
 
 export default function WorkerDashboard({ onSOS }) {
   const { profile, signOut } = useUser();
@@ -19,28 +20,33 @@ export default function WorkerDashboard({ onSOS }) {
   const name = profile?.fullName || profile?.email?.split('@')[0] || 'User';
 
   return (
-    <div className="flex-col" style={{ flex: 1, position: 'relative' }}>
-      <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} badge="Worker" onNotif={() => setShowNotifs(true)} onMenu={() => setShowMenu(true)} />
-      <div className="screen" style={{ overflowY: 'auto' }}>
-        {tab === 'home' && <Home onSOS={onSOS} go={setTab} />}
-        {tab === 'passport' && <SkillPassport />}
-        {tab === 'salary' && <Salary />}
-        {tab === 'bus' && <RideHailing />}
-        {tab === 'access' && <SmartAccess />}
-        {tab === 'chat' && <ChatBox onBack={() => setTab('home')} />}
-        {tab === 'feed' && <CommunityFeed onBack={() => setTab('home')} />}
-        {tab === 'profile' && <ProfileView onNavigate={setTab} />}
-        {tab !== 'chat' && tab !== 'feed' && <AppFooter />}
-      </div>
-      <BottomNav tab={tab} setTab={setTab} tabs={[
-        { id: 'home', icon: <span style={{ fontSize: '1.2rem' }}>🏠</span>, label: 'Home' },
-        { id: 'feed', icon: <span style={{ fontSize: '1.2rem' }}>📣</span>, label: 'Feed' },
-        { id: 'chat', icon: <span style={{ fontSize: '1.2rem' }}>💬</span>, label: 'Chat' },
-        { id: 'bus', icon: <span style={{ fontSize: '1.2rem' }}>🚕</span>, label: 'Ride' },
-        { id: 'profile', icon: <span style={{ fontSize: '1.2rem' }}>👤</span>, label: 'Profile' },
-      ]} />
+    <>
+      {/* Desktop sidebar (hidden on mobile via CSS) */}
+      <DesktopSidebar tab={tab} setTab={setTab} role="worker" onSignOut={signOut} />
 
-      {/* Notifications Panel */}
+      {/* Main content */}
+      <div className="desktop-main flex-col" style={{ flex: 1, position: 'relative' }}>
+        <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} badge="Worker" onNotif={() => setShowNotifs(true)} onMenu={() => setShowMenu(true)} />
+        <div className="screen" style={{ overflowY: 'auto' }}>
+          {tab === 'home' && <Home onSOS={onSOS} go={setTab} />}
+          {tab === 'passport' && <SkillPassport />}
+          {tab === 'salary' && <Salary />}
+          {tab === 'bus' && <RideHailing />}
+          {tab === 'access' && <SmartAccess />}
+          {tab === 'chat' && <ChatBox onBack={() => setTab('home')} />}
+          {tab === 'feed' && <CommunityFeed onBack={() => setTab('home')} />}
+          {tab === 'profile' && <ProfileView onNavigate={setTab} />}
+          {tab !== 'chat' && tab !== 'feed' && <AppFooter />}
+        </div>
+        <BottomNav tab={tab} setTab={setTab} tabs={[
+          { id: 'home', icon: <span style={{ fontSize: '1.2rem' }}>🏠</span>, label: 'Home' },
+          { id: 'feed', icon: <span style={{ fontSize: '1.2rem' }}>📣</span>, label: 'Feed' },
+          { id: 'chat', icon: <span style={{ fontSize: '1.2rem' }}>💬</span>, label: 'Chat' },
+          { id: 'bus', icon: <span style={{ fontSize: '1.2rem' }}>🚕</span>, label: 'Ride' },
+          { id: 'profile', icon: <span style={{ fontSize: '1.2rem' }}>👤</span>, label: 'Profile' },
+        ]} />
+
+        {/* Notifications Panel */}
       {showNotifs && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
           <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '80%', maxWidth: '320px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
@@ -121,10 +127,14 @@ export default function WorkerDashboard({ onSOS }) {
             
           </div>
         </div>
+          </div>
+        </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
+
 
 /* ─── Shared UI ─── */
 function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
