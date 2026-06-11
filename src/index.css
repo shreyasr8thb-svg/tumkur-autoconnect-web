@@ -262,6 +262,7 @@ p { color: var(--text-muted); }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 /* Leaflet Map Overrides */
 .leaflet-container { background: #0f172a !important; font-family: var(--font-main) !important; }

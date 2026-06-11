@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload, Menu, X, Home as HomeIcon, Grid, Calendar, LogOut, Plus } from 'lucide-react';
+import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload, Menu, X, Home as HomeIcon, Grid, Calendar, LogOut, Plus, Download, Rss } from 'lucide-react';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
@@ -8,6 +8,8 @@ import ProfileView from './ProfileView';
 import AppFooter from './AppFooter';
 import QRCode from 'react-qr-code';
 import logo from '../assets/logo.png';
+import ChatBox from './ChatBox';
+import CommunityFeed from './CommunityFeed';
 
 export default function WorkerDashboard({ onSOS }) {
   const { profile, signOut } = useUser();
@@ -25,12 +27,15 @@ export default function WorkerDashboard({ onSOS }) {
         {tab === 'salary' && <Salary />}
         {tab === 'bus' && <RideHailing />}
         {tab === 'access' && <SmartAccess />}
+        {tab === 'chat' && <ChatBox onBack={() => setTab('home')} />}
+        {tab === 'feed' && <CommunityFeed onBack={() => setTab('home')} />}
         {tab === 'profile' && <ProfileView onNavigate={setTab} />}
-        <AppFooter />
+        {tab !== 'chat' && tab !== 'feed' && <AppFooter />}
       </div>
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'home', icon: <span style={{ fontSize: '1.2rem' }}>🏠</span>, label: 'Home' },
-        { id: 'access', icon: <span style={{ fontSize: '1.2rem' }}>💳</span>, label: 'Access' },
+        { id: 'feed', icon: <span style={{ fontSize: '1.2rem' }}>📣</span>, label: 'Feed' },
+        { id: 'chat', icon: <span style={{ fontSize: '1.2rem' }}>💬</span>, label: 'Chat' },
         { id: 'bus', icon: <span style={{ fontSize: '1.2rem' }}>🚕</span>, label: 'Ride' },
         { id: 'profile', icon: <span style={{ fontSize: '1.2rem' }}>👤</span>, label: 'Profile' },
       ]} />
@@ -91,9 +96,22 @@ export default function WorkerDashboard({ onSOS }) {
             <div className="flex-col gap-1 p-2" style={{ flex: 1, overflowY: 'auto' }}>
               <MenuLink icon={<Bell size={20} />} label="Notifications" onClick={() => { setShowMenu(false); setShowNotifs(true); }} />
               <MenuLink icon={<HomeIcon size={20} />} label="Home" onClick={() => { setShowMenu(false); setTab('home'); }} />
+              <MenuLink icon={<Rss size={20} />} label="Community Feed" onClick={() => { setShowMenu(false); setTab('feed'); }} />
+              <MenuLink icon={<MessageSquare size={20} />} label="Messages & Chat" onClick={() => { setShowMenu(false); setTab('chat'); }} />
               <MenuLink icon={<Grid size={20} />} label="Skill Passport" onClick={() => { setShowMenu(false); setTab('passport'); }} />
               <MenuLink icon={<Calendar size={20} />} label="Events & Workshops" onClick={() => { setShowMenu(false); alert('Events coming soon!'); }} />
               <MenuLink icon={<IndianRupee size={20} />} label="Salary Info" onClick={() => { setShowMenu(false); setTab('salary'); }} />
+
+              {/* Download Section */}
+              <div style={{ margin: '0.5rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.5rem' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#334155', letterSpacing: '0.5px', padding: '0 1rem 0.25rem' }}>GET THE APP</div>
+                <MenuLink
+                  icon={<Download size={20} />}
+                  label="Download APK"
+                  badge="v1.2.4"
+                  onClick={() => { window.open('/tumkuru-connect.apk', '_blank'); }}
+                />
+              </div>
             </div>
 
             {/* Sign Out */}
@@ -130,11 +148,12 @@ function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
   );
 }
 
-function MenuLink({ icon, label, onClick }) {
+function MenuLink({ icon, label, onClick, badge }) {
   return (
     <div className="flex items-center gap-3" style={{ padding: '0.85rem 1rem', borderRadius: '12px', cursor: 'pointer', color: '#cbd5e1', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
       <span style={{ color: '#94a3b8' }}>{icon}</span>
-      <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: '0.95rem', fontWeight: 500, flex: 1 }}>{label}</span>
+      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(225,29,72,0.15)', color: '#e11d48', fontWeight: 700 }}>{badge}</span>}
     </div>
   );
 }
