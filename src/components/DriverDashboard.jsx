@@ -4,7 +4,7 @@
  * - Trip logs, Community Feed, Chat via DashboardShell
  */
 import { useState, useEffect } from 'react';
-import { Navigation, Users, User, AlertTriangle, Check, Scan, Car } from 'lucide-react';
+import { Navigation, Users, User, AlertTriangle, Check, Scan, Car, MapPin, ClipboardList } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
@@ -18,9 +18,9 @@ export default function DriverDashboard() {
   const [active, setActive] = useState(false);
 
   const tabs = [
-    { id: 'drive',      label: 'Drive Mode', icon: '🚗' },
-    { id: 'trips',      label: 'Trip Logs',  icon: '📋' },
-    { id: 'profile',   label: 'Profile',    icon: '👤' },
+    { id: 'drive',      label: 'Drive Mode', icon: <Car size={18} /> },
+    { id: 'trips',      label: 'Trip Logs',  icon: <ClipboardList size={18} /> },
+    { id: 'profile',   label: 'Profile',    icon: <User size={18} /> },
   ];
 
   return (
@@ -92,8 +92,8 @@ function DriveMode({ active, setActive, onMenu }) {
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: active ? '#22c55e' : '#64748b', boxShadow: active ? '0 0 8px #22c55e' : 'none' }} />
           <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#f8fafc' }}>{active ? (activeRide ? 'ON TRIP' : 'ONLINE') : 'OFFLINE'}</span>
         </div>
-        <button onClick={onMenu} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#f8fafc', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}>
-          📋 Trips
+        <button onClick={onMenu} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#f8fafc', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <ClipboardList size={14} /> Trips
         </button>
       </div>
 
@@ -104,7 +104,7 @@ function DriveMode({ active, setActive, onMenu }) {
             <div key={r.id} style={{ background: 'rgba(10,20,40,0.95)', border: '2px solid #3b82f6', borderRadius: 16, padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(59,130,246,0.3)' }}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '1rem', color: '#f8fafc' }}>{r.workerName}</div>
-                <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>📍 → {r.dropoff}</div>
+                <div style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12} /> {r.dropoff}</div>
                 <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>{r.vehicleType}</div>
               </div>
               <button onClick={() => acceptRide(r)} style={{ background: '#3b82f6', border: 'none', borderRadius: 12, padding: '10px 18px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
@@ -159,8 +159,8 @@ function DriveMode({ active, setActive, onMenu }) {
                 </button>
               </div>
             ) : (
-              <button onClick={completeRide} style={{ padding: '1rem', borderRadius: 14, background: '#22c55e', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '1rem' }}>
-                ✓ Complete Trip
+              <button onClick={completeRide} style={{ padding: '1rem', borderRadius: 14, background: '#22c55e', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Check size={18} /> Complete Trip
               </button>
             )}
           </div>

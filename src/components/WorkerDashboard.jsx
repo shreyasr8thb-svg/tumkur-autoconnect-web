@@ -7,7 +7,8 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   ShieldCheck, Car, IndianRupee, CreditCard, AlertTriangle,
-  Upload, Unlink, Building2, Search, CheckCircle2, Clock, X
+  Upload, Unlink, Building2, Search, CheckCircle2, Clock, X,
+  Home as HomeIcon, Award, User, MapPin, Megaphone, Info, FileText, Check
 } from 'lucide-react';
 import {
   collection, query, where, onSnapshot, doc, setDoc, deleteDoc,
@@ -26,13 +27,13 @@ export default function WorkerDashboard({ onSOS }) {
   const [tab, setTab] = useState('home');
 
   const tabs = [
-    { id: 'home',     label: 'Home',         icon: '🏠' },
-    { id: 'company',  label: 'My Company',   icon: '🏭' },
-    { id: 'passport', label: 'Skill Passport', icon: '🎓' },
-    { id: 'salary',   label: 'Earnings',     icon: '💰' },
-    { id: 'access',   label: 'Smart Access', icon: '💳' },
-    { id: 'bus',      label: 'Book Ride',    icon: '🚗' },
-    { id: 'profile',  label: 'Profile',      icon: '👤' },
+    { id: 'home',     label: 'Home',         icon: <HomeIcon size={18} /> },
+    { id: 'company',  label: 'My Company',   icon: <Building2 size={18} /> },
+    { id: 'passport', label: 'Skill Passport', icon: <Award size={18} /> },
+    { id: 'salary',   label: 'Earnings',     icon: <IndianRupee size={18} /> },
+    { id: 'access',   label: 'Smart Access', icon: <CreditCard size={18} /> },
+    { id: 'bus',      label: 'Book Ride',    icon: <Car size={18} /> },
+    { id: 'profile',  label: 'Profile',      icon: <User size={18} /> },
   ];
 
   return (
@@ -84,10 +85,10 @@ function Home({ onSOS, go }) {
         <div className="flex justify-between items-start">
           <div>
             <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '0.08em' }}>WELCOME BACK</div>
-            <h2 style={{ margin: '4px 0 2px', fontSize: '1.2rem' }}>Hello, {name}! 👋</h2>
+            <h2 style={{ margin: '4px 0 2px', fontSize: '1.2rem' }}>Hello, {name}!</h2>
             {company
-              ? <p style={{ margin: 0, fontSize: '0.75rem' }}>📍 {company.companyName}</p>
-              : <p style={{ margin: 0, fontSize: '0.75rem', color: '#fbbf24' }}>⚠️ Not joined any company yet</p>
+              ? <p style={{ margin: 0, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12} /> {company.companyName}</p>
+              : <p style={{ margin: 0, fontSize: '0.75rem', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={12} /> Not joined any company yet</p>
             }
           </div>
           {profile?.photoURL
@@ -106,7 +107,7 @@ function Home({ onSOS, go }) {
       {/* Announcement from company */}
       {announcement && (
         <div className="glass-card" style={{ borderLeft: '3px solid #fbbf24' }}>
-          <div style={{ fontSize: '0.65rem', color: '#fbbf24', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 4 }}>📢 COMPANY ANNOUNCEMENT</div>
+          <div style={{ fontSize: '0.65rem', color: '#fbbf24', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}><Megaphone size={12} /> COMPANY ANNOUNCEMENT</div>
           <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1' }}>{announcement.text}</p>
         </div>
       )}
@@ -114,7 +115,9 @@ function Home({ onSOS, go }) {
       {/* If no company, nudge */}
       {!company && (
         <div className="glass-card flex items-center gap-3" style={{ border: '1px solid rgba(251,191,36,0.3)', cursor: 'pointer', background: 'rgba(251,191,36,0.05)' }} onClick={() => go('company')}>
-          <div style={{ fontSize: '1.5rem' }}>🏭</div>
+          <div style={{ padding: '8px', background: 'rgba(251,191,36,0.1)', borderRadius: '8px', color: '#fbbf24' }}>
+            <Building2 size={24} />
+          </div>
           <div>
             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fbbf24' }}>Join Your Company</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Search and request to join your workplace</div>
@@ -131,10 +134,10 @@ function Home({ onSOS, go }) {
       {/* Quick Access */}
       <div style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.08em' }}>QUICK ACCESS</div>
       <div className="grid-2">
-        <QCard icon="🎓" title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
-        <QCard icon="🚗" title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
-        <QCard icon="💰" title="Earnings" sub="Salary details" onClick={() => go('salary')} />
-        <QCard icon="💳" title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
+        <QCard icon={<Award size={24} />} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
+        <QCard icon={<Car size={24} />} title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
+        <QCard icon={<IndianRupee size={24} />} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
+        <QCard icon={<CreditCard size={24} />} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
       </div>
     </div>
   );
@@ -143,7 +146,7 @@ function Home({ onSOS, go }) {
 function QCard({ icon, title, sub, onClick }) {
   return (
     <div className="glass-card flex-col gap-2 action-card" style={{ padding: '0.9rem', cursor: 'pointer' }} onClick={onClick}>
-      <div style={{ fontSize: '1.5rem' }}>{icon}</div>
+      <div style={{ color: 'var(--primary)', marginBottom: '4px' }}>{icon}</div>
       <strong style={{ fontSize: '0.85rem' }}>{title}</strong>
       <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{sub}</span>
     </div>
@@ -218,7 +221,9 @@ function CompanySection({ user, profile }) {
         <h3 style={{ margin: 0 }}>My Company</h3>
         <div className="glass-card" style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.95))' }}>
           <div className="flex items-center gap-3 mb-3">
-            <div style={{ width: 52, height: 52, borderRadius: '14px', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' }}>🏭</div>
+            <div style={{ width: 52, height: 52, borderRadius: '14px', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171' }}>
+              <Building2 size={24} />
+            </div>
             <div>
               <h3 style={{ margin: 0 }}>{membership.companyName}</h3>
               <span className="badge-green">Active Employee</span>
@@ -226,7 +231,7 @@ function CompanySection({ user, profile }) {
           </div>
           <div className="flex-col gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 12 }}>
             <Row label="Joined" value={membership.joinedAt?.toDate ? membership.joinedAt.toDate().toLocaleDateString('en-IN') : 'Recently'} />
-            <Row label="Status" value="Active ✅" />
+            <Row label="Status" value={<span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>Active <CheckCircle2 size={14} color="#4ade80" /></span>} />
           </div>
         </div>
         <div className="info-box">
@@ -242,8 +247,10 @@ function CompanySection({ user, profile }) {
     return (
       <div className="flex-col gap-3">
         <h3 style={{ margin: 0 }}>Join Request Pending</h3>
-        <div className="glass-card text-center" style={{ padding: '2rem', borderColor: 'rgba(251,191,36,0.3)' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>⏳</div>
+        <div className="glass-card text-center flex-col items-center gap-2" style={{ padding: '2rem', borderColor: 'rgba(251,191,36,0.3)' }}>
+          <div style={{ padding: '16px', background: 'rgba(251,191,36,0.1)', borderRadius: '50%', color: '#fbbf24', marginBottom: '8px' }}>
+            <Clock size={32} />
+          </div>
           <h4 style={{ margin: '0 0 6px', color: '#fbbf24' }}>Awaiting Approval</h4>
           <p style={{ margin: '0 0 1rem' }}>Your request to join <strong>{request.companyName}</strong> is pending HR approval.</p>
           <button onClick={cancelRequest} style={{ padding: '0.6rem 1.5rem', borderRadius: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontWeight: 600, cursor: 'pointer' }}>
@@ -280,7 +287,9 @@ function CompanySection({ user, profile }) {
 
       {filtered.map(company => (
         <div key={company.id} className="glass-card flex items-center gap-3" style={{ padding: '0.9rem' }}>
-          <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>🏭</div>
+          <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171', flexShrink: 0 }}>
+            <Building2 size={20} />
+          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{company.name}</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{company.industry} · {company.location}</div>
@@ -331,7 +340,10 @@ function SkillPassport() {
       </div>
 
       {certs.length === 0
-        ? <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No certificates uploaded yet.<br /><span style={{ fontSize: '0.75rem' }}>Upload your certificates to build your Skill Passport.</span></div>
+        ? <div className="glass-card text-center flex-col items-center gap-2" style={{ color: 'var(--text-muted)', padding: '2rem' }}>
+            <FileText size={28} color="#64748b" />
+            <div>No certificates uploaded yet.<br /><span style={{ fontSize: '0.75rem' }}>Upload your certificates to build your Skill Passport.</span></div>
+          </div>
         : certs.map((c, i) => (
           <div key={i} className="glass-card flex-col gap-2" style={{ padding: '0.75rem' }}>
             <div className="flex justify-between items-center">
@@ -372,7 +384,7 @@ function Salary() {
       </div>
       {takeHome === 0 && (
         <div className="info-box">
-          <span>ℹ️</span>
+          <Info size={16} />
           <span>Update your salary details in Profile → Edit Profile to see earnings here.</span>
         </div>
       )}
@@ -400,7 +412,7 @@ function SmartAccess() {
     const newBal = (profile?.canteenBalance || 0) + Number(amount);
     updateProfile({ canteenBalance: newBal });
     setAmount('');
-    alert(`✅ Topped up ₹${amount} via ${method}`);
+    alert(`Topped up ₹${amount} via ${method}`);
   };
 
   return (

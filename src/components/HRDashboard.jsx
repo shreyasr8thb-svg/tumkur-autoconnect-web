@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import {
   Users, UserCheck, UserX, Building2, Plus, Bell, CheckCircle2,
   XCircle, Clock, Briefcase, Activity, ChevronRight, Megaphone,
-  AlertTriangle, Car, PieChart
+  AlertTriangle, Car, PieChart, ClipboardList, HardHat, ShieldCheck, Search, Check, X
 } from 'lucide-react';
 import {
   collection, query, where, onSnapshot,
@@ -101,8 +101,10 @@ function CompanySetup({ user, profile }) {
 
   return (
     <div className="screen flex-col justify-center" style={{ gap: '1.5rem', overflowY: 'auto' }}>
-      <div className="text-center">
-        <div style={{ fontSize: '3rem', marginBottom: 8 }}>🏭</div>
+      <div className="text-center flex-col items-center gap-2">
+        <div style={{ padding: '20px', background: 'rgba(239,68,68,0.1)', borderRadius: '50%', color: '#f87171' }}>
+          <Building2 size={40} />
+        </div>
         <h2 style={{ margin: 0 }}>Set Up Your Company</h2>
         <p style={{ marginTop: 4 }}>Enter your company details to get started on Tumkuru Connect</p>
       </div>
@@ -127,8 +129,8 @@ function CompanySetup({ user, profile }) {
           <input className="input-field" placeholder="e.g. KIADB Industrial Area, Tumkuru" value={location} onChange={e => setLocation(e.target.value)} />
         </div>
 
-        <button className="btn btn-primary mt-2" disabled={saving || !name.trim()} onClick={handleCreate}>
-          {saving ? 'Creating…' : 'Create Company Dashboard →'}
+        <button className="btn btn-primary mt-2 flex items-center justify-center gap-2" disabled={saving || !name.trim()} onClick={handleCreate}>
+          {saving ? 'Creating…' : <>Create Company Dashboard <ChevronRight size={16} /></>}
         </button>
       </div>
     </div>
@@ -153,7 +155,9 @@ function HRHome({ company, user }) {
       {/* Company Header Card */}
       <div className="glass-card" style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.95))', border: '1px solid rgba(255,255,255,0.1)' }}>
         <div className="flex items-center gap-3">
-          <div style={{ width: 52, height: 52, borderRadius: '14px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>🏭</div>
+          <div style={{ width: 52, height: 52, borderRadius: '14px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171' }}>
+            <Building2 size={24} />
+          </div>
           <div style={{ flex: 1 }}>
             <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{company.name}</h3>
             <p style={{ margin: 0, fontSize: '0.75rem' }}>{company.industry} · {company.location}</p>
@@ -163,8 +167,8 @@ function HRHome({ company, user }) {
 
       {/* Stats Grid */}
       <div className="grid-2">
-        <StatCard label="Total Employees" value={members.length} icon="👷" />
-        <StatCard label="Pending Requests" value={requests.length} icon="📋" highlight={requests.length > 0} />
+        <StatCard label="Total Employees" value={members.length} icon={<HardHat size={20} color="var(--primary)" />} />
+        <StatCard label="Pending Requests" value={requests.length} icon={<ClipboardList size={20} color="#fbbf24" />} highlight={requests.length > 0} />
       </div>
 
       {/* Pending Requests Preview */}
@@ -174,7 +178,7 @@ function HRHome({ company, user }) {
             <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={16} color="#fbbf24" /> Pending Requests
             </h4>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', background: 'rgba(251,191,36,0.12)', padding: '2px 8px', borderRadius: '9999px', color: '#fbbf24' }}>{requests.length} waiting</span>
+            <span style={{ fontSize: '0.72rem', background: 'rgba(251,191,36,0.12)', padding: '2px 8px', borderRadius: '9999px', color: '#fbbf24' }}>{requests.length} waiting</span>
           </div>
           {requests.slice(0, 3).map(r => (
             <RequestRow key={r.id} req={r} compact />
@@ -217,7 +221,7 @@ function JoinRequests({ company, user }) {
     // Notify the worker
     await addDoc(collection(db, 'notifications'), {
       userId: req.workerId, type: 'join_accepted',
-      title: '✅ Request Accepted',
+      title: 'Request Accepted',
       body: `You have been added to ${company.name}!`,
       timestamp: serverTimestamp(), read: false,
     });
@@ -227,7 +231,7 @@ function JoinRequests({ company, user }) {
     await updateDoc(doc(db, 'join_requests', req.id), { status: 'rejected', respondedAt: serverTimestamp() });
     await addDoc(collection(db, 'notifications'), {
       userId: req.workerId, type: 'join_rejected',
-      title: '❌ Request Not Approved',
+      title: 'Request Not Approved',
       body: `Your request to join ${company.name} was not approved.`,
       timestamp: serverTimestamp(), read: false,
     });
@@ -251,142 +255,180 @@ function JoinRequests({ company, user }) {
         ))}
       </div>
 
-      {filtered.length === 0
-        ? <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No {filter} requests</div>
-        : filtered.map(req => (
-          <RequestRow key={req.id} req={req} onAccept={accept} onReject={reject} />
-        ))
-      }
-    </div>
-  );
-}
-
-function RequestRow({ req, onAccept, onReject, compact }) {
-  return (
-    <div className="glass-card flex items-center gap-3" style={{ padding: compact ? '0.75rem' : '1rem', marginBottom: compact ? '0.5rem' : 0 }}>
-      <div className="avatar-sm" style={{ borderRadius: '10px', background: 'rgba(239,68,68,0.2)', color: '#f87171', flexShrink: 0 }}>
-        {(req.workerName || 'W').charAt(0).toUpperCase()}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.workerName}</div>
-        <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{req.workerEmail} · {req.department || 'General'}</div>
-        {req.status !== 'pending' && (
-          <span style={{ fontSize: '0.65rem', fontWeight: 700, color: req.status === 'accepted' ? '#4ade80' : '#f87171' }}>
-            {req.status === 'accepted' ? '✅ Accepted' : '❌ Rejected'}
-          </span>
-        )}
-      </div>
-      {req.status === 'pending' && !compact && (
-        <div className="flex gap-2">
-          <button onClick={() => onAccept(req)} style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '8px', padding: '6px 12px', color: '#4ade80', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}>
-            ✓ Accept
-          </button>
-          <button onClick={() => onReject(req)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '8px', padding: '6px 12px', color: '#f87171', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}>
-            ✗ Reject
-          </button>
+      {filtered.length === 0 ? (
+        <div className="glass-card text-center flex-col items-center gap-2" style={{ color: 'var(--text-muted)', padding: '3rem 1rem' }}>
+          <ShieldCheck size={32} color="#475569" />
+          <div>No {filter} requests</div>
+        </div>
+      ) : (
+        <div className="flex-col gap-2">
+          {filtered.map(r => (
+            <RequestRow key={r.id} req={r} onAccept={() => accept(r)} onReject={() => reject(r)} showActions={filter === 'pending'} />
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-/* ── Employee List ── */
+function RequestRow({ req, compact, onAccept, onReject, showActions }) {
+  return (
+    <div className="glass-card flex items-center justify-between" style={{ padding: compact ? '0.6rem 0' : '0.85rem', border: 'none', borderBottom: compact ? '1px solid rgba(255,255,255,0.05)' : 'none', borderRadius: compact ? 0 : 12, background: compact ? 'transparent' : 'var(--glass)' }}>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{req.workerName}</div>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{req.department || 'General Worker'}</div>
+      </div>
+      {showActions ? (
+        <div className="flex gap-2">
+          <button onClick={onReject} style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={16} /></button>
+          <button onClick={onAccept} style={{ padding: '6px 14px', borderRadius: 8, background: 'var(--primary)', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><Check size={16} /> Accept</button>
+        </div>
+      ) : !compact && (
+        <div className={`badge-${req.status === 'accepted' ? 'green' : 'red'}`} style={{ fontSize: '0.7rem' }}>
+          {req.status.toUpperCase()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Employee Directory ── */
 function EmployeeList({ company }) {
-  const [members, setMembers] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    const q = query(collection(db, 'company_members'), where('companyId', '==', company.hrUid));
-    return onSnapshot(q, s => setMembers(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-  }, [company.hrUid]);
+    if (!company?.id) return;
+    const q = query(collection(db, 'company_members'), where('companyId', '==', company.id));
+    return onSnapshot(q, s => setEmployees(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+  }, [company?.id]);
+
+  const filtered = employees.filter(e => e.workerName?.toLowerCase().includes(search.toLowerCase()) || e.workerEmail?.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="flex-col gap-3">
-      <div className="flex justify-between items-center">
-        <h3 style={{ margin: 0 }}>Employees <span style={{ fontWeight: 400, color: 'var(--text-dim)', fontSize: '0.85rem' }}>({members.length})</span></h3>
+      <h3 style={{ margin: 0 }}>Employee Directory</h3>
+
+      <div className="glass-card flex items-center gap-2" style={{ padding: '0.75rem 1rem' }}>
+        <Search size={18} color="var(--text-dim)" />
+        <input
+          className="search-input"
+          placeholder="Search employees..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
       </div>
-      {members.length === 0
-        ? <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No employees yet. Accept join requests to add workers.</div>
-        : members.map(m => (
-          <div key={m.id} className="glass-card flex items-center gap-3" style={{ padding: '0.85rem' }}>
-            <div className="avatar-sm" style={{ borderRadius: '10px' }}>{(m.workerName || 'W').charAt(0)}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{m.workerName}</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{m.workerEmail}</div>
+
+      <div className="flex-col gap-2">
+        {filtered.length === 0 ? (
+          <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No employees found.</div>
+        ) : filtered.map(e => (
+          <div key={e.id} className="glass-card flex items-center gap-3" style={{ padding: '0.85rem' }}>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
+              {(e.workerName || 'U').charAt(0).toUpperCase()}
             </div>
-            <span style={{ fontSize: '0.68rem', background: 'rgba(34,197,94,0.12)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 8px', borderRadius: '9999px', fontWeight: 700 }}>Active</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{e.workerName}</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{e.workerEmail || 'No email provided'}</div>
+            </div>
+            <span className="badge-green" style={{ fontSize: '0.65rem' }}>Active</span>
           </div>
-        ))
-      }
+        ))}
+      </div>
     </div>
   );
 }
 
 /* ── Announcements ── */
 function Announcements({ company, user }) {
-  const [posts, setPosts] = useState([]);
   const [text, setText] = useState('');
+  const [posts, setPosts] = useState([]);
   const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, 'announcements'), where('companyId', '==', user.uid));
-    return onSnapshot(q, s => setPosts(s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))));
+    return onSnapshot(q, s => {
+      setPosts(s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds));
+    });
   }, [user.uid]);
 
   const post = async () => {
     if (!text.trim()) return;
     setPosting(true);
     await addDoc(collection(db, 'announcements'), {
-      companyId: user.uid, companyName: company.name,
-      text: text.trim(), createdAt: serverTimestamp(),
+      companyId: user.uid,
+      companyName: company.name,
+      text: text.trim(),
+      createdAt: serverTimestamp(),
+      author: company.hrName
     });
-    setText(''); setPosting(false);
+    setText('');
+    setPosting(false);
+  };
+
+  const deletePost = async (id) => {
+    if (window.confirm('Delete this announcement?')) {
+      await deleteDoc(doc(db, 'announcements', id));
+    }
   };
 
   return (
     <div className="flex-col gap-3">
-      <h3 style={{ margin: 0 }}>Post Announcement</h3>
+      <h3 style={{ margin: 0 }}>Announcements</h3>
+      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Broadcast messages to all {company.name} employees. They will see this on their home dashboard.</p>
+
       <div className="glass-card flex-col gap-3">
         <textarea
           className="input-field"
-          placeholder="Write an announcement to all your employees..."
+          style={{ minHeight: 80, resize: 'none' }}
+          placeholder="Type an announcement..."
           value={text}
           onChange={e => setText(e.target.value)}
-          rows={3}
-          style={{ resize: 'none' }}
         />
-        <button className="btn btn-primary" onClick={post} disabled={posting || !text.trim()}>
-          {posting ? 'Posting…' : <><Megaphone size={16} /> Post Announcement</>}
+        <button className="btn btn-primary flex items-center justify-center gap-2" disabled={!text.trim() || posting} onClick={post}>
+          <Megaphone size={16} /> {posting ? 'Posting...' : 'Broadcast Announcement'}
         </button>
       </div>
-      {posts.map(p => (
-        <div key={p.id} className="glass-card">
-          <p style={{ margin: 0 }}>{p.text}</p>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: 6 }}>
-            {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recently'}
+
+      <h4 style={{ margin: '1rem 0 0' }}>Recent Broadcasts</h4>
+      {posts.length === 0 ? (
+        <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No announcements made yet.</div>
+      ) : (
+        posts.map(p => (
+          <div key={p.id} className="glass-card flex-col gap-2">
+            <div className="flex justify-between items-start">
+              <div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 700, letterSpacing: '0.05em' }}>COMPANY ANNOUNCEMENT</div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>
+                  {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Just now'}
+                </div>
+              </div>
+              <button onClick={() => deletePost(p.id)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 4 }}><X size={16} /></button>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.5 }}>{p.text}</p>
           </div>
-        </div>
-      ))}
-      {posts.length === 0 && <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '1.5rem' }}>No announcements yet</div>}
+        ))
+      )}
     </div>
   );
 }
 
 /* ── Helpers ── */
-function StatCard({ label, value, icon, highlight }) {
+function Row({ label, value }) {
   return (
-    <div className="glass-card flex-col gap-1" style={{ border: highlight ? '1px solid rgba(251,191,36,0.3)' : undefined }}>
-      <div style={{ fontSize: '1.6rem' }}>{icon}</div>
-      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: highlight ? '#fbbf24' : 'var(--text-main)' }}>{value}</div>
-      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>{label}</div>
+    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 }}>
+      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{label}</span>
+      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{value}</span>
     </div>
   );
 }
 
-function Row({ label, value }) {
+function StatCard({ label, value, icon, highlight }) {
   return (
-    <div className="flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.6rem' }}>
-      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{label}</span>
-      <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{value}</span>
+    <div className="glass-card flex-col items-center justify-center gap-1" style={{ padding: '1.25rem', borderColor: highlight ? 'rgba(251,191,36,0.4)' : undefined, background: highlight ? 'rgba(251,191,36,0.05)' : undefined }}>
+      <div style={{ marginBottom: 4 }}>{icon}</div>
+      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: highlight ? '#fbbf24' : '#f8fafc', lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.05em', textAlign: 'center' }}>{label.toUpperCase()}</div>
     </div>
   );
 }
