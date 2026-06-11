@@ -1,8 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, CheckCircle2, ChevronLeft } from 'lucide-react';
 import mockup from '../assets/mockup.png';
 
 export default function DownloadPage({ onBack }) {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } else {
+      alert("To install the app, tap 'Share' (iOS) or the menu button (Android) and select 'Add to Home Screen'.");
+    }
+  };
+
   return (
     <div className="flex-col" style={{
       background: '#020617', // Match dark theme
@@ -80,9 +103,9 @@ export default function DownloadPage({ onBack }) {
               color: '#fff',
               cursor: 'pointer',
               display: 'inline-flex'
-            }} onClick={() => { window.open('/tumkuru-connect.apk', '_blank'); }}>
+            }} onClick={handleInstall}>
               <Download size={22} />
-              <span>Download APK</span>
+              <span>Install App</span>
             </button>
           </div>
 

@@ -1,0 +1,23 @@
+{
+  "name": "Tumkuru Connect",
+  "short_name": "Connect",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "description": "The unified industrial ecosystem for Tumakuru",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "orientation": "portrait",
+  "categories": ["business", "social"]
+}
