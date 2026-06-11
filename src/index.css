@@ -267,3 +267,5 @@ p { color: var(--text-muted); }
 .leaflet-container { background: #0f172a !important; font-family: var(--font-main) !important; }
 .leaflet-popup-content-wrapper { background: rgba(15,23,42,0.9) !important; backdrop-filter: blur(8px); color: #f8fafc !important; border: 1px solid var(--border) !important; border-radius: 8px !important; }
 .leaflet-popup-tip { background: rgba(15,23,42,0.9) !important; border: 1px solid var(--border) !important; }
+@ k e y f r a m e s   s l i d e I n L e f t   {   f r o m   {   t r a n s f o r m :   t r a n s l a t e X ( - 1 0 0 % ) ;   }   t o   {   t r a n s f o r m :   t r a n s l a t e X ( 0 ) ;   }   }  
+ 

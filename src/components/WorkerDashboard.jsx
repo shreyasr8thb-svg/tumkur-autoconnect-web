@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload, Menu, X } from 'lucide-react';
+import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload, Menu, X, Home as HomeIcon, Grid, Calendar, LogOut, Plus } from 'lucide-react';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
@@ -53,18 +53,54 @@ export default function WorkerDashboard({ onSOS }) {
 
       {/* Menu Panel */}
       {showMenu && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
-          <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '70%', maxWidth: '280px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
-            <div className="flex justify-between items-center p-4 border-b-dark">
-              <h3 style={{ margin: 0 }}>Menu</h3>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, animation: 'fadeIn 0.2s' }}>
+          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '85%', maxWidth: '320px', background: '#020617', borderRight: '1px solid rgba(255,255,255,0.05)', animation: 'slideInLeft 0.3s forwards' }}>
+            
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 border-b-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <div className="flex items-center gap-2">
+                <div style={{ background: '#e11d48', color: '#fff', padding: '4px 8px', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem' }}>TC</div>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#f8fafc' }}>Tumkuru Connect</h3>
+              </div>
               <X size={24} color="#94a3b8" onClick={() => setShowMenu(false)} style={{ cursor: 'pointer' }} />
             </div>
-            <div className="p-4 flex-col gap-4">
-              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}><User size={20} color="#94a3b8" /> <span>Profile</span></div>
-              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('passport'); }}><ShieldCheck size={20} color="#94a3b8" /> <span>Skill Passport</span></div>
-              <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('salary'); }}><IndianRupee size={20} color="#94a3b8" /> <span>Salary Info</span></div>
-              <div className="flex items-center gap-3" style={{ cursor: 'pointer', color: '#f87171', marginTop: 'auto' }} onClick={signOut}><AlertTriangle size={20} color="#f87171" /> <span>Logout</span></div>
+
+            {/* Profile Card */}
+            <div className="p-4 border-b-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <div className="flex items-center justify-between p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}>
+                <div className="flex items-center gap-3">
+                  {profile?.photoURL ? <img src={profile.photoURL} alt="" className="avatar-sm" style={{ objectFit: 'cover', borderRadius: '8px' }} /> : <div className="avatar-sm" style={{ borderRadius: '8px' }}>{name.charAt(0)}</div>}
+                  <div className="overflow-hidden" style={{ width: '130px' }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#f8fafc', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{profile?.email || 'user@example.com'}</div>
+                  </div>
+                </div>
+                <ChevronRight size={18} color="#64748b" />
+              </div>
             </div>
+
+            {/* Create Button */}
+            <div className="p-4">
+              <button className="btn w-100 flex items-center justify-center gap-2" style={{ padding: '0.9rem', borderRadius: '12px', background: '#e11d48', color: '#fff', boxShadow: 'none' }} onClick={() => { setShowMenu(false); setTab('bus'); }}>
+                <Plus size={18} />
+                <span>Request New Ride</span>
+              </button>
+            </div>
+
+            {/* Navigation List */}
+            <div className="flex-col gap-1 p-2" style={{ flex: 1, overflowY: 'auto' }}>
+              <MenuLink icon={<Bell size={20} />} label="Notifications" onClick={() => { setShowMenu(false); setShowNotifs(true); }} />
+              <MenuLink icon={<HomeIcon size={20} />} label="Home" onClick={() => { setShowMenu(false); setTab('home'); }} />
+              <MenuLink icon={<Grid size={20} />} label="Skill Passport" onClick={() => { setShowMenu(false); setTab('passport'); }} />
+              <MenuLink icon={<Calendar size={20} />} label="Events & Workshops" onClick={() => { setShowMenu(false); alert('Events coming soon!'); }} />
+              <MenuLink icon={<IndianRupee size={20} />} label="Salary Info" onClick={() => { setShowMenu(false); setTab('salary'); }} />
+            </div>
+
+            {/* Sign Out */}
+            <div className="p-4 border-t-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <MenuLink icon={<LogOut size={20} />} label="Sign Out" onClick={signOut} />
+            </div>
+            
           </div>
         </div>
       )}
@@ -90,6 +126,15 @@ function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
         </div>
         <Menu size={24} color="#f8fafc" style={{ cursor: 'pointer' }} onClick={onMenu} />
       </div>
+    </div>
+  );
+}
+
+function MenuLink({ icon, label, onClick }) {
+  return (
+    <div className="flex items-center gap-3" style={{ padding: '0.85rem 1rem', borderRadius: '12px', cursor: 'pointer', color: '#cbd5e1', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+      <span style={{ color: '#94a3b8' }}>{icon}</span>
+      <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>{label}</span>
     </div>
   );
 }
