@@ -55,8 +55,8 @@ export default function WorkerDashboard({ onSOS }) {
 
       {/* Menu Panel */}
       {showMenu && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, animation: 'fadeIn 0.2s' }} onClick={() => setShowMenu(false)}>
-          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '85%', maxWidth: '320px', background: '#ffffff', borderRight: '1px solid var(--border)', animation: 'slideInLeft 0.3s forwards' }} onClick={e => e.stopPropagation()}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, animation: 'fadeIn 0.2s' }} onClick={() => setShowMenu(false)}>
+          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '82%', maxWidth: '300px', background: 'var(--bg-panel)', borderRight: '1px solid var(--border)', animation: 'slideInLeft 0.28s forwards' }} onClick={e => e.stopPropagation()}>
             
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b-dark" style={{ borderColor: 'var(--border)' }}>
@@ -129,30 +129,27 @@ export default function WorkerDashboard({ onSOS }) {
 function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
   return (
     <div className="top-bar">
-      <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
-        {photo ? <img src={photo} className="avatar-sm" alt="" style={{ objectFit: 'cover' }} /> : <div className="avatar-sm">{name.charAt(0)}</div>}
-        <div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{badge || 'Welcome'}</div>
-          <div style={{ fontWeight: 600 }}>{name}</div>
-        </div>
+      <button onClick={onMenu} style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: '10px', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+        <Menu size={20} color="var(--text-muted)" />
+      </button>
+      <div className="flex items-center gap-2" style={{ flex: 1, justifyContent: 'center' }}>
+        <div style={{ background: 'var(--primary)', color: '#fff', width: 28, height: 28, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.72rem', flexShrink: 0 }}>TC</div>
+        <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>Tumkuru Connect</span>
       </div>
-      <div className="flex items-center gap-4">
-        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={onNotif}>
-          <Bell size={22} color="var(--text-dim)" />
-          <div className="notif-dot" style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: 'var(--primary)', borderRadius: '50%' }} />
-        </div>
-        <Menu size={24} color="var(--text-main)" style={{ cursor: 'pointer' }} onClick={onMenu} />
-      </div>
+      <button onClick={onNotif} style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: '10px', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative' }}>
+        <Bell size={19} color="var(--text-muted)" />
+        <div style={{ position: 'absolute', top: 8, right: 8, width: 7, height: 7, background: 'var(--primary)', borderRadius: '50%', border: '1.5px solid var(--bg-panel)' }} />
+      </button>
     </div>
   );
 }
 
 function MenuLink({ icon, label, onClick, badge }) {
   return (
-    <div className="flex items-center gap-3" style={{ padding: '0.85rem 1rem', borderRadius: '8px', cursor: 'pointer', color: 'var(--text-main)', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+    <div className="flex items-center gap-3" style={{ padding: '0.75rem 1rem', borderRadius: '10px', cursor: 'pointer', color: 'var(--text-main)', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
       <span style={{ color: 'var(--text-muted)' }}>{icon}</span>
-      <span style={{ fontSize: '0.95rem', fontWeight: 500, flex: 1 }}>{label}</span>
-      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(10,102,194,0.12)', color: 'var(--primary)', fontWeight: 700 }}>{badge}</span>}
+      <span style={{ fontSize: '0.9rem', fontWeight: 500, flex: 1 }}>{label}</span>
+      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(225,29,72,0.15)', color: 'var(--primary)', fontWeight: 700 }}>{badge}</span>}
     </div>
   );
 }
@@ -171,32 +168,77 @@ function BottomNav({ tab, setTab, tabs }) {
 
 /* ─── Home ─── */
 function Home({ onSOS, go }) {
+  const { profile } = useUser();
+  const name = profile?.fullName?.split(' ')[0] || profile?.email?.split('@')[0] || 'User';
+  const dept = profile?.department || 'Industrial Worker';
+  const empId = profile?.employeeId || '---';
+
   return (
     <div className="flex-col gap-3">
-      <div className="sos-card">
-        <button onClick={onSOS} className="btn btn-sos">
-          <AlertTriangle size={28} />
-          <span>EMERGENCY SOS</span>
+      {/* Hero Welcome Card */}
+      <div className="hero-card">
+        <div className="flex justify-between items-start">
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600, letterSpacing: '0.08em', marginBottom: 4 }}>WELCOME BACK</div>
+            <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', fontWeight: 800 }}>Hello, {name}! 👋</h2>
+            <p style={{ margin: '3px 0 0', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>{dept}</p>
+          </div>
+          {profile?.photoURL
+            ? <img src={profile.photoURL} alt="" style={{ width: 50, height: 50, borderRadius: '14px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }} />
+            : <div style={{ width: 50, height: 50, borderRadius: '14px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem', color: '#fff', flexShrink: 0 }}>{name.charAt(0)}</div>
+          }
+        </div>
+        <div style={{ marginTop: 14, padding: '8px 12px', background: 'rgba(255,255,255,0.07)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)' }}>Employee ID</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', fontFamily: 'monospace' }}>{empId}</span>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="stats-grid">
+        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => go('chat')}>
+          <div className="stat-number">0</div>
+          <div className="stat-label">Community</div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 2 }}>Open Requests</div>
+        </div>
+        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => go('feed')}>
+          <div className="stat-number">0</div>
+          <div className="stat-label">Messages</div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 2 }}>Unread DMs</div>
+        </div>
+      </div>
+
+      {/* SOS Banner */}
+      <div className="announce-card">
+        <div className="section-label"><AlertTriangle size={11} />EMERGENCY SOS</div>
+        <button onClick={onSOS} style={{ width: '100%', marginTop: 8, padding: '0.7rem', background: 'rgba(225,29,72,0.1)', border: '1px solid rgba(225,29,72,0.25)', borderRadius: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <AlertTriangle size={16} /> Tap to Alert Security & Police
         </button>
-        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 8, textAlign: 'center' }}>Tap to alert Ecosystem Security & Police</p>
       </div>
-      <h3 style={{ color: '#e2e8f0' }}>Quick Access</h3>
+
+      {/* Quick Access */}
+      <div style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Quick Access</div>
       <div className="grid-2">
-        <QCard icon={<ShieldCheck size={24} color="#f87171"/>} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
-        <QCard icon={<Car size={24} color="#f87171"/>} title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
-        <QCard icon={<IndianRupee size={24} color="#f87171"/>} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
-        <QCard icon={<CreditCard size={24} color="#f87171"/>} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
+        <QCard icon={<ShieldCheck size={20} color="var(--primary)"/>} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
+        <QCard icon={<Car size={20} color="var(--primary)"/>} title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
+        <QCard icon={<IndianRupee size={20} color="var(--primary)"/>} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
+        <QCard icon={<CreditCard size={20} color="var(--primary)"/>} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
       </div>
+
+      {/* FAB */}
+      <button className="fab-btn" onClick={() => go('feed')}>
+        <Plus size={20} /> New Post
+      </button>
     </div>
   );
 }
 
 function QCard({ icon, title, sub, onClick }) {
   return (
-    <div className="glass-card flex-col gap-2 action-card" style={{ padding: '1rem', cursor: 'pointer' }} onClick={onClick}>
+    <div className="glass-card flex-col gap-2 action-card" style={{ padding: '0.9rem', cursor: 'pointer' }} onClick={onClick}>
       <div className="icon-box">{icon}</div>
-      <strong style={{ fontSize: '0.9rem' }}>{title}</strong>
-      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{sub}</span>
+      <strong style={{ fontSize: '0.82rem' }}>{title}</strong>
+      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{sub}</span>
     </div>
   );
 }
