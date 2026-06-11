@@ -13,7 +13,7 @@ const FACTORIES = [
   { lat: 13.332, lng: 77.135, name: 'KIADB Zone' },
 ];
 
-function MapView({ userPos, rideStatus }) {
+function MapView({ userPos, dropoffPos, rideStatus }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
 
@@ -68,6 +68,27 @@ function MapView({ userPos, rideStatus }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!mapInstance.current || !dropoffPos) return;
+    import('leaflet').then((L) => {
+      const map = mapInstance.current;
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Polyline || (layer.options.icon && layer.options.icon.options.className === 'dest-icon')) {
+          map.removeLayer(layer);
+        }
+      });
+      L.polyline([[userPos.lat, userPos.lng], [dropoffPos.lat, dropoffPos.lng]], {
+        color: '#ffffff', weight: 3, opacity: 0.9
+      }).addTo(map);
+      const destIcon = L.divIcon({
+        html: `<div style="background:#fff;width:10px;height:10px;box-shadow:0 0 10px rgba(0,0,0,0.5)"></div>`,
+        iconSize: [10, 10], className: 'dest-icon'
+      });
+      L.marker([dropoffPos.lat, dropoffPos.lng], { icon: destIcon }).addTo(map);
+      map.fitBounds([[userPos.lat, userPos.lng], [dropoffPos.lat, dropoffPos.lng]], { padding: [60, 60] });
+    });
+  }, [dropoffPos, userPos]);
+
   return <div ref={mapRef} style={{ width: '100%', height: '100%' }} />;
 }
 
@@ -80,14 +101,16 @@ export default function RideHailing() {
   const [userPos, setUserPos] = useState(TUMKUR);
 
   const SUGGESTIONS = [
-    { name: 'KIADB Industrial Area', dist: 4.2 },
-    { name: 'Tumkur Bus Stand', dist: 2.5 },
-    { name: 'Sira Road Junction', dist: 6.8 },
-    { name: 'Sri Sai Auto Components', dist: 8.1 },
-    { name: 'Tumkur Railway Station', dist: 3.4 }
+    { name: 'KIADB Industrial Area', dist: 4.2, lat: 13.332, lng: 77.135 },
+    { name: 'Tumkur Bus Stand', dist: 2.5, lat: 13.342, lng: 77.100 },
+    { name: 'Sira Road Junction', dist: 6.8, lat: 13.360, lng: 77.120 },
+    { name: 'Sri Sai Auto Components', dist: 8.1, lat: 13.348, lng: 77.128 },
+    { name: 'Tumkur Railway Station', dist: 3.4, lat: 13.325, lng: 77.108 }
   ];
 
-  const selectedDist = SUGGESTIONS.find(s => s.name === dropoff)?.dist || 5.0;
+  const selectedDropoffObj = SUGGESTIONS.find(s => s.name === dropoff);
+  const selectedDist = selectedDropoffObj?.dist || 5.0;
+  const dropoffPos = selectedDropoffObj ? { lat: selectedDropoffObj.lat, lng: selectedDropoffObj.lng } : null;
 
   const vehicleOptions = [
     { id: 'Bike', name: 'Moto', price: `₹${Math.round(20 + selectedDist * 12)}`, eta: '1 min', seats: '1 seat', icon: <Bike size={28} color="#94a3b8" />, desc: 'Beat the traffic' },
@@ -225,14 +248,27 @@ export default function RideHailing() {
 
       {/* ── Full-screen map ── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <MapView userPos={userPos} rideStatus={ride?.status} />
+        <MapView userPos={userPos} dropoffPos={dropoffPos} rideStatus={ride?.status} />
       </div>
 
       {/* ── Top pill: pickup indicator ── */}
-      {step !== 'pending' && !ride && (
+      {!ride && step === 'input' && (
         <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20 }}>
           <Navigation size={14} color="#3b82f6" />
           <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1' }}>📍 Current Location</span>
+        </div>
+      )}
+
+      {/* ── Top Pill: Uber Destination View ── */}
+      {step === 'options' && (
+        <div style={{ position: 'absolute', top: 14, left: 14, right: 14, display: 'flex', gap: 10, zIndex: 20 }}>
+          <div onClick={() => setStep('input')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+            <ArrowLeft size={22} color="#fff" />
+          </div>
+          <div style={{ flex: 1, background: '#121212', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+            <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Home</div>
+            <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{dropoff}</div>
+          </div>
         </div>
       )}
 
@@ -303,45 +339,74 @@ export default function RideHailing() {
 
           {/* ── STEP: Vehicle Options ── */}
           {!ride && step === 'options' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => setStep('input')}>
-                <ArrowLeft size={20} color="#94a3b8" />
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>DROP-OFF</div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f8fafc' }}>{dropoff}</div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {vehicleOptions.map(v => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, margin: '-1rem -1.25rem -2rem', background: '#121212' }}>
+              <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', padding: '1.25rem 0 0.5rem', margin: 0 }}>Choose a trip</h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', padding: '0.5rem 1rem 1rem' }}>
+                {vehicleOptions.map(v => {
+                   const isSelected = selectedVehicle === v.id;
+                   return (
                   <div key={v.id} onClick={() => setSelectedVehicle(v.id)} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '14px 16px', borderRadius: 14,
-                    border: `2px solid ${selectedVehicle === v.id ? '#e11d48' : 'rgba(255,255,255,0.06)'}`,
-                    background: selectedVehicle === v.id ? 'rgba(225,29,72,0.08)' : 'rgba(255,255,255,0.02)',
+                    padding: '12px 14px', borderRadius: 16, marginBottom: '0.5rem',
+                    border: `2px solid ${isSelected ? '#fff' : 'transparent'}`,
+                    background: isSelected ? '#1c1c1e' : 'transparent',
                     cursor: 'pointer', transition: 'all 0.2s',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, background: 'rgba(255,255,255,0.03)', borderRadius: 12 }}>{v.icon}</div>
+                      <div style={{ position: 'relative', width: 60, height: 60 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#27272a', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }} />
+                        <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>{v.icon}</div>
+                      </div>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f8fafc' }}>{v.name}</div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{v.eta} · {v.seats}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                           <span style={{ fontWeight: 600, fontSize: '1rem', color: '#f8fafc' }}>{v.name}</span>
+                           <Users size={12} color="#f8fafc" /> <span style={{ fontSize: '0.8rem', color: '#f8fafc' }}>{v.seats.charAt(0)}</span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 2 }}>
+                           {new Date(Date.now() + parseInt(v.eta)*60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true}).toLowerCase()} · {v.eta}
+                        </div>
+                        {v.id === 'Bike' && (
+                           <div style={{ background: '#1e3a8a', color: '#60a5fa', fontSize: '0.65rem', padding: '2px 6px', borderRadius: 4, display: 'inline-block', marginTop: 4, fontWeight: 600 }}>Cheaper</div>
+                        )}
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#f8fafc' }}>{v.price}</div>
+                      {v.id === 'Bike' && <div style={{ fontSize: '0.7rem', textDecoration: 'line-through', color: '#94a3b8' }}>{`₹${parseInt(v.price.replace('₹','')) + 15}.93`}</div>}
+                      <div style={{ fontWeight: 600, fontSize: '1.05rem', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                         {v.id === 'Bike' && <span style={{ width: 14, height: 14, background: '#f87171', transform: 'rotate(45deg)', display: 'inline-block', borderRadius: 2 }} />}
+                         {v.price}
+                      </div>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
 
-              <button onClick={requestRide} style={{
-                padding: '1.1rem', borderRadius: 14, background: 'linear-gradient(135deg,#e11d48,#be123c)',
-                color: '#fff', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(225,29,72,0.35)',
-              }}>
-                Book {selectedVehicle}
-              </button>
+              {/* Payment Bar */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ background: '#bef264', borderRadius: 6, padding: '4px 6px' }}>
+                    <div style={{ width: 18, height: 12, border: '2px solid #166534', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       <div style={{ width: 4, height: 4, background: '#166534', borderRadius: '50%' }} />
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.9rem', color: '#f8fafc', fontWeight: 600 }}>Cash</span>
+                </div>
+                <ArrowLeft size={16} color="#f8fafc" style={{ transform: 'rotate(180deg)' }} />
+              </div>
+
+              {/* Action Bar */}
+              <div style={{ padding: '0 1.25rem 1.25rem', display: 'flex', gap: 10 }}>
+                <button onClick={requestRide} style={{
+                  flex: 1, padding: '1.1rem', borderRadius: 12, background: '#e4e4e7',
+                  color: '#18181b', fontWeight: 700, fontSize: '1.05rem', border: 'none', cursor: 'pointer',
+                }}>
+                  Choose {vehicleOptions.find(v => v.id === selectedVehicle)?.name}
+                </button>
+                <div style={{ width: 54, height: 54, borderRadius: 12, background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Clock size={24} color="#f8fafc" />
+                </div>
+              </div>
             </div>
           )}
 
