@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Truck, Navigation, Users, User, AlertTriangle, Power, MessageSquare, Check, Menu, X, Bell, Scan } from 'lucide-react';
+import { Truck, Navigation, Users, User, AlertTriangle, Power, MessageSquare, Check, Menu, X, Bell, Scan, Car } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
 import AppFooter from './AppFooter';
+import NotificationsPanel from './NotificationsPanel';
+import RideHailing from './RideHailing';
 
 export default function DriverDashboard() {
   const { profile, signOut } = useUser();
@@ -22,31 +24,20 @@ export default function DriverDashboard() {
       <div className={`screen ${tab === 'drive' ? 'p-0' : ''}`} style={{ overflowY: 'auto', paddingBottom: '90px' }}>
         {tab === 'drive' && <DriveMode active={active} setActive={setActive} />}
         {tab === 'passengers' && <Passengers />}
+        {tab === 'bus' && <RideHailing />}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
-        {tab !== 'drive' && <AppFooter />}
+        {tab !== 'drive' && tab !== 'bus' && <AppFooter />}
       </div>
       
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'drive', icon: <Navigation size={20}/>, label: 'Drive' },
         { id: 'passengers', icon: <Users size={20}/>, label: 'Trips' },
+        { id: 'bus', icon: <Car size={20}/>, label: 'Book Ride' },
         { id: 'profile', icon: <User size={20}/>, label: 'Profile' },
       ]} />
 
       {/* Notifications Panel */}
-      {showNotifs && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
-          <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '80%', maxWidth: '320px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
-            <div className="flex justify-between items-center p-4 border-b-dark">
-              <h3 style={{ margin: 0 }}>Notifications</h3>
-              <X size={24} color="#94a3b8" onClick={() => setShowNotifs(false)} style={{ cursor: 'pointer' }} />
-            </div>
-            <div className="p-4 flex-col gap-3" style={{ overflowY: 'auto' }}>
-              <div className="info-box">Route T-04 diverted due to roadwork.</div>
-              <div className="info-box">You have a new trip schedule assigned.</div>
-            </div>
-          </div>
-        </div>
-      )}
+      {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
 
       {/* Menu Panel */}
       {showMenu && (

@@ -25,12 +25,14 @@ export default function DesktopSidebar({ tab, setTab, role = 'worker', onSignOut
     { id: 'home', icon: <Home size={18} />, label: 'Explore' },
     { id: 'map', icon: <MapPin size={18} />, label: 'Jobs Map' },
     { id: 'jobs', icon: <Briefcase size={18} />, label: 'All Jobs' },
+    { id: 'bus', icon: <Car size={18} />, label: 'Book Ride' },
     { id: 'profile', icon: <User size={18} />, label: 'Profile' },
   ];
 
   const driverLinks = [
     { id: 'drive', icon: <Navigation size={18} />, label: 'Drive Mode' },
     { id: 'passengers', icon: <Users size={18} />, label: 'Trip Logs' },
+    { id: 'bus', icon: <Car size={18} />, label: 'Book Ride' },
     { id: 'profile', icon: <User size={18} />, label: 'Profile' },
   ];
 

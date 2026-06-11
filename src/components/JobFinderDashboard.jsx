@@ -4,21 +4,26 @@ import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
 import AppFooter from './AppFooter';
+import NotificationsPanel from './NotificationsPanel';
+import RideHailing from './RideHailing';
 import logo from '../assets/logo.png';
 
 export default function JobFinderDashboard({ onSOS }) {
   const { profile } = useUser();
   const [tab, setTab] = useState('home');
+  const [showNotifs, setShowNotifs] = useState(false);
   const name = profile?.fullName || profile?.email?.split('@')[0] || 'User';
 
   return (
     <div className="flex-col" style={{ flex: 1 }}>
-      <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} badge="Job Finder" />
+      <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} onNotifs={() => setShowNotifs(true)} badge="Job Finder" />
+      {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
       <div className="screen" style={{ overflowY: 'auto' }}>
         {tab === 'home' && <Home go={setTab} />}
         {tab === 'map' && <JobMap />}
         {tab === 'jobs' && <JobList />}
         {tab === 'applications' && <Applications />}
+        {tab === 'bus' && <RideHailing />}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
         <AppFooter />
       </div>
@@ -32,7 +37,7 @@ export default function JobFinderDashboard({ onSOS }) {
   );
 }
 
-function TopBar({ name, photo, onProfile, badge }) {
+function TopBar({ name, photo, onProfile, onNotifs, badge }) {
   return (
     <div className="top-bar">
       <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
@@ -42,7 +47,12 @@ function TopBar({ name, photo, onProfile, badge }) {
           <div style={{ fontWeight: 600 }}>{name}</div>
         </div>
       </div>
-      <div style={{ position: 'relative' }}><Settings size={22} color="#64748b" /></div>
+      <div className="flex gap-3">
+        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={onNotifs}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </div>
+        <div style={{ position: 'relative' }}><Settings size={22} color="#64748b" /></div>
+      </div>
     </div>
   );
 }

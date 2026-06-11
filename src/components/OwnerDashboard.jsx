@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Calendar, Users, AlertCircle, LogOut } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import NotificationsPanel from './NotificationsPanel';
 
 export default function OwnerDashboard() {
   const { profile, signOut } = useUser();
+  const [showNotifs, setShowNotifs] = useState(false);
   const companyName = profile?.factoryUnit || 'Your Company';
 
   return (
@@ -15,11 +17,16 @@ export default function OwnerDashboard() {
           <div style={{ fontWeight: '600' }}>{companyName}</div>
         </div>
         <div className="flex gap-3 items-center">
+          <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setShowNotifs(true)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </div>
           <div className="avatar-sm" style={{ cursor: 'pointer' }} onClick={signOut}>
             <LogOut size={18} />
           </div>
         </div>
       </div>
+
+      {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
 
       <div className="screen" style={{ overflowY: 'auto' }}>
         <div className="flex items-center gap-2 mb-4">

@@ -7,9 +7,12 @@ import {
 import { useUser } from '../context/UserContext';
 import logo from '../assets/logo.png';
 
+import NotificationsPanel from './NotificationsPanel';
+
 export default function Dashboard({ onSOS }) {
   const { profile, signOut } = useUser();
   const [activeTab, setActiveTab] = useState('home');
+  const [showNotifs, setShowNotifs] = useState(false);
   const displayName = profile?.fullName || profile?.email?.split('@')[0] || 'User';
 
   return (
@@ -29,11 +32,13 @@ export default function Dashboard({ onSOS }) {
             <div style={{ fontWeight: '600' }}>{displayName}</div>
           </div>
         </div>
-        <div style={{ position: 'relative', cursor: 'pointer' }}>
+        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setShowNotifs(true)}>
           <Bell size={24} color="#ADB5BD" />
           <div className="notification-dot"></div>
         </div>
       </div>
+
+      {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
 
       <div className="screen" style={{ overflowY: 'auto' }}>
         {activeTab === 'home' && <HomeView onSOS={onSOS} onNavigate={setActiveTab} />}

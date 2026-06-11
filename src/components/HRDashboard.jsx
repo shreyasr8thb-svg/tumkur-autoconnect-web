@@ -3,10 +3,13 @@ import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity,
 import { useUser } from '../context/UserContext';
 import ProfileView from './ProfileView';
 import AppFooter from './AppFooter';
+import NotificationsPanel from './NotificationsPanel';
+import RideHailing from './RideHailing';
 
 export default function HRDashboard() {
   const { profile, signOut } = useUser();
   const [tab, setTab] = useState('dashboard');
+  const [showNotifs, setShowNotifs] = useState(false);
   const companyName = profile?.factoryUnit || 'Your Company';
 
   return (
@@ -17,15 +20,23 @@ export default function HRDashboard() {
           <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Company Dashboard</div>
           <div style={{ fontWeight: 600 }}>{companyName}</div>
         </div>
-        <div className="avatar-sm" style={{ cursor: 'pointer' }} onClick={() => setTab('profile')}>
-          <Users size={18} color="#fff" />
+        <div className="flex gap-3 items-center">
+          <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setShowNotifs(true)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </div>
+          <div className="avatar-sm" style={{ cursor: 'pointer' }} onClick={() => setTab('profile')}>
+            <Users size={18} color="#fff" />
+          </div>
         </div>
       </div>
+
+      {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
 
       <div className="screen" style={{ overflowY: 'auto' }}>
         {tab === 'dashboard' && <HRHome />}
         {tab === 'workers' && <Workforce />}
         {tab === 'jobs' && <PostJobs companyName={companyName} />}
+        {tab === 'bus' && <RideHailing />}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
         <AppFooter />
       </div>
