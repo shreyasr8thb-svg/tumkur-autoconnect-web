@@ -8,6 +8,7 @@ import ProfileView from './ProfileView';
 import AppFooter from './AppFooter';
 import QRCode from 'react-qr-code';
 import logo from '../assets/logo.png';
+import ChatBox from './ChatBox';
 import CommunityFeed from './CommunityFeed';
 import DesktopSidebar from './DesktopSidebar';
 import DownloadPage from './DownloadPage';
