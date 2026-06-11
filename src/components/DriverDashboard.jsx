@@ -63,7 +63,7 @@ function DriveMode({ active, setActive, onMenu }) {
       status: 'accepted',
       driverId: user.uid,
       driverName: profile?.fullName || 'Driver',
-      vehicleModel: profile?.vehicleModel || 'Industrial Shuttle',
+      vehicleType: profile?.vehicleType || 'Mini',
       vehicleNumber: profile?.vehicleNumber || 'KA-00-0000',
     });
   };

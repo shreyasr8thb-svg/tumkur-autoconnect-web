@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Bus, Car, Search, ArrowLeft, MapPin, Navigation, Phone, Star, X, Clock, Shield } from 'lucide-react';
+import { Bus, Car, Search, ArrowLeft, MapPin, Navigation, Phone, Star, X, Clock, Shield, Bike, CarFront, Users } from 'lucide-react';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
@@ -79,13 +79,22 @@ export default function RideHailing() {
   const [selectedVehicle, setSelectedVehicle] = useState('Mini');
   const [userPos, setUserPos] = useState(TUMKUR);
 
-  const SUGGESTIONS = ['KIADB Industrial Area', 'Tumkur Bus Stand', 'Sira Road Junction', 'Sri Sai Auto Components', 'Tumkur Railway Station'];
+  const SUGGESTIONS = [
+    { name: 'KIADB Industrial Area', dist: 4.2 },
+    { name: 'Tumkur Bus Stand', dist: 2.5 },
+    { name: 'Sira Road Junction', dist: 6.8 },
+    { name: 'Sri Sai Auto Components', dist: 8.1 },
+    { name: 'Tumkur Railway Station', dist: 3.4 }
+  ];
+
+  const selectedDist = SUGGESTIONS.find(s => s.name === dropoff)?.dist || 5.0;
 
   const vehicleOptions = [
-    { id: 'Shuttle', name: 'Shared Shuttle', price: '₹20', eta: '5 min', seats: '6 seats', icon: '🚌', desc: 'Cheapest — shared with coworkers' },
-    { id: 'Mini', name: 'TC Mini',        price: '₹120', eta: '2 min', seats: '4 seats', icon: '🚗', desc: 'Budget-friendly hatchback' },
-    { id: 'Sedan', name: 'TC Sedan',       price: '₹160', eta: '4 min', seats: '4 seats', icon: '🚙', desc: 'Comfortable sedan ride' },
-    { id: 'SUV',   name: 'TC SUV',         price: '₹250', eta: '7 min', seats: '6 seats', icon: '🚐', desc: 'Premium spacious SUV' },
+    { id: 'Bike', name: 'Moto', price: `₹${Math.round(20 + selectedDist * 12)}`, eta: '1 min', seats: '1 seat', icon: <Bike size={28} color="#94a3b8" />, desc: 'Beat the traffic' },
+    { id: 'Auto', name: 'Auto', price: `₹${Math.round(30 + selectedDist * 15)}`, eta: '3 min', seats: '3 seats', icon: <Users size={28} color="#f59e0b" />, desc: 'Everyday affordable rides' },
+    { id: 'Mini', name: 'TC Mini', price: `₹${Math.round(50 + selectedDist * 22)}`, eta: '2 min', seats: '4 seats', icon: <Car size={28} color="#3b82f6" />, desc: 'Budget-friendly hatchback' },
+    { id: 'Sedan', name: 'TC Sedan', price: `₹${Math.round(60 + selectedDist * 28)}`, eta: '4 min', seats: '4 seats', icon: <CarFront size={28} color="#e11d48" />, desc: 'Comfortable sedan ride' },
+    { id: 'SUV', name: 'TC SUV', price: `₹${Math.round(80 + selectedDist * 35)}`, eta: '7 min', seats: '6 seats', icon: <Bus size={28} color="#10b981" />, desc: 'Premium spacious SUV' },
   ];
 
   useEffect(() => {
@@ -182,13 +191,16 @@ export default function RideHailing() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#475569', letterSpacing: '0.06em', marginBottom: 4 }}>POPULAR DESTINATIONS</div>
                   {SUGGESTIONS.map(s => (
-                    <div key={s} onClick={() => setDropoff(s)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
+                    <div key={s.name} onClick={() => setDropoff(s.name)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <MapPin size={14} color="#94a3b8" />
                       </div>
-                      <span style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>{s}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>{s.name}</div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{s.dist} km away</div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -224,7 +236,7 @@ export default function RideHailing() {
                     cursor: 'pointer', transition: 'all 0.2s',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                      <div style={{ fontSize: '1.8rem', width: 40, textAlign: 'center' }}>{v.icon}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, background: 'rgba(255,255,255,0.03)', borderRadius: 12 }}>{v.icon}</div>
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#f8fafc' }}>{v.name}</div>
                         <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{v.eta} · {v.seats}</div>
@@ -242,7 +254,7 @@ export default function RideHailing() {
                 color: '#fff', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer',
                 boxShadow: '0 4px 20px rgba(225,29,72,0.35)',
               }}>
-                Book {vehicleOptions.find(v => v.id === selectedVehicle)?.icon} {selectedVehicle}
+                Book {selectedVehicle}
               </button>
             </div>
           )}

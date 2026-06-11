@@ -17,7 +17,7 @@ export default function ProfileView({ onNavigate }) {
       : s === 'emergency'
       ? { emName1: profile?.emName1||'', emPhone1: profile?.emPhone1||'', emName2: profile?.emName2||'', emPhone2: profile?.emPhone2||'' }
       : s === 'vehicle'
-      ? { vehicleModel: profile?.vehicleModel||'', vehicleNumber: profile?.vehicleNumber||'' }
+      ? { vehicleType: profile?.vehicleType||'', vehicleNumber: profile?.vehicleNumber||'' }
       : s === 'salary'
       ? { baseSalary: profile?.baseSalary||'', pfDeduction: profile?.pfDeduction||'', welfareBonus: profile?.welfareBonus||'' }
       : { factoryUnit: profile?.factoryUnit||'', department: profile?.department||'', supervisor: profile?.supervisor||'' };
@@ -189,12 +189,22 @@ export default function ProfileView({ onNavigate }) {
             </div>
             {editing === 'vehicle' ? (
               <div className="flex-col gap-2">
-                <MiniInput label="Model" name="vehicleModel" value={form.vehicleModel} onChange={e => setForm({...form, vehicleModel: e.target.value})} placeholder="e.g. Tata Winger" />
+                <div className="input-group mb-0"><label className="input-label">Vehicle Type</label>
+                  <select className="input-field" style={{ padding: '0.6rem 0.8rem', fontSize: '0.85rem' }} value={form.vehicleType} onChange={e => setForm({...form, vehicleType: e.target.value})}>
+                    <option value="">Select type...</option>
+                    <option value="Bike">Moto (Bike)</option>
+                    <option value="Auto">Auto</option>
+                    <option value="Mini">TC Mini</option>
+                    <option value="Sedan">TC Sedan</option>
+                    <option value="SUV">TC SUV</option>
+                    <option value="Shuttle">Shared Shuttle</option>
+                  </select>
+                </div>
                 <MiniInput label="Plate No" name="vehicleNumber" value={form.vehicleNumber} onChange={e => setForm({...form, vehicleNumber: e.target.value})} placeholder="e.g. KA-06-TC-1234" />
               </div>
             ) : (
               <div className="flex-col gap-1">
-                <Row label="Model" value={profile?.vehicleModel} />
+                <Row label="Type" value={profile?.vehicleType} />
                 <Row label="Plate No" value={profile?.vehicleNumber} />
               </div>
             )}

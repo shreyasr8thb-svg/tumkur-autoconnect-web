@@ -27,8 +27,8 @@ export default function NotificationsPanel({ onClose }) {
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', zIndex: 9999, display: 'flex', justifyContent: 'flex-end', animation: 'fadeIn 0.2s' }}>
-      <div className="glass-card flex-col" style={{ width: '100%', maxWidth: '380px', height: '100%', background: 'rgba(15,23,42,0.98)', borderRadius: 0, animation: 'slideInRight 0.3s forwards', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
+    <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', zIndex: 9999, display: 'flex', justifyContent: 'flex-end', animation: 'fadeIn 0.2s' }}>
+      <div onClick={e => e.stopPropagation()} className="glass-card flex-col" style={{ width: '100%', maxWidth: '380px', height: '100%', background: 'rgba(15,23,42,0.98)', borderRadius: 0, animation: 'slideInRight 0.3s forwards', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
         
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b-dark" style={{ borderColor: 'var(--border)' }}>
