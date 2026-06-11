@@ -129,7 +129,7 @@ export default function RideHailing() {
     <div style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, zIndex: 10, overflow: 'hidden', background: '#0d1117' }}>
 
       {/* ── Full-screen map ── */}
-      <div style={{ position: 'absolute', inset: 0 }}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         <MapView userPos={userPos} rideStatus={ride?.status} />
       </div>
 
@@ -144,18 +144,21 @@ export default function RideHailing() {
       {/* ── Bottom Sheet ── */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30,
-        background: '#0f172a',
-        borderTopLeftRadius: 28, borderTopRightRadius: 28,
-        boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(15, 23, 42, 0.85)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        borderTopLeftRadius: 32, borderTopRightRadius: 32,
+        boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
+        border: '1px solid rgba(255,255,255,0.1)',
         borderBottom: 'none',
-        maxHeight: '65%',
+        maxHeight: '75%',
         overflow: 'hidden',
+        display: 'flex', flexDirection: 'column'
       }}>
         {/* Handle */}
-        <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 2, margin: '14px auto 0' }} />
+        <div style={{ width: 48, height: 5, background: 'rgba(255,255,255,0.2)', borderRadius: 4, margin: '14px auto 0', flexShrink: 0 }} />
 
-        <div style={{ padding: '1rem 1.25rem 2rem', overflowY: 'auto', maxHeight: 'calc(65vh - 30px)' }}>
+        <div style={{ padding: '1rem 1.25rem 2rem', overflowY: 'auto', flex: 1 }}>
 
           {/* ── STEP: Input ── */}
           {!ride && step === 'input' && (
