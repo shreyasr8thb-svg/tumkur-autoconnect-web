@@ -84,7 +84,7 @@ function DriveMode({ active, setActive, onMenu }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 10, background: '#0d1117' }}>
       {/* Map */}
-      <div style={{ position: 'absolute', inset: 0 }}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         <LiveMap height="100%" showRoute={!!activeRide} fullScreen />
       </div>
 
@@ -123,7 +123,28 @@ function DriveMode({ active, setActive, onMenu }) {
 
         {!active && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 8 }}>
-            <h3 style={{ margin: 0, textAlign: 'center' }}>You're Offline</h3>
+            
+            {/* Quick Stats */}
+            <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.5rem' }}>
+               <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>₹0.00</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>EARNINGS</div>
+               </div>
+               <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
+               <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>0</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>TRIPS</div>
+               </div>
+               <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
+               <div style={{ textAlign: 'center' }} onClick={onMenu}>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}>
+                    <User size={18} />
+                  </div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>PROFILE</div>
+               </div>
+            </div>
+
+            <h3 style={{ margin: 0, textAlign: 'center', color: '#f8fafc' }}>You're Offline</h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>VEHICLE TYPE</label>

@@ -54,6 +54,11 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
       // Zoom controls (bottom-right)
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+      // Fix for map graying out or zooming to entire world on initialization
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 500);
+
       // ── User location marker (pulsing blue dot) ──
       const userIcon = L.divIcon({
         html: `<div style="position:relative;width:22px;height:22px">
