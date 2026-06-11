@@ -100,16 +100,26 @@ export default function RideHailing() {
   const [selectedVehicle, setSelectedVehicle] = useState('Mini');
   const [userPos, setUserPos] = useState(TUMKUR);
 
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+  };
+
   const SUGGESTIONS = [
-    { name: 'KIADB Industrial Area', dist: 4.2, lat: 13.332, lng: 77.135 },
-    { name: 'Tumkur Bus Stand', dist: 2.5, lat: 13.342, lng: 77.100 },
-    { name: 'Sira Road Junction', dist: 6.8, lat: 13.360, lng: 77.120 },
-    { name: 'Sri Sai Auto Components', dist: 8.1, lat: 13.348, lng: 77.128 },
-    { name: 'Tumkur Railway Station', dist: 3.4, lat: 13.325, lng: 77.108 }
-  ];
+    { name: 'KIADB Industrial Area', lat: 13.332, lng: 77.135 },
+    { name: 'Tumkur Bus Stand', lat: 13.342, lng: 77.100 },
+    { name: 'Sira Road Junction', lat: 13.360, lng: 77.120 },
+    { name: 'Sri Sai Auto Components', lat: 13.348, lng: 77.128 },
+    { name: 'Tumkur Railway Station', lat: 13.325, lng: 77.108 }
+  ].map(s => ({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) }));
 
   const selectedDropoffObj = SUGGESTIONS.find(s => s.name === dropoff);
-  const selectedDist = selectedDropoffObj?.dist || 5.0;
+  const selectedDist = selectedDropoffObj ? parseFloat(selectedDropoffObj.dist) : 5.0;
   const dropoffPos = selectedDropoffObj ? { lat: selectedDropoffObj.lat, lng: selectedDropoffObj.lng } : null;
 
   const vehicleOptions = [
