@@ -29,10 +29,10 @@ export default function WorkerDashboard({ onSOS }) {
         <AppFooter />
       </div>
       <BottomNav tab={tab} setTab={setTab} tabs={[
-        { id: 'home', icon: <ShieldCheck size={20}/>, label: 'Home' },
-        { id: 'access', icon: <CreditCard size={20}/>, label: 'Access' },
-        { id: 'bus', icon: <Car size={20}/>, label: 'Ride' },
-        { id: 'profile', icon: <User size={20}/>, label: 'Profile' },
+        { id: 'home', icon: <span style={{ fontSize: '1.2rem' }}>🏠</span>, label: 'Home' },
+        { id: 'access', icon: <span style={{ fontSize: '1.2rem' }}>💳</span>, label: 'Access' },
+        { id: 'bus', icon: <span style={{ fontSize: '1.2rem' }}>🚕</span>, label: 'Ride' },
+        { id: 'profile', icon: <span style={{ fontSize: '1.2rem' }}>👤</span>, label: 'Profile' },
       ]} />
 
       {/* Notifications Panel */}
