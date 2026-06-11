@@ -33,7 +33,7 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
       }
       setTimeout(() => map.invalidateSize(), 500);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
       }).addTo(map);
 

@@ -45,8 +45,8 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
         scrollWheelZoom: true,
       }).setView([userPos.lat, userPos.lng], 14);
 
-      // Professional Dark Theme Map
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // High-Visibility Modern Map
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         attribution: '© <a href="https://carto.com/">CARTO</a>',
       }).addTo(map);
