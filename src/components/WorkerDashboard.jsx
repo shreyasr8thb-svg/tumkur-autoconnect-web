@@ -30,22 +30,30 @@ export default function WorkerDashboard({ onSOS }) {
       {/* Main content */}
       <div className="desktop-main flex-col" style={{ flex: 1, position: 'relative' }}>
         <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} badge="Worker" onNotif={() => setShowNotifs(true)} onMenu={() => setShowMenu(true)} />
-        <div className="screen" style={{ overflowY: 'auto' }}>
-          {tab === 'home' && <Home onSOS={onSOS} go={setTab} />}
-          {tab === 'passport' && <SkillPassport />}
-          {tab === 'salary' && <Salary />}
-          {tab === 'bus' && <RideHailing />}
-          {tab === 'access' && <SmartAccess />}
-          {tab === 'chat' && <ChatBox onBack={() => setTab('home')} />}
-          {tab === 'feed' && <CommunityFeed onBack={() => setTab('home')} />}
-          {tab === 'download' && <DownloadPage onBack={() => setTab('home')} />}
-          {tab === 'profile' && <ProfileView onNavigate={setTab} />}
-          {tab !== 'chat' && tab !== 'feed' && tab !== 'download' && <AppFooter />}
-        </div>
-        {/* Mobile FAB - opens the menu drawer (replaces bottom tabs on mobile) */}
-        <button className="mobile-fab" onClick={() => setShowMenu(true)} aria-label="Open navigation menu">
-          <Menu size={22} color="#fff" />
-        </button>
+
+        {/* RideHailing is full-screen — rendered outside .screen to avoid overflow clip */}
+        {tab === 'bus' && <RideHailing />}
+
+        {tab !== 'bus' && (
+          <div className="screen" style={{ overflowY: 'auto' }}>
+            {tab === 'home' && <Home onSOS={onSOS} go={setTab} />}
+            {tab === 'passport' && <SkillPassport />}
+            {tab === 'salary' && <Salary />}
+            {tab === 'access' && <SmartAccess />}
+            {tab === 'chat' && <ChatBox onBack={() => setTab('home')} />}
+            {tab === 'feed' && <CommunityFeed onBack={() => setTab('home')} />}
+            {tab === 'download' && <DownloadPage onBack={() => setTab('home')} />}
+            {tab === 'profile' && <ProfileView onNavigate={setTab} />}
+            {tab !== 'chat' && tab !== 'feed' && tab !== 'download' && <AppFooter />}
+          </div>
+        )}
+
+        {/* Mobile FAB - hidden when ride map is open */}
+        {tab !== 'bus' && (
+          <button className="mobile-fab" onClick={() => setShowMenu(true)} aria-label="Open navigation menu">
+            <Menu size={22} color="#fff" />
+          </button>
+        )}
 
         {/* Notifications Panel */}
         {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
