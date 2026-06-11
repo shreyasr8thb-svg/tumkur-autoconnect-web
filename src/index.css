@@ -35,12 +35,14 @@ body {
     radial-gradient(circle at 90% 20%, rgba(59,130,246,0.06), transparent 30%);
   background-attachment: fixed;
   overflow: hidden;
+  height: 100vh;
   height: 100dvh;
 }
 
 /* ─── App Shell ─── */
 .app-shell {
   width: 100%;
+  height: 100vh;
   height: 100dvh;
   display: flex;
   flex-direction: column; /* mobile: column; desktop override to row */
@@ -70,7 +72,16 @@ body {
 
 /* Sidebar hidden on mobile */
 .desktop-sidebar { display: none; }
-.desktop-main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.desktop-only { display: none; }
+.mobile-only { display: flex; }
+
+@media (min-width: 900px) {
+  .desktop-sidebar { display: flex; }
+  .desktop-only { display: flex; }
+  .mobile-only { display: none !important; }
+}
+
+.desktop-main { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
 
 /* ─── Screen (legacy - kept for compatibility) ─── */
 .screen {
