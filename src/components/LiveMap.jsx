@@ -46,9 +46,9 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
       }).setView([userPos.lat, userPos.lng], 14);
 
       // High-Visibility Modern Map
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '© <a href="https://carto.com/">CARTO</a>',
+        attribution: '© OpenStreetMap contributors',
       }).addTo(map);
 
       // Zoom controls (bottom-right)

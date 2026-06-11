@@ -10,6 +10,20 @@ export default function InAppCall({ peerName, peerPhoto, onEndCall }) {
   
   useEffect(() => {
     let interval;
+    
+    // Check if mediaDevices is supported (requires HTTPS or localhost)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.warn('WebRTC not supported on this browser (requires HTTPS)');
+      setCallStatus('Audio unavailable (Connecting anyway...)');
+      // Still simulate a connection even without audio, so the UI works
+      setTimeout(() => {
+        setCallStatus('Connected');
+        interval = setInterval(() => setTimer(t => t + 1), 1000);
+      }, 3000);
+      
+      return () => clearInterval(interval);
+    }
+
     // Request microphone access from the device
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
@@ -25,7 +39,10 @@ export default function InAppCall({ peerName, peerPhoto, onEndCall }) {
       .catch(err => {
         console.error(err);
         setCallStatus('Microphone Access Denied');
-        setTimeout(onEndCall, 3000);
+        setTimeout(() => {
+          setCallStatus('Connected (Audio Disabled)');
+          interval = setInterval(() => setTimer(t => t + 1), 1000);
+        }, 2000);
       });
       
     return () => {

@@ -34,8 +34,9 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
       }
       setTimeout(() => map.invalidateSize(), 500);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
+        attribution: '© OpenStreetMap',
       }).addTo(map);
 
       // User location pulse dot
