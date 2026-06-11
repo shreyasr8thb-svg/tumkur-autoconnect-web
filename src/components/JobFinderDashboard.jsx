@@ -64,13 +64,13 @@ function Home({ go }) {
     <div className="flex-col gap-4">
       <div className="search-bar glass-card">
         <Search size={18} color="#94a3b8" />
-        <input type="text" placeholder="Search factory roles..." className="search-input" />
+        <input type="text" placeholder="Search industry roles..." className="search-input" />
         <Filter size={18} color="#f87171" style={{ cursor: 'pointer' }} />
       </div>
 
       <div className="glass-card flex-col gap-2 p-4" style={{ background: 'linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(0, 0, 0, 0.3))' }}>
         <h3 style={{ margin: 0, color: '#f87171' }}>AI Job Matcher</h3>
-        <p style={{ fontSize: '0.85rem' }}>Complete your profile to get personalized factory job recommendations in Tumkur.</p>
+        <p style={{ fontSize: '0.85rem' }}>Complete your profile to get personalized job recommendations in the Tumkuru ecosystem.</p>
         <button className="btn btn-primary mt-2 text-sm" onClick={() => go('profile')}>Complete Profile</button>
       </div>
 

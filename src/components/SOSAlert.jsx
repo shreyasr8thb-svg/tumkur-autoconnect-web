@@ -34,7 +34,7 @@ export default function SOSAlert({ onCancel }) {
         {status === 'confirming' ? (
           <>
             <h2 className="text-white" style={{ fontSize: '2rem' }}>Confirm Alert</h2>
-            <p className="mt-2" style={{ fontSize: '1.1rem' }}>Alerting Factory Security & Local Police in</p>
+            <p className="mt-2" style={{ fontSize: '1.1rem' }}>Alerting Industrial Security & Local Police in</p>
             <div style={{ fontSize: '4rem', fontWeight: '800', color: '#FF0000', margin: '1rem 0' }}>
               {countdown}
             </div>

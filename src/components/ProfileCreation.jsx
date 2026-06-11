@@ -7,10 +7,10 @@ import logo from '../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
 const ROLES = [
-  { id: 'worker', label: 'Factory Worker', icon: <User size={20} />, desc: 'I work in a factory' },
-  { id: 'jobfinder', label: 'Job Finder', icon: <Search size={20} />, desc: 'I\'m looking for factory jobs' },
-  { id: 'driver', label: 'Bus Driver', icon: <Truck size={20} />, desc: 'I drive factory shuttles' },
-  { id: 'hr', label: 'HR / Owner', icon: <Users size={20} />, desc: 'I manage a factory' },
+  { id: 'worker', label: 'Industry Worker', icon: <User size={20} />, desc: 'I work in the industrial ecosystem' },
+  { id: 'jobfinder', label: 'Job Finder', icon: <Search size={20} />, desc: 'I\'m looking for industrial jobs' },
+  { id: 'driver', label: 'Bus Driver', icon: <Truck size={20} />, desc: 'I drive industrial shuttles' },
+  { id: 'hr', label: 'Business Owner / HR', icon: <Users size={20} />, desc: 'I manage a company' },
 ];
 
 export default function ProfileCreation({ onCancel, isCompleting = false }) {
@@ -151,7 +151,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
                   <button type="button" className="btn btn-outline-sm" onClick={() => idRef.current?.click()}>
                     <Upload size={14} /> Upload ID Card
                   </button>
-                  <span style={{ fontSize: '0.7rem', color: '#888' }}>Factory / Aadhaar / Any Govt ID</span>
+                  <span style={{ fontSize: '0.7rem', color: '#888' }}>Company / Aadhaar / Any Govt ID</span>
                 </div>
                 <input ref={idRef} type="file" accept="image/*" hidden onChange={handleFile('idCardURL')} />
               </div>
@@ -164,7 +164,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
               {(form.role === 'worker' || form.role === 'jobfinder') && (
                 <>
                   <div className="input-group mb-0">
-                    <label className="input-label">Factory Unit</label>
+                    <label className="input-label">Company / Unit</label>
                     <select name="factoryUnit" className="input-field" value={form.factoryUnit} onChange={set}>
                       <option value="">Select...</option>
                       <option>Sri Sai Auto Components</option>

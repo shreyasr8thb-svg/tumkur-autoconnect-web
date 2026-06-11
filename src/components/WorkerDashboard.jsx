@@ -189,12 +189,12 @@ function Home({ onSOS, go }) {
           <AlertTriangle size={28} />
           <span>EMERGENCY SOS</span>
         </button>
-        <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>Tap to alert Factory Security & Police</p>
+        <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>Tap to alert Ecosystem Security & Police</p>
       </div>
       <h3 style={{ color: '#e2e8f0' }}>Quick Access</h3>
       <div className="grid-2">
         <QCard icon={<ShieldCheck size={24} color="#f87171"/>} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
-        <QCard icon={<Car size={24} color="#f87171"/>} title="Book Ride" sub="Factory cab" onClick={() => go('bus')} />
+        <QCard icon={<Car size={24} color="#f87171"/>} title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
         <QCard icon={<IndianRupee size={24} color="#f87171"/>} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
         <QCard icon={<CreditCard size={24} color="#f87171"/>} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
       </div>
@@ -333,9 +333,9 @@ function RideHailing() {
             <h3 style={{ margin: 0 }}>Where to?</h3>
             <div className="input-group mb-0 flex items-center gap-2" style={{ background: 'rgba(0,0,0,0.3)', padding: 8, borderRadius: 8 }}>
               <Search size={18} color="#94a3b8" />
-              <input style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%' }} placeholder="Search destination (e.g. Factory Sector B)" value={dropoff} onChange={e => setDropoff(e.target.value)} />
+              <input style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%' }} placeholder="Search destination (e.g. Vasanthanarasapura Sector B)" value={dropoff} onChange={e => setDropoff(e.target.value)} />
             </div>
-            <button className="btn btn-primary mt-2" disabled={!dropoff} onClick={requestRide}>Request Factory Cab</button>
+            <button className="btn btn-primary mt-2" disabled={!dropoff} onClick={requestRide}>Request Industrial Shuttle</button>
           </div>
         ) : ride.status === 'pending' ? (
           <div className="flex-col items-center gap-3 py-2">
@@ -348,7 +348,7 @@ function RideHailing() {
             <div className="flex justify-between items-center border-b-dark pb-2">
               <div>
                 <h3 style={{ margin: 0, color: '#4ade80' }}>{ride.status === 'in-progress' ? 'Trip in Progress!' : 'Driver Arriving!'}</h3>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>{ride.driverName} • {ride.vehicleModel || 'Factory Cab'}</p>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>{ride.driverName} • {ride.vehicleModel || 'Industrial Shuttle'}</p>
               </div>
               {ride.driverPhoto ? (
                 <img src={ride.driverPhoto} alt="Driver" className="avatar-sm" style={{ objectFit: 'cover' }} />

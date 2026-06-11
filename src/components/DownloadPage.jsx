@@ -65,7 +65,7 @@ export default function DownloadPage({ onBack }) {
           </h1>
 
           <p style={{ fontSize: '1.1rem', color: '#94a3b8', lineHeight: 1.6, marginTop: '1rem', marginBottom: '2rem' }}>
-            Get the full Industrial Connect experience with real-time notifications, location tracking, smoother animations, and offline access. Stay connected with the factory floor anytime, anywhere.
+            Get the full Tumkuru Connect experience with real-time notifications, location tracking, smoother animations, and offline access. Stay connected with the entire industrial ecosystem anytime, anywhere.
           </p>
 
           <div>

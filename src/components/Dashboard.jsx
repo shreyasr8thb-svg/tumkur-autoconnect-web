@@ -80,7 +80,7 @@ function HomeView({ onSOS, onNavigate }) {
           <AlertTriangle size={32} />
           <span style={{ fontSize: '1.25rem', fontWeight: '700', letterSpacing: '1px' }}>EMERGENCY SOS</span>
         </button>
-        <p className="mt-2" style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Tap to alert Factory Security & Police</p>
+        <p className="mt-2" style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Tap to alert Ecosystem Security & Police</p>
       </div>
 
       <h3 className="mt-2">Quick Access</h3>
@@ -465,7 +465,7 @@ function ProfileView({ onNavigate }) {
         {editing === 'work' ? (
           <div className="flex-col gap-2">
             <div className="input-group mb-0">
-              <label className="input-label">Factory Unit</label>
+              <label className="input-label">Company / Unit</label>
               <select name="factoryUnit" className="input-field" value={formData.factoryUnit} onChange={handleChange}>
                 <option value="">Select...</option>
                 <option value="Sri Sai Auto Components">Sri Sai Auto Components</option>

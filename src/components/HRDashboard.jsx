@@ -7,15 +7,15 @@ import AppFooter from './AppFooter';
 export default function HRDashboard() {
   const { profile, signOut } = useUser();
   const [tab, setTab] = useState('dashboard');
-  const factoryName = profile?.factoryUnit || 'Your Factory';
+  const companyName = profile?.factoryUnit || 'Your Company';
 
   return (
     <div className="flex-col" style={{ flex: 1 }}>
       {/* Top Bar */}
       <div className="top-bar">
         <div>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>HR / Owner Panel</div>
-          <div style={{ fontWeight: 600 }}>{factoryName}</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Company Dashboard</div>
+          <div style={{ fontWeight: 600 }}>{companyName}</div>
         </div>
         <div className="avatar-sm" style={{ cursor: 'pointer' }} onClick={() => setTab('profile')}>
           <Users size={18} color="#fff" />
@@ -25,7 +25,7 @@ export default function HRDashboard() {
       <div className="screen" style={{ overflowY: 'auto' }}>
         {tab === 'dashboard' && <HRHome />}
         {tab === 'workers' && <Workforce />}
-        {tab === 'jobs' && <PostJobs factoryName={factoryName} />}
+        {tab === 'jobs' && <PostJobs companyName={companyName} />}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
         <AppFooter />
       </div>
@@ -57,7 +57,7 @@ function HRHome() {
     <div className="flex-col gap-4">
       <div className="flex items-center gap-2">
         <Activity size={22} color="#f87171" />
-        <h2 style={{ margin: 0 }}>Factory Health</h2>
+        <h2 style={{ margin: 0 }}>Company Health</h2>
       </div>
 
       <div className="grid-2">
@@ -169,7 +169,7 @@ function StaffRow({ name, role, status }) {
   );
 }
 
-function PostJobs({ factoryName }) {
+function PostJobs({ companyName }) {
   const { showToast } = useUser();
   const [jobs, setJobs] = useState([
     { title: 'CNC Operator', type: 'Full-time', salary: '₹15,000/mo' },
@@ -217,7 +217,7 @@ function PostJobs({ factoryName }) {
         <div key={i} className="glass-card flex justify-between items-center">
           <div>
             <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{j.title}</strong>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{factoryName} • {j.type}</div>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{companyName} • {j.type}</div>
           </div>
           <div style={{ color: '#4ade80', fontSize: '0.85rem', fontWeight: 600 }}>{j.salary}</div>
         </div>

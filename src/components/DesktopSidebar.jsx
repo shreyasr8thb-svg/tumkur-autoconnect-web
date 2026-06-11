@@ -43,7 +43,7 @@ export default function DesktopSidebar({ tab, setTab, role = 'worker', onSignOut
         <img src={logo} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
         <div>
           <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#f8fafc', letterSpacing: '-0.02em' }}>Tumkuru Connect</div>
-          <div style={{ fontSize: '0.65rem', color: '#475569' }}>Industrial Platform</div>
+          <div style={{ fontSize: '0.65rem', color: '#475569' }}>Industrial Ecosystem</div>
         </div>
       </div>
 

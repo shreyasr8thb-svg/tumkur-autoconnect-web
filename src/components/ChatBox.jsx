@@ -16,7 +16,7 @@ export default function ChatBox({ onBack }) {
     { id: 'general', name: '🏭 General — Tumkuru Connect', desc: 'All workers & staff', type: 'group' },
     { id: 'hr-announcements', name: '📢 HR Announcements', desc: 'Official HR updates', type: 'group' },
     { id: 'job-board', name: '💼 Job Board Chat', desc: 'Jobs & interviews', type: 'group' },
-    { id: 'ride-coordination', name: '🚕 Ride Coordination', desc: 'Factory cab schedule', type: 'group' },
+    { id: 'ride-coordination', name: '🚕 Ride Coordination', desc: 'Shuttle schedule', type: 'group' },
   ];
 
   const openRoom = (room) => {

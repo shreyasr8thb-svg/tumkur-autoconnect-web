@@ -137,7 +137,7 @@ function DriveMode({ active, setActive }) {
       driverId: user.uid, 
       driverName: profile?.fullName || 'Driver',
       driverPhoto: profile?.photoURL || '',
-      vehicleModel: profile?.vehicleModel || 'Factory Cab',
+      vehicleModel: profile?.vehicleModel || 'Industrial Shuttle',
       vehicleNumber: profile?.vehicleNumber || 'KA-XX-XXXX'
     });
   };

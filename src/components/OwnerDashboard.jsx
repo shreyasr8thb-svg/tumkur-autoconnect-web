@@ -4,15 +4,15 @@ import { useUser } from '../context/UserContext';
 
 export default function OwnerDashboard() {
   const { profile, signOut } = useUser();
-  const factoryName = profile?.factoryUnit || 'Your Factory';
+  const companyName = profile?.factoryUnit || 'Your Company';
 
   return (
     <div className="flex-col" style={{ flex: 1 }}>
       {/* Top Bar */}
       <div className="flex justify-between items-center p-4 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-panel)' }}>
         <div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Factory Dashboard</div>
-          <div style={{ fontWeight: '600' }}>{factoryName}</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Company Dashboard</div>
+          <div style={{ fontWeight: '600' }}>{companyName}</div>
         </div>
         <div className="flex gap-3 items-center">
           <div className="avatar-sm" style={{ cursor: 'pointer' }} onClick={signOut}>
