@@ -268,7 +268,7 @@ function DriveMode({ active, setActive, onMenu }) {
 
 /* ── Trip Logs ── */
 function TripLogs() {
-  const { user } = useUser();
+  const { user, profile } = useUser();
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
@@ -289,20 +289,20 @@ function TripLogs() {
       <h3 style={{ margin: 0 }}>Trip History</h3>
       <div className="grid-2">
         <div className="glass-card flex-col items-center">
-          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{todayTrips.length}</div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>TODAY'S TRIPS</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{profile?.totalTrips || trips.length || 0}</div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>TOTAL TRIPS</div>
         </div>
         <div className="glass-card flex-col items-center">
-          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>₹{todayEarnings}</div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>TODAY'S EARNINGS</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>₹{profile?.totalEarnings || todayEarnings || 0}</div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>TOTAL EARNINGS</div>
         </div>
       </div>
       
       {trips.length === 0 ? (
         <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>
           <ClipboardList size={40} style={{ marginBottom: 12, opacity: 0.5 }} />
-          <div>No trips completed yet.</div>
-          <span style={{ fontSize: '0.78rem' }}>Go online in Drive Mode to start accepting rides.</span>
+          <div>No recent trips found.</div>
+          <span style={{ fontSize: '0.78rem' }}>Trips completed from now on will generate detailed receipts here.</span>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
