@@ -42,6 +42,8 @@ function DriveMode({ active, setActive, onMenu }) {
   const [pendingRides, setPendingRides] = useState([]);
   const [activeRide, setActiveRide] = useState(null);
   const [otpInput, setOtpInput] = useState('');
+  const [vehicleType, setVehicleType] = useState(profile?.vehicleType || 'Mini');
+  const [vehicleNumber, setVehicleNumber] = useState(profile?.vehicleNumber || '');
 
   useEffect(() => {
     if (!active) { setPendingRides([]); return; }
@@ -63,8 +65,8 @@ function DriveMode({ active, setActive, onMenu }) {
       status: 'accepted',
       driverId: user.uid,
       driverName: profile?.fullName || 'Driver',
-      vehicleType: profile?.vehicleType || 'Mini',
-      vehicleNumber: profile?.vehicleNumber || 'KA-00-0000',
+      vehicleType: vehicleType || 'Mini',
+      vehicleNumber: vehicleNumber || 'KA-00-0000',
     });
   };
 
@@ -120,10 +122,43 @@ function DriveMode({ active, setActive, onMenu }) {
         <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 2, margin: '0 auto 16px' }} />
 
         {!active && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, paddingBottom: 8 }}>
-            <h3 style={{ margin: 0 }}>You're Offline</h3>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>Go online to start receiving ride requests from workers.</p>
-            <button onClick={() => setActive(true)} style={{ width: '100%', padding: '1rem', borderRadius: 14, background: 'linear-gradient(135deg,#16a34a,#22c55e)', color: '#fff', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(34,197,94,0.35)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 8 }}>
+            <h3 style={{ margin: 0, textAlign: 'center' }}>You're Offline</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>VEHICLE TYPE</label>
+              <select 
+                value={vehicleType} 
+                onChange={e => setVehicleType(e.target.value)}
+                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="Bike">Moto (Bike)</option>
+                <option value="Auto">Auto</option>
+                <option value="Mini">TC Mini</option>
+                <option value="Sedan">TC Sedan</option>
+                <option value="SUV">TC SUV</option>
+              </select>
+
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>VEHICLE NUMBER</label>
+              <input 
+                type="text" 
+                value={vehicleNumber}
+                onChange={e => setVehicleNumber(e.target.value.toUpperCase())}
+                placeholder="e.g. KA 06 AB 1234"
+                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none', letterSpacing: 1 }}
+              />
+            </div>
+
+            <button 
+              onClick={() => {
+                if(!vehicleNumber) {
+                  showToast?.('Please enter vehicle number');
+                  return;
+                }
+                setActive(true);
+              }} 
+              style={{ width: '100%', padding: '1rem', borderRadius: 14, background: 'linear-gradient(135deg,#16a34a,#22c55e)', color: '#fff', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(34,197,94,0.35)', marginTop: 8 }}
+            >
               GO ONLINE
             </button>
           </div>
