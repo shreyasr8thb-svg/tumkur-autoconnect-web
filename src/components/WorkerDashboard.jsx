@@ -47,20 +47,20 @@ export default function WorkerDashboard({ onSOS }) {
         ]} />
 
         {/* Notifications Panel */}
-      {showNotifs && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
-          <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '80%', maxWidth: '320px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: '0', animation: 'fadeIn 0.2s' }}>
-            <div className="flex justify-between items-center p-4 border-b-dark">
-              <h3 style={{ margin: 0 }}>Notifications</h3>
-              <X size={24} color="#94a3b8" onClick={() => setShowNotifs(false)} style={{ cursor: 'pointer' }} />
-            </div>
-            <div className="p-4 flex-col gap-3" style={{ overflowY: 'auto' }}>
-              <div className="info-box">System update: Server maintenance at 2 AM.</div>
-              <div className="info-box" style={{ borderColor: '#f87171' }}>HR: Action required on your skill passport.</div>
+        {showNotifs && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100 }}>
+            <div className="glass-card flex-col" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '80%', maxWidth: '320px', background: 'rgba(15,23,42,0.95)', borderRadius: 0, animation: 'fadeIn 0.2s' }}>
+              <div className="flex justify-between items-center p-4 border-b-dark">
+                <h3 style={{ margin: 0 }}>Notifications</h3>
+                <X size={24} color="#94a3b8" onClick={() => setShowNotifs(false)} style={{ cursor: 'pointer' }} />
+              </div>
+              <div className="p-4 flex-col gap-3" style={{ overflowY: 'auto' }}>
+                <div className="info-box">System update: Server maintenance at 2 AM.</div>
+                <div className="info-box" style={{ borderColor: '#f87171' }}>HR: Action required on your skill passport.</div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Menu Panel */}
       {showMenu && (
@@ -125,8 +125,6 @@ export default function WorkerDashboard({ onSOS }) {
               <MenuLink icon={<LogOut size={20} />} label="Sign Out" onClick={signOut} />
             </div>
             
-          </div>
-        </div>
           </div>
         </div>
       )}
