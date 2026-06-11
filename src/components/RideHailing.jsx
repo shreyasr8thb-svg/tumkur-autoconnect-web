@@ -49,46 +49,46 @@ export default function RideHailing() {
       </div>
 
       <div className="ride-hailing-sheet glass-card">
-        <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '0 auto 1.5rem' }} />
+        <div style={{ width: 40, height: 4, background: 'var(--border-light)', borderRadius: 2, margin: '0 auto 1.5rem' }} />
 
         {!ride ? (
           step === 'input' ? (
             <div className="flex-col gap-4">
               <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>Where to?</h3>
-              <div className="input-group mb-0 flex items-center gap-3" style={{ background: 'rgba(0,0,0,0.3)', padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)' }}>
-                <Search size={24} color="#94a3b8" />
+              <div className="input-group mb-0 flex items-center gap-3" style={{ background: 'var(--border-light)', padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)' }}>
+                <Search size={24} color="var(--text-muted)" />
                 <input style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%', fontSize: '1.1rem', fontWeight: 500 }} placeholder="Search destination" value={dropoff} onChange={e => setDropoff(e.target.value)} />
               </div>
-              <button className="btn btn-primary mt-2" style={{ padding: '1.2rem', fontSize: '1.1rem', borderRadius: 16, background: 'linear-gradient(135deg, #e11d48, #be123c)' }} disabled={!dropoff} onClick={() => setStep('options')}>Find Rides</button>
+              <button className="btn btn-primary mt-2" style={{ padding: '1.2rem', fontSize: '1.1rem', borderRadius: 16, background: 'var(--primary)' }} disabled={!dropoff} onClick={() => setStep('options')}>Find Rides</button>
             </div>
           ) : (
             <div className="flex-col gap-4">
               <div className="flex items-center gap-3" onClick={() => setStep('input')} style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}>
-                 <ArrowLeft size={24} color="#94a3b8" />
+                 <ArrowLeft size={24} color="var(--text-muted)" />
                  <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800 }}>Choose a ride</h3>
               </div>
               <div className="flex-col gap-3" style={{ maxHeight: '250px', overflowY: 'auto', paddingRight: '8px' }}>
                 {vehicleOptions.map(v => (
-                  <div key={v.id} onClick={() => setSelectedVehicle(v.id)} className="flex justify-between items-center" style={{ padding: '16px', borderRadius: 16, border: selectedVehicle === v.id ? '2px solid #e11d48' : '2px solid transparent', background: selectedVehicle === v.id ? 'rgba(225,29,72,0.1)' : 'rgba(255,255,255,0.03)', cursor: 'pointer', transition: 'all 0.2s', boxShadow: selectedVehicle === v.id ? '0 4px 15px rgba(225,29,72,0.2)' : 'none' }}>
+                  <div key={v.id} onClick={() => setSelectedVehicle(v.id)} className="flex justify-between items-center" style={{ padding: '16px', borderRadius: 16, border: selectedVehicle === v.id ? '2px solid #e11d48' : '2px solid transparent', background: selectedVehicle === v.id ? 'rgba(225,29,72,0.1)' : 'var(--bg-dark)', cursor: 'pointer', transition: 'all 0.2s', boxShadow: selectedVehicle === v.id ? '0 4px 15px rgba(225,29,72,0.2)' : 'none' }}>
                     <div className="flex items-center gap-4">
-                      <div style={{ color: selectedVehicle === v.id ? '#e11d48' : '#cbd5e1', background: selectedVehicle === v.id ? 'transparent' : 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '50%' }}>{v.icon}</div>
+                      <div style={{ color: selectedVehicle === v.id ? 'var(--primary)' : 'var(--text-main)', background: selectedVehicle === v.id ? 'transparent' : 'var(--border-light)', padding: '10px', borderRadius: '50%' }}>{v.icon}</div>
                       <div>
-                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#f8fafc' }}>{v.name}</div>
-                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>{v.time}</div>
+                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>{v.name}</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>{v.time}</div>
                       </div>
                     </div>
-                    <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#f8fafc' }}>{v.price}</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-main)' }}>{v.price}</div>
                   </div>
                 ))}
               </div>
-              <button className="btn btn-primary mt-2" style={{ padding: '1.2rem', fontSize: '1.1rem', borderRadius: 16, background: 'linear-gradient(135deg, #e11d48, #be123c)' }} onClick={requestRide}>Confirm {selectedVehicle}</button>
+              <button className="btn btn-primary mt-2" style={{ padding: '1.2rem', fontSize: '1.1rem', borderRadius: 16, background: 'var(--primary)' }} onClick={requestRide}>Confirm {selectedVehicle}</button>
             </div>
           )
         ) : ride.status === 'pending' ? (
           <div className="flex-col items-center gap-4 py-4">
-            <div className="spinner" style={{ borderColor: '#333', borderTopColor: '#e11d48', width: 40, height: 40 }} />
+            <div className="spinner" style={{ borderColor: '#333', borderTopColor: 'var(--primary)', width: 40, height: 40 }} />
             <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Finding your driver...</h3>
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem' }}>Matching you with the nearest {ride.vehicleType}</p>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>Matching you with the nearest {ride.vehicleType}</p>
             <button className="btn btn-ghost mt-2 w-100" style={{ color: '#f87171', background: 'rgba(248,113,113,0.1)', padding: '1rem', borderRadius: 12 }} onClick={() => deleteDoc(doc(db, 'rides', user.uid))}>Cancel Request</button>
           </div>
         ) : (ride.status === 'accepted' || ride.status === 'in-progress') ? (
@@ -96,7 +96,7 @@ export default function RideHailing() {
             <div className="flex justify-between items-center border-b-dark pb-3">
               <div>
                 <h3 style={{ margin: '0 0 4px 0', color: '#4ade80', fontSize: '1.2rem' }}>{ride.status === 'in-progress' ? 'Trip in Progress!' : 'Driver Arriving!'}</h3>
-                <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>{ride.driverName} • 4.9 ★</p>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>{ride.driverName} • 4.9 ★</p>
               </div>
               {ride.driverPhoto ? (
                 <img src={ride.driverPhoto} alt="Driver" style={{ width: 50, height: 50, borderRadius: '50%', objectFit: 'cover' }} />
@@ -105,20 +105,20 @@ export default function RideHailing() {
               )}
             </div>
             
-            <div className="flex justify-between items-center" style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="flex justify-between items-center" style={{ background: 'var(--border-light)', padding: '16px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
               <div className="flex gap-4 items-center">
-                 <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '50%' }}>
-                   <Car size={28} color="#f8fafc" />
+                 <div style={{ background: 'var(--border)', padding: '12px', borderRadius: '50%' }}>
+                   <Car size={28} color="var(--text-main)" />
                  </div>
                  <div className="flex-col">
-                   <strong style={{ fontSize: '1.2rem', color: '#f8fafc' }}>{ride.vehicleNumber || 'KA-06-TC-1234'}</strong>
-                   <span style={{ fontSize: '0.9rem', color: '#94a3b8' }}>{ride.vehicleModel || ride.vehicleType}</span>
+                   <strong style={{ fontSize: '1.2rem', color: 'var(--text-main)' }}>{ride.vehicleNumber || 'KA-06-TC-1234'}</strong>
+                   <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{ride.vehicleModel || ride.vehicleType}</span>
                  </div>
               </div>
               {ride.status === 'accepted' && (
                 <div className="flex-col items-end" style={{ background: 'rgba(225,29,72,0.1)', padding: '10px 16px', borderRadius: 16, border: '1px solid rgba(225,29,72,0.2)' }}>
                   <span style={{ fontSize: '0.75rem', color: '#f87171', fontWeight: 800, letterSpacing: 1 }}>OTP</span>
-                  <strong style={{ fontSize: '1.6rem', letterSpacing: 3, color: '#f8fafc' }}>{ride.otp}</strong>
+                  <strong style={{ fontSize: '1.6rem', letterSpacing: 3, color: 'var(--text-main)' }}>{ride.otp}</strong>
                 </div>
               )}
             </div>

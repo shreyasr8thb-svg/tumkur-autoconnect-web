@@ -98,7 +98,7 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
           [userPos.lat, userPos.lng],
           [userPos.lat + 0.005, userPos.lng + 0.008],
           [FACTORIES[0].lat, FACTORIES[0].lng],
-        ], { color: '#e11d48', weight: 4, dashArray: '10,6', opacity: 0.85 }).addTo(map);
+        ], { color: 'var(--primary)', weight: 4, dashArray: '10,6', opacity: 0.85 }).addTo(map);
       }
 
       mapInstance.current = map;
@@ -116,7 +116,7 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
       <style>{`@keyframes ripple{0%{transform:scale(1);opacity:0.8}100%{transform:scale(3);opacity:0}}`}</style>
       <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
       {geoError && (
-        <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', background: 'rgba(15,23,42,0.9)', color: '#94a3b8', fontSize: '0.72rem', padding: '4px 12px', borderRadius: '9999px', zIndex: 20 }}>
+        <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', background: 'rgba(15,23,42,0.9)', color: 'var(--text-muted)', fontSize: '0.72rem', padding: '4px 12px', borderRadius: '9999px', zIndex: 20 }}>
           📍 Showing Tumkur, KA (location denied)
         </div>
       )}

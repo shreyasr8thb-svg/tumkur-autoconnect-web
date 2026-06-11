@@ -28,14 +28,14 @@ export default function DownloadPage({ onBack }) {
 
   return (
     <div className="flex-col" style={{
-      background: '#020617', // Match dark theme
+      background: 'var(--bg-dark)', // Match dark theme
       minHeight: '100%',
-      color: '#f8fafc',
+      color: 'var(--text-main)',
       padding: '2rem',
       position: 'relative'
     }}>
       {onBack && (
-        <button onClick={onBack} className="btn btn-ghost" style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 10, padding: '0.5rem', color: '#94a3b8' }}>
+        <button onClick={onBack} className="btn btn-ghost" style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 10, padding: '0.5rem', color: 'var(--text-muted)' }}>
           <ChevronLeft size={24} />
         </button>
       )}
@@ -84,16 +84,16 @@ export default function DownloadPage({ onBack }) {
           <h1 style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.1, margin: 0 }}>
             Experience Tumkuru Connect
             <br />
-            <span style={{ color: '#e11d48' }}>On Your Mobile</span>
+            <span style={{ color: 'var(--primary)' }}>On Your Mobile</span>
           </h1>
 
-          <p style={{ fontSize: '1.1rem', color: '#94a3b8', lineHeight: 1.6, marginTop: '1rem', marginBottom: '2rem' }}>
+          <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', lineHeight: 1.6, marginTop: '1rem', marginBottom: '2rem' }}>
             Get the full Tumkuru Connect experience with real-time notifications, location tracking, smoother animations, and offline access. Stay connected with the entire industrial ecosystem anytime, anywhere.
           </p>
 
           <div>
             <button className="btn btn-primary flex items-center justify-center gap-2" style={{
-              background: '#e11d48',
+              background: 'var(--primary)',
               padding: '1rem 2rem',
               borderRadius: '12px',
               fontSize: '1.1rem',
@@ -112,11 +112,11 @@ export default function DownloadPage({ onBack }) {
           <div className="flex items-center gap-6 mt-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 size={18} color="#10b981" />
-              <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Safe & Secure</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>Safe & Secure</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 size={18} color="#10b981" />
-              <span style={{ fontSize: '0.9rem', color: '#64748b' }}>v1.2.4 (Latest)</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>v1.2.4 (Latest)</span>
             </div>
           </div>
         </div>

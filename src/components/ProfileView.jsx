@@ -53,7 +53,7 @@ export default function ProfileView({ onNavigate }) {
 
       {/* ID Card Section */}
       <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
-        <h4 style={{ color: '#94a3b8', margin: 0 }}>ID Card</h4>
+        <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>ID Card</h4>
         {profile?.idCardURL ? (
           <div className="id-card-display">
             <img src={profile.idCardURL} alt="ID Card" />
@@ -72,10 +72,10 @@ export default function ProfileView({ onNavigate }) {
       {/* Personal Info */}
       <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
         <div className="flex justify-between items-center">
-          <h4 style={{ color: '#94a3b8', margin: 0 }}>Personal Info</h4>
+          <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Personal Info</h4>
           {editing === 'personal'
             ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
-            : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('personal')} />
+            : <Edit3 size={16} style={{ cursor:'pointer', color:'var(--text-dim)' }} onClick={() => startEdit('personal')} />
           }
         </div>
         {editing === 'personal' ? (
@@ -103,10 +103,10 @@ export default function ProfileView({ onNavigate }) {
       {/* Emergency Contacts */}
       <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
         <div className="flex justify-between items-center">
-          <h4 style={{ color: '#94a3b8', margin: 0 }}>Emergency Contacts</h4>
+          <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Emergency Contacts</h4>
           {editing === 'emergency'
             ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
-            : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('emergency')} />
+            : <Edit3 size={16} style={{ cursor:'pointer', color:'var(--text-dim)' }} onClick={() => startEdit('emergency')} />
           }
         </div>
         {editing === 'emergency' ? (
@@ -127,10 +127,10 @@ export default function ProfileView({ onNavigate }) {
       {/* Work Records */}
       <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
         <div className="flex justify-between items-center">
-          <h4 style={{ color: '#94a3b8', margin: 0 }}>Work Records</h4>
+          <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Work Records</h4>
           {editing === 'work'
             ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
-            : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('work')} />
+            : <Edit3 size={16} style={{ cursor:'pointer', color:'var(--text-dim)' }} onClick={() => startEdit('work')} />
           }
         </div>
         {editing === 'work' ? (
@@ -155,10 +155,10 @@ export default function ProfileView({ onNavigate }) {
       {/* Salary Details */}
       <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
         <div className="flex justify-between items-center">
-          <h4 style={{ color: '#94a3b8', margin: 0 }}>Salary Details</h4>
+          <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Salary Details</h4>
           {editing === 'salary'
             ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
-            : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('salary')} />
+            : <Edit3 size={16} style={{ cursor:'pointer', color:'var(--text-dim)' }} onClick={() => startEdit('salary')} />
           }
         </div>
         {editing === 'salary' ? (
@@ -181,10 +181,10 @@ export default function ProfileView({ onNavigate }) {
         <>
           <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
             <div className="flex justify-between items-center">
-              <h4 style={{ color: '#94a3b8', margin: 0 }}>Vehicle Details</h4>
+              <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Vehicle Details</h4>
               {editing === 'vehicle'
                 ? <div className="flex gap-2"><Save size={18} color="#4ade80" style={{ cursor:'pointer' }} onClick={save} /><X size={18} color="#f87171" style={{ cursor:'pointer' }} onClick={() => setEditing(null)} /></div>
-                : <Edit3 size={16} style={{ cursor:'pointer', color:'#64748b' }} onClick={() => startEdit('vehicle')} />
+                : <Edit3 size={16} style={{ cursor:'pointer', color:'var(--text-dim)' }} onClick={() => startEdit('vehicle')} />
               }
             </div>
             {editing === 'vehicle' ? (
@@ -201,7 +201,7 @@ export default function ProfileView({ onNavigate }) {
           </div>
 
           <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
-            <h4 style={{ color: '#94a3b8', margin: 0 }}>Driving License</h4>
+            <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Driving License</h4>
             {profile?.dlURL ? (
               <div className="id-card-display">
                 <img src={profile.dlURL} alt="Driving License" />
@@ -228,12 +228,12 @@ export default function ProfileView({ onNavigate }) {
       )}
 
       <div className="flex gap-2 mt-2">
-        <button className="btn btn-ghost flex-1" style={{ color: '#94a3b8' }} onClick={signOut}>
+        <button className="btn btn-ghost flex-1" style={{ color: 'var(--text-muted)' }} onClick={signOut}>
           <LogOut size={18} /> Sign Out
         </button>
         <button 
           className="btn btn-ghost flex-1" 
-          style={{ color: '#ef4444' }} 
+          style={{ color: 'var(--primary)' }} 
           onClick={() => { if(window.confirm('Are you sure you want to permanently delete your profile?')) deleteProfile(); }}
         >
           <X size={18} /> Delete Profile
@@ -244,7 +244,7 @@ export default function ProfileView({ onNavigate }) {
 }
 
 function Row({ label, value }) {
-  return <div className="flex justify-between" style={{ fontSize: '0.85rem' }}><span style={{ color: '#64748b' }}>{label}</span><span>{value || '—'}</span></div>;
+  return <div className="flex justify-between" style={{ fontSize: '0.85rem' }}><span style={{ color: 'var(--text-dim)' }}>{label}</span><span>{value || '—'}</span></div>;
 }
 function MiniInput({ label, ...props }) {
   return <div className="input-group mb-0"><label className="input-label">{label}</label><input className="input-field" style={{ padding: '0.6rem 0.8rem', fontSize: '0.85rem' }} {...props} /></div>;

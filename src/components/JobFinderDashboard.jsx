@@ -43,15 +43,15 @@ function TopBar({ name, photo, onProfile, onNotifs, badge }) {
       <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
         {photo ? <img src={photo} className="avatar-sm" alt="" style={{ objectFit: 'cover' }} /> : <div className="avatar-sm">{name.charAt(0)}</div>}
         <div>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{badge || 'Welcome'}</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{badge || 'Welcome'}</div>
           <div style={{ fontWeight: 600 }}>{name}</div>
         </div>
       </div>
       <div className="flex gap-3">
         <div style={{ position: 'relative', cursor: 'pointer' }} onClick={onNotifs}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         </div>
-        <div style={{ position: 'relative' }}><Settings size={22} color="#64748b" /></div>
+        <div style={{ position: 'relative' }}><Settings size={22} color="var(--text-dim)" /></div>
       </div>
     </div>
   );
@@ -73,7 +73,7 @@ function Home({ go }) {
   return (
     <div className="flex-col gap-4">
       <div className="search-bar glass-card">
-        <Search size={18} color="#94a3b8" />
+        <Search size={18} color="var(--text-muted)" />
         <input type="text" placeholder="Search industry roles..." className="search-input" />
         <Filter size={18} color="#f87171" style={{ cursor: 'pointer' }} />
       </div>
@@ -107,7 +107,7 @@ function JobMap() {
       </div>
       <LiveMap height="400px" />
       <div className="glass-card">
-        <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1', textAlign: 'center' }}>
+        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-main)', textAlign: 'center' }}>
           Showing 12 active hiring factories within 5km of your location.
         </p>
       </div>
@@ -145,8 +145,8 @@ function Applications() {
           <strong style={{ fontSize: '1rem' }}>CNC Operator</strong>
           <span className="badge-warning">Under Review</span>
         </div>
-        <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Sri Sai Auto Components</div>
-        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>Applied on 12 Oct 2024</div>
+        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sri Sai Auto Components</div>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 4 }}>Applied on 12 Oct 2024</div>
       </div>
     </div>
   );
@@ -157,8 +157,8 @@ function JobCard({ title, company, wage, tags }) {
     <div className="glass-card flex-col gap-2" style={{ padding: '1rem', cursor: 'pointer' }}>
       <div className="flex justify-between items-start">
         <div>
-          <strong style={{ fontSize: '1.05rem', color: '#f8fafc' }}>{title}</strong>
-          <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{company}</div>
+          <strong style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{title}</strong>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{company}</div>
         </div>
         <div className="flex items-center gap-1" style={{ color: '#4ade80', fontWeight: 600 }}>
           <DollarSign size={14} />{wage}

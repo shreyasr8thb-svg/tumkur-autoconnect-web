@@ -44,17 +44,17 @@ export default function DesktopSidebar({ tab, setTab, role = 'worker', onSignOut
       <div className="flex items-center gap-3 p-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', minHeight: '64px' }}>
         <img src={logo} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
         <div>
-          <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#f8fafc', letterSpacing: '-0.02em' }}>Tumkuru Connect</div>
+          <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Tumkuru Connect</div>
           <div style={{ fontSize: '0.65rem', color: '#475569' }}>Industrial Ecosystem</div>
         </div>
       </div>
 
       {/* User card */}
       <div className="p-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="flex items-center gap-3 p-3" style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => setTab('profile')}>
+        <div className="flex items-center gap-3 p-3" style={{ background: 'var(--bg-dark)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => setTab('profile')}>
           <div className="avatar-sm" style={{ width: 34, height: 34, fontSize: '0.85rem', flexShrink: 0 }}>{name.charAt(0)}</div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#f8fafc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
+            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
             <div style={{ fontSize: '0.68rem', color: '#475569', textTransform: 'capitalize' }}>{role}</div>
           </div>
         </div>
@@ -76,8 +76,8 @@ export default function DesktopSidebar({ tab, setTab, role = 'worker', onSignOut
 
         {/* Download section */}
         <div style={{ margin: '1rem 8px 0', padding: '0.75rem 1rem', background: 'linear-gradient(135deg, rgba(225,29,72,0.1), rgba(239,68,68,0.05))', border: '1px solid rgba(225,29,72,0.2)', borderRadius: '14px' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#e11d48', marginBottom: '0.5rem' }}>📱 GET THE APP</div>
-          <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: '0.75rem', lineHeight: 1.4 }}>Download APK for the best experience</div>
+          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.5rem' }}>📱 GET THE APP</div>
+          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem', lineHeight: 1.4 }}>Download APK for the best experience</div>
           <button className="btn btn-primary w-100" style={{ padding: '0.6rem', borderRadius: '10px', fontSize: '0.8rem', gap: '6px' }} onClick={() => setTab('download')}>
             <Download size={14} /> Download APK
           </button>

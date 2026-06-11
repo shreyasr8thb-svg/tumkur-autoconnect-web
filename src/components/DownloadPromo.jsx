@@ -35,26 +35,26 @@ export default function DownloadPromo() {
           borderRadius: '9999px',
           marginBottom: '1rem'
         }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e11d48', boxShadow: '0 0 8px #e11d48' }} className="animate-pulse" />
-          <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#e11d48', letterSpacing: '0.5px' }}>LATEST VERSION AVAILABLE</span>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)', boxShadow: '0 0 8px #e11d48' }} className="animate-pulse" />
+          <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--primary)', letterSpacing: '0.5px' }}>LATEST VERSION AVAILABLE</span>
         </div>
 
         {/* Headlines */}
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1.2, margin: 0, color: '#f8fafc' }}>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1.2, margin: 0, color: 'var(--text-main)' }}>
           Experience App
         </h2>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1.2, margin: 0, color: '#e11d48', marginBottom: '1rem' }}>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1.2, margin: 0, color: 'var(--primary)', marginBottom: '1rem' }}>
           On Your Mobile
         </h2>
 
         {/* Text */}
-        <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
           Get the full Tumkuru Connect experience with real-time notifications, smoother animations, and offline access. Join the community of innovators anytime, anywhere.
         </p>
 
         {/* Button */}
         <button className="btn btn-primary w-100 flex items-center justify-center gap-2" style={{
-          background: '#e11d48',
+          background: 'var(--primary)',
           padding: '0.85rem',
           borderRadius: '12px',
           fontSize: '0.95rem',
@@ -72,11 +72,11 @@ export default function DownloadPromo() {
         <div className="flex items-center justify-between mt-4" style={{ padding: '0 0.5rem' }}>
           <div className="flex items-center gap-2">
             <CheckCircle2 size={14} color="#10b981" />
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Safe & Secure</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Safe & Secure</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 size={14} color="#10b981" />
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>v1.2.4 (Latest)</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>v1.2.4 (Latest)</span>
           </div>
         </div>
       </div>
