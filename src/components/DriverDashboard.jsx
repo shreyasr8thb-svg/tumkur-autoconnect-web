@@ -89,7 +89,7 @@ function DriveMode({ active, setActive, onMenu }) {
       </div>
 
       {/* Top bar overlay */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 30, background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 9999, background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: active ? '#22c55e' : '#64748b', boxShadow: active ? '0 0 8px #22c55e' : 'none' }} />
           <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#f8fafc' }}>{active ? (activeRide ? 'ON TRIP' : 'ONLINE') : 'OFFLINE'}</span>
@@ -101,7 +101,7 @@ function DriveMode({ active, setActive, onMenu }) {
 
       {/* Incoming requests (when online, no active ride) */}
       {active && !activeRide && pendingRides.length > 0 && (
-        <div style={{ position: 'absolute', top: 70, left: 12, right: 12, zIndex: 40, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ position: 'absolute', top: 70, left: 12, right: 12, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {pendingRides.slice(0, 3).map(r => (
             <div key={r.id} style={{ background: 'rgba(10,20,40,0.95)', border: '2px solid #3b82f6', borderRadius: 16, padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(59,130,246,0.3)' }}>
               <div>
@@ -118,7 +118,7 @@ function DriveMode({ active, setActive, onMenu }) {
       )}
 
       {/* Bottom Sheet */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30, background: '#0f172a', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: '1.25rem', boxShadow: '0 -6px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.07)', borderBottom: 'none' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999, background: '#0f172a', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: '1.25rem', boxShadow: '0 -6px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.07)', borderBottom: 'none' }}>
         <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 2, margin: '0 auto 16px' }} />
 
         {!active && (
