@@ -13,7 +13,7 @@ const FACTORIES = [
   { lat: 13.332, lng: 77.135, name: 'KIADB Zone' },
 ];
 
-function MapView({ userPos, dropoffPos, rideStatus }) {
+function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
 
@@ -27,6 +27,11 @@ function MapView({ userPos, dropoffPos, rideStatus }) {
         dragging: true,
         touchZoom: true,
       }).setView([userPos.lat, userPos.lng], 15);
+
+      if (onMapClick) {
+        map.on('click', (e) => onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng }));
+      }
+      setTimeout(() => map.invalidateSize(), 500);
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
@@ -99,6 +104,7 @@ export default function RideHailing() {
   const [step, setStep] = useState('home'); // home | input | options | pending | tracking
   const [selectedVehicle, setSelectedVehicle] = useState('Mini');
   const [userPos, setUserPos] = useState(TUMKUR);
+  const [customDropoff, setCustomDropoff] = useState(null);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -116,9 +122,14 @@ export default function RideHailing() {
     { name: 'Sira Road Junction', lat: 13.360, lng: 77.120 },
     { name: 'Sri Sai Auto Components', lat: 13.348, lng: 77.128 },
     { name: 'Tumkur Railway Station', lat: 13.325, lng: 77.108 }
-  ].map(s => ({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) }));
+  ];
+  if (customDropoff) {
+    SUGGESTIONS.push({ name: 'Pinned Location', lat: customDropoff.lat, lng: customDropoff.lng });
+  }
 
-  const selectedDropoffObj = SUGGESTIONS.find(s => s.name === dropoff);
+  const SUGGESTIONS_WITH_DIST = SUGGESTIONS.map(s => ({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) }));
+
+  const selectedDropoffObj = SUGGESTIONS_WITH_DIST.find(s => s.name === dropoff);
   const selectedDist = selectedDropoffObj ? parseFloat(selectedDropoffObj.dist) : 5.0;
   const dropoffPos = selectedDropoffObj ? { lat: selectedDropoffObj.lat, lng: selectedDropoffObj.lng } : null;
 
@@ -160,8 +171,9 @@ export default function RideHailing() {
       pickup: 'Current Location',
       dropoff,
       vehicleType: selectedVehicle,
+      price: vehicleOptions.find(v => v.id === selectedVehicle)?.price || '₹150',
       status: 'pending',
-      driverId: null, driverName: null, otp,
+      driverId: null, driverName: null, driverPhoto: null, otp,
       timestamp: Date.now(),
     });
     setStep('pending');
@@ -185,7 +197,7 @@ export default function RideHailing() {
           {/* Search Pill */}
           <div onClick={() => setStep('input')} style={{ background: '#27272a', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '12px 16px', gap: '12px', cursor: 'pointer', marginBottom: '1.5rem' }}>
             <Search size={22} color="#f8fafc" />
-            <span style={{ flex: 1, fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc' }}>Where to?</span>
+            <span style={{ flex: 1, fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc' }}>Where to? (or tap map)</span>
             <div style={{ background: '#18181b', borderRadius: '100px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Clock size={16} color="#f8fafc" />
               <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>Later</span>
@@ -255,7 +267,13 @@ export default function RideHailing() {
 
       {/* ── Full-screen map ── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <MapView userPos={userPos} dropoffPos={dropoffPos} rideStatus={ride?.status} />
+        <MapView userPos={userPos} dropoffPos={dropoffPos} rideStatus={ride?.status} onMapClick={(latlng) => {
+          if (!ride && (step === 'input' || step === 'options')) {
+            setCustomDropoff(latlng);
+            setDropoff('Pinned Location');
+            setStep('options');
+          }
+        }} />
       </div>
 
       {/* ── Top pill: pickup indicator ── */}
@@ -442,13 +460,22 @@ export default function RideHailing() {
           {(ride?.status === 'accepted' || ride?.status === 'in-progress') && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.65rem', color: ride?.status === 'in-progress' ? '#4ade80' : '#fbbf24', fontWeight: 700, letterSpacing: '0.06em' }}>
-                    {ride?.status === 'in-progress' ? '🟢 TRIP IN PROGRESS' : '🟡 DRIVER EN ROUTE'}
-                  </div>
-                  <h3 style={{ margin: '2px 0 0', fontSize: '1.1rem', fontWeight: 800 }}>{ride?.driverName || 'Your Driver'}</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: '#94a3b8' }}>
-                    <Star size={12} color="#fbbf24" fill="#fbbf24" /> 4.9 · {ride?.vehicleType}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {ride?.driverPhoto ? (
+                    <img src={ride.driverPhoto} alt="Driver" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #3b82f6' }} />
+                  ) : (
+                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <User size={20} color="#f8fafc" />
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontSize: '0.65rem', color: ride?.status === 'in-progress' ? '#4ade80' : '#fbbf24', fontWeight: 700, letterSpacing: '0.06em' }}>
+                      {ride?.status === 'in-progress' ? '🟢 TRIP IN PROGRESS' : '🟡 DRIVER EN ROUTE'}
+                    </div>
+                    <h3 style={{ margin: '2px 0 0', fontSize: '1.1rem', fontWeight: 800 }}>{ride?.driverName || 'Your Driver'}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: '#94a3b8' }}>
+                      <Star size={12} color="#fbbf24" fill="#fbbf24" /> 4.9 · {ride?.vehicleNumber || 'KA-00'} · {ride?.vehicleType || selectedVehicle}
+                    </div>
                   </div>
                 </div>
                 <button style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>

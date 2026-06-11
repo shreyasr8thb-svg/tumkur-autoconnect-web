@@ -65,6 +65,7 @@ function DriveMode({ active, setActive, onMenu }) {
       status: 'accepted',
       driverId: user.uid,
       driverName: profile?.fullName || 'Driver',
+      driverPhoto: profile?.photoURL || null,
       vehicleType: vehicleType || 'Mini',
       vehicleNumber: vehicleNumber || 'KA-00-0000',
     });
@@ -78,7 +79,15 @@ function DriveMode({ active, setActive, onMenu }) {
   };
 
   const completeRide = async () => {
-    if (activeRide) await deleteDoc(doc(db, 'rides', activeRide.id));
+    if (activeRide) {
+      const priceStr = activeRide.price || '0';
+      const earnings = parseInt(priceStr.replace('₹', '')) || 150;
+      await updateDoc(doc(db, 'users', user.uid), {
+        totalEarnings: (profile?.totalEarnings || 0) + earnings,
+        totalTrips: (profile?.totalTrips || 0) + 1
+      });
+      await deleteDoc(doc(db, 'rides', activeRide.id));
+    }
   };
 
   return (
@@ -127,12 +136,12 @@ function DriveMode({ active, setActive, onMenu }) {
             {/* Quick Stats */}
             <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.5rem' }}>
                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>₹0.00</div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>₹{profile?.totalEarnings || 0}</div>
                   <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>EARNINGS</div>
                </div>
                <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>0</div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>{profile?.totalTrips || 0}</div>
                   <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>TRIPS</div>
                </div>
                <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
@@ -171,12 +180,16 @@ function DriveMode({ active, setActive, onMenu }) {
             </div>
 
             <button 
-              onClick={() => {
+              onClick={async () => {
                 if(!vehicleNumber) {
                   showToast?.('Please enter vehicle number');
                   return;
                 }
                 setActive(true);
+                await updateDoc(doc(db, 'users', user.uid), {
+                  vehicleType: vehicleType,
+                  vehicleNumber: vehicleNumber
+                });
               }} 
               style={{ width: '100%', padding: '1rem', borderRadius: 14, background: 'linear-gradient(135deg,#16a34a,#22c55e)', color: '#fff', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(34,197,94,0.35)', marginTop: 8 }}
             >
