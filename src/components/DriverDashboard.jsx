@@ -45,7 +45,6 @@ function DriveMode({ active, setActive, onMenu }) {
   const [otpInput, setOtpInput] = useState('');
   const [vehicleType, setVehicleType] = useState(profile?.vehicleType || 'Mini');
   const [vehicleNumber, setVehicleNumber] = useState(profile?.vehicleNumber || '');
-  const [inAppCall, setInAppCall] = useState(false);
 
   useEffect(() => {
     if (!active) { setPendingRides([]); return; }
@@ -224,7 +223,11 @@ function DriveMode({ active, setActive, onMenu }) {
                 <h3 style={{ margin: '2px 0' }}>Passenger: {activeRide.workerName}</h3>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>Drop-off: {activeRide.dropoff}</p>
               </div>
-              <button onClick={() => setInAppCall(true)} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <button onClick={() => {
+                updateDoc(doc(db, 'rides', activeRide.id), {
+                  call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
+                });
+              }} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <Phone size={18} color="#3b82f6" />
               </button>
             </div>
@@ -249,11 +252,12 @@ function DriveMode({ active, setActive, onMenu }) {
         )}
       </div>
 
-      {inAppCall && (
+      {activeRide?.call && (
         <InAppCall 
+          rideId={activeRide.id}
+          isCaller={activeRide.call.caller === user.uid}
           peerName={activeRide?.workerName || 'Passenger'} 
           peerPhoto={null} 
-          onEndCall={() => setInAppCall(false)} 
         />
       )}
 

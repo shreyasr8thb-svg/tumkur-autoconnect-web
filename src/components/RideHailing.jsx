@@ -107,7 +107,6 @@ export default function RideHailing() {
   const [selectedVehicle, setSelectedVehicle] = useState('Mini');
   const [userPos, setUserPos] = useState(TUMKUR);
   const [customDropoff, setCustomDropoff] = useState(null);
-  const [inAppCall, setInAppCall] = useState(false);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -481,7 +480,11 @@ export default function RideHailing() {
                     </div>
                   </div>
                 </div>
-                <button onClick={() => setInAppCall(true)} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <button onClick={() => {
+                  updateDoc(doc(db, 'rides', user.uid), {
+                    call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
+                  });
+                }} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                   <Phone size={18} color="#4ade80" />
                 </button>
               </div>
@@ -511,11 +514,12 @@ export default function RideHailing() {
             </div>
           )}
 
-          {inAppCall && (
+          {ride?.call && (
             <InAppCall 
+              rideId={user.uid}
+              isCaller={ride.call.caller === user.uid}
               peerName={ride?.driverName || 'Driver'} 
               peerPhoto={ride?.driverPhoto} 
-              onEndCall={() => setInAppCall(false)} 
             />
           )}
 
