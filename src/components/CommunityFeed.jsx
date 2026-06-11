@@ -9,8 +9,10 @@ export default function CommunityFeed({ onBack }) {
   const [posts, setPosts] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newPost, setNewPost] = useState('');
+  const [postImage, setPostImage] = useState(null);
   const [posting, setPosting] = useState(false);
   const [showComment, setShowComment] = useState(null);
+  const fileInputRef = useRef(null);
   const name = profile?.fullName || profile?.email?.split('@')[0] || 'User';
   const role = profile?.role || 'worker';
 
@@ -23,11 +25,12 @@ export default function CommunityFeed({ onBack }) {
   }, []);
 
   const createPost = async () => {
-    if (!newPost.trim() || !user) return;
+    if ((!newPost.trim() && !postImage) || !user) return;
     setPosting(true);
     try {
       await addDoc(collection(db, 'communityFeed'), {
         text: newPost.trim(),
+        image: postImage,
         authorId: user.uid,
         authorName: name,
         authorRole: role,
@@ -35,9 +38,21 @@ export default function CommunityFeed({ onBack }) {
         createdAt: serverTimestamp()
       });
       setNewPost('');
+      setPostImage(null);
       setShowCreate(false);
     } finally {
       setPosting(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPostImage(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -102,10 +117,25 @@ export default function CommunityFeed({ onBack }) {
               rows={4}
               style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '0.875rem', color: '#f8fafc', fontSize: '0.9rem', outline: 'none', resize: 'none', lineHeight: 1.6, fontFamily: 'inherit' }}
             />
-            <button onClick={createPost} disabled={!newPost.trim() || posting} className="btn btn-primary w-100 flex items-center justify-center gap-2" style={{ background: '#e11d48', padding: '0.85rem', borderRadius: '12px', border: 'none' }}>
-              <Send size={16} />
-              {posting ? 'Posting...' : 'Publish Post'}
-            </button>
+            {postImage && (
+              <div style={{ position: 'relative', width: '100%', borderRadius: '12px', overflow: 'hidden', marginTop: '0.5rem' }}>
+                <img src={postImage} alt="Post preview" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover' }} />
+                <button onClick={() => setPostImage(null)} style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', padding: 4, cursor: 'pointer' }}>
+                  <X size={16} color="#fff" />
+                </button>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
+              <button onClick={() => fileInputRef.current?.click()} className="btn flex items-center justify-center gap-2" style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', padding: '0.85rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', flex: 1 }}>
+                <ImageIcon size={18} />
+                Photo
+              </button>
+              <button onClick={createPost} disabled={(!newPost.trim() && !postImage) || posting} className="btn flex items-center justify-center gap-2" style={{ background: '#e11d48', padding: '0.85rem', borderRadius: '12px', border: 'none', flex: 2, color: '#fff' }}>
+                <Send size={16} />
+                {posting ? 'Posting...' : 'Publish Post'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -182,6 +212,11 @@ function PostCard({ post, userId, onLike, onComment, showComment, roleColor, rol
       <div style={{ padding: '0.5rem 1rem 1rem', fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6 }}>
         {post.text}
       </div>
+      {post.image && (
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <img src={post.image} alt="Post image" style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '12px' }} />
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-4" style={{ padding: '0.75rem 1rem', borderTop: '1px solid rgba(255,255,255,0.04)' }}>

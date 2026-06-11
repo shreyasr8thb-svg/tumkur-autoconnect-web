@@ -76,7 +76,7 @@ export default function DesktopSidebar({ tab, setTab, role = 'worker', onSignOut
         <div style={{ margin: '1rem 8px 0', padding: '0.75rem 1rem', background: 'linear-gradient(135deg, rgba(225,29,72,0.1), rgba(239,68,68,0.05))', border: '1px solid rgba(225,29,72,0.2)', borderRadius: '14px' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#e11d48', marginBottom: '0.5rem' }}>📱 GET THE APP</div>
           <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: '0.75rem', lineHeight: 1.4 }}>Download APK for the best experience</div>
-          <button className="btn btn-primary w-100" style={{ padding: '0.6rem', borderRadius: '10px', fontSize: '0.8rem', gap: '6px' }}>
+          <button className="btn btn-primary w-100" style={{ padding: '0.6rem', borderRadius: '10px', fontSize: '0.8rem', gap: '6px' }} onClick={() => setTab('download')}>
             <Download size={14} /> Download APK
           </button>
         </div>

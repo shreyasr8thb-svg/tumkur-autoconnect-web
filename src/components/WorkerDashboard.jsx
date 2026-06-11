@@ -11,6 +11,7 @@ import logo from '../assets/logo.png';
 import ChatBox from './ChatBox';
 import CommunityFeed from './CommunityFeed';
 import DesktopSidebar from './DesktopSidebar';
+import DownloadPage from './DownloadPage';
 
 export default function WorkerDashboard({ onSOS }) {
   const { profile, signOut } = useUser();
@@ -35,8 +36,9 @@ export default function WorkerDashboard({ onSOS }) {
           {tab === 'access' && <SmartAccess />}
           {tab === 'chat' && <ChatBox onBack={() => setTab('home')} />}
           {tab === 'feed' && <CommunityFeed onBack={() => setTab('home')} />}
+          {tab === 'download' && <DownloadPage onBack={() => setTab('home')} />}
           {tab === 'profile' && <ProfileView onNavigate={setTab} />}
-          {tab !== 'chat' && tab !== 'feed' && <AppFooter />}
+          {tab !== 'chat' && tab !== 'feed' && tab !== 'download' && <AppFooter />}
         </div>
         <BottomNav tab={tab} setTab={setTab} tabs={[
           { id: 'home', icon: <span style={{ fontSize: '1.2rem' }}>🏠</span>, label: 'Home' },
@@ -115,7 +117,7 @@ export default function WorkerDashboard({ onSOS }) {
                   icon={<Download size={20} />}
                   label="Download APK"
                   badge="v1.2.4"
-                  onClick={() => { window.open('/tumkuru-connect.apk', '_blank'); }}
+                  onClick={() => { setShowMenu(false); setTab('download'); }}
                 />
               </div>
             </div>
