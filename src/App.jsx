@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { UserProvider, useUser } from './context/UserContext'
 import Splash from './components/Splash'
 import Login from './components/Login'
@@ -69,6 +69,41 @@ function AppContent() {
   )
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '2rem', color: '#fff', background: '#020617', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <h2 style={{ color: '#ef4444' }}>Something went wrong.</h2>
+          <p>The app encountered an error and could not load.</p>
+          <pre style={{ background: '#1e293b', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.8rem', marginTop: '1rem' }}>
+            {this.state.error?.toString()}
+          </pre>
+          <button onClick={() => window.location.reload()} style={{ marginTop: '2rem', padding: '1rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
+            Reload App
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
-  return <UserProvider><AppContent /></UserProvider>
+  return (
+    <ErrorBoundary>
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
+    </ErrorBoundary>
+  );
 }
