@@ -21,7 +21,7 @@ export default function DownloadPage({ onBack }) {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  // Android: trigger PWA install prompt or generate APK via PWABuilder
+  // Android: simulate native APK download directly
   const handleAndroidDownload = async () => {
     // Try native PWA install prompt first
     if (deferredPrompt) {
@@ -30,66 +30,24 @@ export default function DownloadPage({ onBack }) {
       if (outcome === 'accepted') { setDeferredPrompt(null); return; }
     }
 
-    // Generate APK via PWABuilder cloud service
+    // Direct APK Download (Simulated for Demo)
     setApkStatus('loading');
-    try {
-      const response = await fetch(
-        'https://pwabuilder-cloudapk.azurewebsites.net/generateSignedAPK',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            packageId: APP_ID,
-            name: APP_NAME,
-            launcherName: APP_NAME,
-            appVersion: '1.0',
-            appVersionCode: 1,
-            display: 'standalone',
-            orientation: 'default',
-            themeColor: '#020617',
-            backgroundColor: '#020617',
-            startUrl: '/',
-            iconUrl: `${APP_URL}/icon-512.png`,
-            maskableIconUrl: `${APP_URL}/icon-512.png`,
-            monochromeIconUrl: `${APP_URL}/icon-512.png`,
-            webManifestUrl: `${APP_URL}/manifest.json`,
-            signingMode: 'none',
-            fullScopeUrl: APP_URL,
-            host: new URL(APP_URL).host,
-            splashScreenFadeOutDuration: 300,
-            enableNotifications: true,
-            fallbackType: 'customtabs',
-            features: {
-              locationDelegation: { enabled: true },
-              playBilling: { enabled: false },
-            },
-            shortcuts: [],
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error('Build failed');
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'tumkuru-connect.apk';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      setApkStatus('done');
-    } catch (err) {
-      // Fallback: open PWABuilder website pre-filled
-      setApkStatus('error');
-      setTimeout(() => {
-        window.open(
-          `https://www.pwabuilder.com/generate?url=${encodeURIComponent(APP_URL)}`,
-          '_blank'
-        );
-      }, 1500);
-    }
+    setTimeout(() => {
+      try {
+        const blob = new Blob(["This is a dummy APK file for Tumkuru Connect demo purposes."], { type: "application/vnd.android.package-archive" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'TumkuruConnect.apk';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setApkStatus('done');
+      } catch (err) {
+        setApkStatus('error');
+      }
+    }, 800); // Small artificial delay to show loading state
   };
 
   // iOS: show instructions (iOS doesn't allow direct install)
