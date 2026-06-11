@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from 'firebase/auth';
 import logo from '../assets/logo.png';
+import DownloadPromo from './DownloadPromo';
 
 export default function Login({ onCreateProfile }) {
   const [email, setEmail] = useState('');
@@ -114,6 +115,10 @@ export default function Login({ onCreateProfile }) {
           Create New Profile
         </button>
       </form>
+
+      <div style={{ marginTop: '2rem' }}>
+        <DownloadPromo />
+      </div>
     </div>
   );
 }
