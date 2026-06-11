@@ -42,13 +42,10 @@ export default function WorkerDashboard({ onSOS }) {
           {tab === 'profile' && <ProfileView onNavigate={setTab} />}
           {tab !== 'chat' && tab !== 'feed' && tab !== 'download' && <AppFooter />}
         </div>
-        <BottomNav tab={tab} setTab={setTab} tabs={[
-          { id: 'home', icon: <span style={{ fontSize: '1.2rem' }}>🏠</span>, label: 'Home' },
-          { id: 'feed', icon: <span style={{ fontSize: '1.2rem' }}>📣</span>, label: 'Feed' },
-          { id: 'chat', icon: <span style={{ fontSize: '1.2rem' }}>💬</span>, label: 'Chat' },
-          { id: 'bus', icon: <span style={{ fontSize: '1.2rem' }}>🚕</span>, label: 'Ride' },
-          { id: 'profile', icon: <span style={{ fontSize: '1.2rem' }}>👤</span>, label: 'Profile' },
-        ]} />
+        {/* Mobile FAB - opens the menu drawer (replaces bottom tabs on mobile) */}
+        <button className="mobile-fab" onClick={() => setShowMenu(true)} aria-label="Open navigation menu">
+          <Menu size={22} color="#fff" />
+        </button>
 
         {/* Notifications Panel */}
         {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}

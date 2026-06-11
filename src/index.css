@@ -38,17 +38,15 @@ body {
   height: 100dvh;
 }
 
-/* ─── App Shell (mobile-first: centered 480px column) ─── */
+/* ─── App Shell ─── */
 .app-shell {
-  max-width: 480px;
-  margin: 0 auto;
+  width: 100%;
   height: 100dvh;
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: var(--bg-dark);
-  box-shadow: 0 0 60px rgba(0,0,0,0.6);
 }
 
 /* ─── Desktop Layout: sidebar + main content ─── */
@@ -112,10 +110,12 @@ body {
   display: flex;
   flex-direction: column;
   padding: 1.25rem;
-  padding-bottom: 90px;
+  padding-bottom: 1.5rem; /* No bottom nav on mobile, just safe area */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   animation: fadeIn 0.3s ease-out;
+  /* Safe area for iPhone notch/home bar */
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
 }
 
 h1,h2,h3,h4 { font-weight: 700; letter-spacing: -0.02em; }
@@ -188,16 +188,36 @@ p { color: var(--text-muted); }
   .top-bar { padding: 1rem 2rem; }
 }
 
-/* ─── Bottom Nav (mobile only) ─── */
+/* ─── Bottom Nav ─── */
+/* Hidden on mobile - desktop only */
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0; height: 72px;
   background: rgba(5,10,30,0.97); backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
-  display: flex; justify-content: space-around;
+  display: none; /* hidden on mobile */
+  justify-content: space-around;
   padding: 8px 4px 16px 4px; z-index: 40;
-  max-width: 480px; margin: 0 auto;
 }
-@media (min-width: 900px) { .bottom-nav { display: none; } }
+/* On desktop: bottom-nav still not needed (sidebar is used) */
+@media (min-width: 900px) { .bottom-nav { display: none !important; } }
+
+/* ─── Mobile FAB Menu Button ─── */
+.mobile-fab {
+  position: fixed;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  right: 1.25rem;
+  width: 52px; height: 52px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 45;
+  box-shadow: 0 4px 20px rgba(239,68,68,0.45);
+  border: none; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-fab:active { transform: scale(0.93); }
+@media (min-width: 900px) { .mobile-fab { display: none !important; } }
 
 .nav-tab {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
