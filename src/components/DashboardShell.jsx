@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import {
   Bell, Menu, X, MessageSquare, Rss,
-  LogOut, Settings, Download, ChevronRight, Plus
+  LogOut, Settings, Download, ChevronRight, Plus, Home
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import NotificationsPanel from './NotificationsPanel';
@@ -117,6 +117,13 @@ export default function DashboardShell({
           </div>
 
           <div className="flex items-center gap-2">
+            <button onClick={() => { 
+              setShellTab(null); 
+              setActiveTab(tabs[0].id);
+              document.getElementById('scroll-area')?.scrollTo({ top: 0, behavior: 'smooth' });
+            }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <Home size={17} color="var(--text-muted)" />
+            </button>
             <button onClick={() => setShowNotifs(true)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' }}>
               <Bell size={17} color="var(--text-muted)" />
               <div style={{ position: 'absolute', top: 7, right: 7, width: 6, height: 6, background: 'var(--primary)', borderRadius: '50%' }} />
@@ -128,7 +135,7 @@ export default function DashboardShell({
         </div>
 
         {/* Scrollable content */}
-        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column' }}>
+        <div id="scroll-area" style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: 1, padding: '1.25rem', paddingBottom: 'max(5rem, calc(1.5rem + env(safe-area-inset-bottom)))', display: 'flex', flexDirection: 'column', gap: '1rem', animation: 'fadeIn 0.25s ease-out', maxWidth: 900, margin: '0 auto', width: '100%' }}>
             {isShell ? (
               <>
