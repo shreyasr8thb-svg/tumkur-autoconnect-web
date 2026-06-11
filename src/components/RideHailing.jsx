@@ -481,8 +481,13 @@ export default function RideHailing() {
                   </div>
                 </div>
                 <button onClick={() => {
-                  updateDoc(doc(db, 'rides', user.uid), {
-                    call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
+                  import('firebase/firestore').then(({ setDoc, doc }) => {
+                    setDoc(doc(db, 'rides', user.uid), {
+                      call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
+                    }, { merge: true }).catch(e => {
+                      console.error("Call signaling error:", e);
+                      alert("Network error: Could not connect call. " + e.message);
+                    });
                   });
                 }} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                   <Phone size={18} color="#4ade80" />

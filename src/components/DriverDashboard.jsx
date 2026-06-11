@@ -224,8 +224,13 @@ function DriveMode({ active, setActive, onMenu }) {
                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>Drop-off: {activeRide.dropoff}</p>
               </div>
               <button onClick={() => {
-                updateDoc(doc(db, 'rides', activeRide.id), {
-                  call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
+                import('firebase/firestore').then(({ setDoc, doc }) => {
+                  setDoc(doc(db, 'rides', activeRide.id), {
+                    call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
+                  }, { merge: true }).catch(e => {
+                    console.error("Call signaling error:", e);
+                    alert("Network error: Could not connect call. " + e.message);
+                  });
                 });
               }} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <Phone size={18} color="#3b82f6" />
