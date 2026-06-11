@@ -166,7 +166,7 @@ export default function RideHailing() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#fff', cursor: 'pointer' }}>
             <Car size={24} color="#fff" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Uber</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>TC Ride</span>
             <div style={{ width: '100%', height: 3, background: '#fff', borderRadius: 2, marginTop: 2 }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#94a3b8', cursor: 'pointer' }}>
@@ -231,7 +231,7 @@ export default function RideHailing() {
           </div>
 
           {/* Banner */}
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem' }}>Uber Black has arrived</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem' }}>TC Black has arrived</h3>
           <div style={{ background: '#27272a', borderRadius: '16px', overflow: 'hidden', height: 180, position: 'relative', cursor: 'pointer' }} onClick={() => setStep('input')}>
              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8))', zIndex: 1 }} />
              <img src="https://images.unsplash.com/photo-1629897048514-3dd74142ff23?auto=format&fit=crop&q=80&w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Black Cab" />
@@ -262,15 +262,16 @@ export default function RideHailing() {
         </div>
       )}
 
-      {/* ── Top Pill: Uber Destination View ── */}
+      {/* ── Top Pill: Destination View ── */}
       {step === 'options' && (
         <div style={{ position: 'absolute', top: 14, left: 14, right: 14, display: 'flex', gap: 10, zIndex: 20 }}>
           <div onClick={() => setStep('input')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
             <ArrowLeft size={22} color="#fff" />
           </div>
-          <div style={{ flex: 1, background: '#121212', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+          <div style={{ flex: 1, background: '#121212', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
             <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Home</div>
             <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{dropoff}</div>
+            <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, marginTop: '2px' }}>{selectedDist} km • {Math.round(selectedDist * 3)} mins away</div>
           </div>
         </div>
       )}
