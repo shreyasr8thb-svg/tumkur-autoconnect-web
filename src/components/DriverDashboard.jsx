@@ -149,9 +149,9 @@ function DriveMode({ active, setActive }) {
   };
 
   return (
-    <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
+    <div className="ride-hailing-container">
       {/* Full Screen Map */}
-      <div style={{ position: 'absolute', inset: 0, bottom: '60px' }}>
+      <div style={{ position: 'absolute', inset: 0 }}>
         <LiveMap height="100%" showRoute={!!activeRide} fullScreen={true} />
       </div>
 
@@ -187,10 +187,8 @@ function DriveMode({ active, setActive }) {
       )}
 
       {/* Bottom Sheet Overlay */}
-      <div className="driver-bottom-sheet glass-card" style={{ 
-        position: 'absolute', bottom: 80, left: 10, right: 10, 
-        zIndex: 40, padding: '1.5rem', background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)' 
-      }}>
+      <div className="ride-hailing-sheet glass-card">
+        <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '0 auto 1.5rem' }} />
         {!active ? (
           <div className="flex-col items-center gap-4">
             <h2 style={{ margin: 0 }}>You're Offline</h2>

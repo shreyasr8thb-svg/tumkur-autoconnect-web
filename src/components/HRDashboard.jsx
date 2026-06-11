@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity, MessageSquare, Briefcase, PlusCircle } from 'lucide-react';
+import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity, MessageSquare, Briefcase, PlusCircle, Car } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import ProfileView from './ProfileView';
 import AppFooter from './AppFooter';
@@ -44,7 +44,7 @@ export default function HRDashboard() {
       <BottomNav tab={tab} setTab={setTab} tabs={[
         { id: 'dashboard', icon: <PieChart size={20}/>, label: 'Analytics' },
         { id: 'workers', icon: <Users size={20}/>, label: 'Workforce' },
-        { id: 'jobs', icon: <Briefcase size={20}/>, label: 'Jobs' },
+        { id: 'bus', icon: <Car size={20}/>, label: 'Book Ride' },
         { id: 'profile', icon: <Users size={20}/>, label: 'Profile' },
       ]} />
     </div>
