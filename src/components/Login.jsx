@@ -51,7 +51,7 @@ export default function Login({ onCreateProfile }) {
   };
 
   return (
-    <div className="screen flex-col justify-center">
+    <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', paddingTop: '2rem' }}>
       <div className="mb-4 text-center">
         <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '60px', height: '60px', marginBottom: '0.5rem', objectFit: 'contain' }} />
         <h2 className="text-white">Welcome Back</h2>

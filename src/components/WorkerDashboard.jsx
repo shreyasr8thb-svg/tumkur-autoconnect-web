@@ -55,8 +55,8 @@ export default function WorkerDashboard({ onSOS }) {
 
       {/* Menu Panel */}
       {showMenu && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', zIndex: 100, animation: 'fadeIn 0.2s' }}>
-          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '85%', maxWidth: '320px', background: 'var(--bg-dark)', borderRight: '1px solid rgba(255,255,255,0.05)', animation: 'slideInLeft 0.3s forwards' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, animation: 'fadeIn 0.2s' }} onClick={() => setShowMenu(false)}>
+          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '85%', maxWidth: '320px', background: '#ffffff', borderRight: '1px solid var(--border)', animation: 'slideInLeft 0.3s forwards' }} onClick={e => e.stopPropagation()}>
             
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b-dark" style={{ borderColor: 'var(--border)' }}>
@@ -69,7 +69,7 @@ export default function WorkerDashboard({ onSOS }) {
 
             {/* Profile Card */}
             <div className="p-4 border-b-dark" style={{ borderColor: 'var(--border)' }}>
-              <div className="flex items-center justify-between p-3" style={{ background: 'var(--bg-dark)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}>
+              <div className="flex items-center justify-between p-3" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}>
                 <div className="flex items-center gap-3">
                   {profile?.photoURL ? <img src={profile.photoURL} alt="" className="avatar-sm" style={{ objectFit: 'cover', borderRadius: '8px' }} /> : <div className="avatar-sm" style={{ borderRadius: '8px' }}>{name.charAt(0)}</div>}
                   <div className="overflow-hidden" style={{ width: '130px' }}>
@@ -100,8 +100,8 @@ export default function WorkerDashboard({ onSOS }) {
               <MenuLink icon={<IndianRupee size={20} />} label="Salary Info" onClick={() => { setShowMenu(false); setTab('salary'); }} />
 
               {/* Download Section */}
-              <div style={{ margin: '0.5rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.5rem' }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#334155', letterSpacing: '0.5px', padding: '0 1rem 0.25rem' }}>GET THE APP</div>
+              <div style={{ margin: '0.5rem 0', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.5px', padding: '0 1rem 0.25rem' }}>GET THE APP</div>
                 <MenuLink
                   icon={<Download size={20} />}
                   label="Download APK"
@@ -149,10 +149,10 @@ function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
 
 function MenuLink({ icon, label, onClick, badge }) {
   return (
-    <div className="flex items-center gap-3" style={{ padding: '0.85rem 1rem', borderRadius: '12px', cursor: 'pointer', color: 'var(--text-main)', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--border)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+    <div className="flex items-center gap-3" style={{ padding: '0.85rem 1rem', borderRadius: '8px', cursor: 'pointer', color: 'var(--text-main)', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
       <span style={{ color: 'var(--text-muted)' }}>{icon}</span>
       <span style={{ fontSize: '0.95rem', fontWeight: 500, flex: 1 }}>{label}</span>
-      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(225,29,72,0.15)', color: 'var(--primary)', fontWeight: 700 }}>{badge}</span>}
+      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(10,102,194,0.12)', color: 'var(--primary)', fontWeight: 700 }}>{badge}</span>}
     </div>
   );
 }
