@@ -55,35 +55,35 @@ export default function WorkerDashboard({ onSOS }) {
 
       {/* Menu Panel */}
       {showMenu && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, animation: 'fadeIn 0.2s' }} onClick={() => setShowMenu(false)}>
-          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '82%', maxWidth: '300px', background: 'var(--bg-panel)', borderRight: '1px solid var(--border)', animation: 'slideInLeft 0.28s forwards' }} onClick={e => e.stopPropagation()}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, animation: 'fadeIn 0.2s' }}>
+          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '85%', maxWidth: '320px', background: '#020617', borderRight: '1px solid rgba(255,255,255,0.05)', animation: 'slideInLeft 0.3s forwards' }}>
             
             {/* Header */}
-            <div className="flex justify-between items-center p-4 border-b-dark" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex justify-between items-center p-4 border-b-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
               <div className="flex items-center gap-2">
-                <div style={{ background: 'var(--primary)', color: '#fff', padding: '4px 8px', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem' }}>TC</div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)' }}>Tumkuru Connect</h3>
+                <div style={{ background: '#e11d48', color: '#fff', padding: '4px 8px', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem' }}>TC</div>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#f8fafc' }}>Tumkuru Connect</h3>
               </div>
-              <X size={24} color="var(--text-muted)" onClick={() => setShowMenu(false)} style={{ cursor: 'pointer' }} />
+              <X size={24} color="#94a3b8" onClick={() => setShowMenu(false)} style={{ cursor: 'pointer' }} />
             </div>
 
             {/* Profile Card */}
-            <div className="p-4 border-b-dark" style={{ borderColor: 'var(--border)' }}>
-              <div className="flex items-center justify-between p-3" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}>
+            <div className="p-4 border-b-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <div className="flex items-center justify-between p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}>
                 <div className="flex items-center gap-3">
                   {profile?.photoURL ? <img src={profile.photoURL} alt="" className="avatar-sm" style={{ objectFit: 'cover', borderRadius: '8px' }} /> : <div className="avatar-sm" style={{ borderRadius: '8px' }}>{name.charAt(0)}</div>}
                   <div className="overflow-hidden" style={{ width: '130px' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-main)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{profile?.email || 'user@example.com'}</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#f8fafc', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{profile?.email || 'user@example.com'}</div>
                   </div>
                 </div>
-                <ChevronRight size={18} color="var(--text-dim)" />
+                <ChevronRight size={18} color="#64748b" />
               </div>
             </div>
 
             {/* Create Button */}
             <div className="p-4">
-              <button className="btn w-100 flex items-center justify-center gap-2" style={{ padding: '0.9rem', borderRadius: '12px', background: 'var(--primary)', color: '#fff', boxShadow: 'none' }} onClick={() => { setShowMenu(false); setTab('bus'); }}>
+              <button className="btn w-100 flex items-center justify-center gap-2" style={{ padding: '0.9rem', borderRadius: '12px', background: '#e11d48', color: '#fff', boxShadow: 'none' }} onClick={() => { setShowMenu(false); setTab('bus'); }}>
                 <Plus size={18} />
                 <span>Request New Ride</span>
               </button>
@@ -100,8 +100,8 @@ export default function WorkerDashboard({ onSOS }) {
               <MenuLink icon={<IndianRupee size={20} />} label="Salary Info" onClick={() => { setShowMenu(false); setTab('salary'); }} />
 
               {/* Download Section */}
-              <div style={{ margin: '0.5rem 0', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.5px', padding: '0 1rem 0.25rem' }}>GET THE APP</div>
+              <div style={{ margin: '0.5rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.5rem' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#334155', letterSpacing: '0.5px', padding: '0 1rem 0.25rem' }}>GET THE APP</div>
                 <MenuLink
                   icon={<Download size={20} />}
                   label="Download APK"
@@ -112,7 +112,7 @@ export default function WorkerDashboard({ onSOS }) {
             </div>
 
             {/* Sign Out */}
-            <div className="p-4 border-t-dark" style={{ borderColor: 'var(--border)' }}>
+            <div className="p-4 border-t-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
               <MenuLink icon={<LogOut size={20} />} label="Sign Out" onClick={signOut} />
             </div>
             
@@ -129,27 +129,30 @@ export default function WorkerDashboard({ onSOS }) {
 function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
   return (
     <div className="top-bar">
-      <button onClick={onMenu} style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: '10px', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-        <Menu size={20} color="var(--text-muted)" />
-      </button>
-      <div className="flex items-center gap-2" style={{ flex: 1, justifyContent: 'center' }}>
-        <div style={{ background: 'var(--primary)', color: '#fff', width: 28, height: 28, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.72rem', flexShrink: 0 }}>TC</div>
-        <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>Tumkuru Connect</span>
+      <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
+        {photo ? <img src={photo} className="avatar-sm" alt="" style={{ objectFit: 'cover' }} /> : <div className="avatar-sm">{name.charAt(0)}</div>}
+        <div>
+          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{badge || 'Welcome'}</div>
+          <div style={{ fontWeight: 600 }}>{name}</div>
+        </div>
       </div>
-      <button onClick={onNotif} style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: '10px', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative' }}>
-        <Bell size={19} color="var(--text-muted)" />
-        <div style={{ position: 'absolute', top: 8, right: 8, width: 7, height: 7, background: 'var(--primary)', borderRadius: '50%', border: '1.5px solid var(--bg-panel)' }} />
-      </button>
+      <div className="flex items-center gap-4">
+        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={onNotif}>
+          <Bell size={22} color="#64748b" />
+          <div className="notif-dot" style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
+        </div>
+        <Menu size={24} color="#f8fafc" style={{ cursor: 'pointer' }} onClick={onMenu} />
+      </div>
     </div>
   );
 }
 
 function MenuLink({ icon, label, onClick, badge }) {
   return (
-    <div className="flex items-center gap-3" style={{ padding: '0.75rem 1rem', borderRadius: '10px', cursor: 'pointer', color: 'var(--text-main)', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-      <span style={{ color: 'var(--text-muted)' }}>{icon}</span>
-      <span style={{ fontSize: '0.9rem', fontWeight: 500, flex: 1 }}>{label}</span>
-      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(225,29,72,0.15)', color: 'var(--primary)', fontWeight: 700 }}>{badge}</span>}
+    <div className="flex items-center gap-3" style={{ padding: '0.85rem 1rem', borderRadius: '12px', cursor: 'pointer', color: '#cbd5e1', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+      <span style={{ color: '#94a3b8' }}>{icon}</span>
+      <span style={{ fontSize: '0.95rem', fontWeight: 500, flex: 1 }}>{label}</span>
+      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(225,29,72,0.15)', color: '#e11d48', fontWeight: 700 }}>{badge}</span>}
     </div>
   );
 }
@@ -168,77 +171,32 @@ function BottomNav({ tab, setTab, tabs }) {
 
 /* ─── Home ─── */
 function Home({ onSOS, go }) {
-  const { profile } = useUser();
-  const name = profile?.fullName?.split(' ')[0] || profile?.email?.split('@')[0] || 'User';
-  const dept = profile?.department || 'Industrial Worker';
-  const empId = profile?.employeeId || '---';
-
   return (
     <div className="flex-col gap-3">
-      {/* Hero Welcome Card */}
-      <div className="hero-card">
-        <div className="flex justify-between items-start">
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600, letterSpacing: '0.08em', marginBottom: 4 }}>WELCOME BACK</div>
-            <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', fontWeight: 800 }}>Hello, {name}! 👋</h2>
-            <p style={{ margin: '3px 0 0', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>{dept}</p>
-          </div>
-          {profile?.photoURL
-            ? <img src={profile.photoURL} alt="" style={{ width: 50, height: 50, borderRadius: '14px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }} />
-            : <div style={{ width: 50, height: 50, borderRadius: '14px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem', color: '#fff', flexShrink: 0 }}>{name.charAt(0)}</div>
-          }
-        </div>
-        <div style={{ marginTop: 14, padding: '8px 12px', background: 'rgba(255,255,255,0.07)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)' }}>Employee ID</span>
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', fontFamily: 'monospace' }}>{empId}</span>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => go('chat')}>
-          <div className="stat-number">0</div>
-          <div className="stat-label">Community</div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 2 }}>Open Requests</div>
-        </div>
-        <div className="stat-card" style={{ cursor: 'pointer' }} onClick={() => go('feed')}>
-          <div className="stat-number">0</div>
-          <div className="stat-label">Messages</div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 2 }}>Unread DMs</div>
-        </div>
-      </div>
-
-      {/* SOS Banner */}
-      <div className="announce-card">
-        <div className="section-label"><AlertTriangle size={11} />EMERGENCY SOS</div>
-        <button onClick={onSOS} style={{ width: '100%', marginTop: 8, padding: '0.7rem', background: 'rgba(225,29,72,0.1)', border: '1px solid rgba(225,29,72,0.25)', borderRadius: '10px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <AlertTriangle size={16} /> Tap to Alert Security & Police
+      <div className="sos-card">
+        <button onClick={onSOS} className="btn btn-sos">
+          <AlertTriangle size={28} />
+          <span>EMERGENCY SOS</span>
         </button>
+        <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>Tap to alert Ecosystem Security & Police</p>
       </div>
-
-      {/* Quick Access */}
-      <div style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Quick Access</div>
+      <h3 style={{ color: '#e2e8f0' }}>Quick Access</h3>
       <div className="grid-2">
-        <QCard icon={<ShieldCheck size={20} color="var(--primary)"/>} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
-        <QCard icon={<Car size={20} color="var(--primary)"/>} title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
-        <QCard icon={<IndianRupee size={20} color="var(--primary)"/>} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
-        <QCard icon={<CreditCard size={20} color="var(--primary)"/>} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
+        <QCard icon={<ShieldCheck size={24} color="#f87171"/>} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
+        <QCard icon={<Car size={24} color="#f87171"/>} title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
+        <QCard icon={<IndianRupee size={24} color="#f87171"/>} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
+        <QCard icon={<CreditCard size={24} color="#f87171"/>} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
       </div>
-
-      {/* FAB */}
-      <button className="fab-btn" onClick={() => go('feed')}>
-        <Plus size={20} /> New Post
-      </button>
     </div>
   );
 }
 
 function QCard({ icon, title, sub, onClick }) {
   return (
-    <div className="glass-card flex-col gap-2 action-card" style={{ padding: '0.9rem', cursor: 'pointer' }} onClick={onClick}>
+    <div className="glass-card flex-col gap-2 action-card" style={{ padding: '1rem', cursor: 'pointer' }} onClick={onClick}>
       <div className="icon-box">{icon}</div>
-      <strong style={{ fontSize: '0.82rem' }}>{title}</strong>
-      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{sub}</span>
+      <strong style={{ fontSize: '0.9rem' }}>{title}</strong>
+      <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{sub}</span>
     </div>
   );
 }
@@ -274,7 +232,7 @@ function SkillPassport() {
       </div>
 
       {certs.length === 0 ? (
-        <div className="glass-card mt-2 text-center p-3" style={{ color: 'var(--text-muted)' }}>No certificates uploaded yet.</div>
+        <div className="glass-card mt-2 text-center p-3" style={{ color: '#94a3b8' }}>No certificates uploaded yet.</div>
       ) : certs.map((c, i) => (
         <div key={i} className="glass-card flex-col gap-2 p-2 mt-2">
            <div className="flex justify-between items-center px-2">
@@ -287,7 +245,7 @@ function SkillPassport() {
 
       <div className="glass-card mt-2">
         <h3 style={{ fontSize: '1rem', marginBottom: 12 }}>Career Path</h3>
-        <div className="text-center p-3" style={{ color: 'var(--text-muted)' }}>Update your skills to generate career path.</div>
+        <div className="text-center p-3" style={{ color: '#94a3b8' }}>Update your skills to generate career path.</div>
         <button className="btn btn-outline-red mt-3 w-100">Request Badge Verification</button>
       </div>
     </div>
@@ -296,7 +254,7 @@ function SkillPassport() {
 
 function PathNode({ title, sub, status }) {
   const dotClass = status === 'done' ? 'dot-done' : status === 'current' ? 'dot-current' : 'dot-locked';
-  return <div className="path-node"><div className={`path-dot ${dotClass}`} /><strong style={{ color: status === 'locked' ? '#475569' : '#e2e8f0' }}>{title}</strong><span style={{ fontSize: '0.75rem', color: status === 'done' ? '#4ade80' : 'var(--text-dim)' }}>{sub}</span></div>;
+  return <div className="path-node"><div className={`path-dot ${dotClass}`} /><strong style={{ color: status === 'locked' ? '#475569' : '#e2e8f0' }}>{title}</strong><span style={{ fontSize: '0.75rem', color: status === 'done' ? '#4ade80' : '#64748b' }}>{sub}</span></div>;
 }
 
 /* ─── Salary ─── */
@@ -324,7 +282,7 @@ function Salary() {
   );
 }
 function SRow({ l, v, c }) {
-  return <div className="flex justify-between" style={{ marginBottom: 4 }}><span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{l}</span><span style={{ fontSize: '0.78rem', fontWeight: 600, color: c || '#e2e8f0' }}>{v}</span></div>;
+  return <div className="flex justify-between" style={{ marginBottom: 4 }}><span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{l}</span><span style={{ fontSize: '0.78rem', fontWeight: 600, color: c || '#e2e8f0' }}>{v}</span></div>;
 }
 
 
@@ -353,7 +311,7 @@ function SmartAccess() {
         </div>
         <div className="flex items-center gap-3 mb-3" style={{ position: 'relative', zIndex: 1 }}>
           {profile?.photoURL ? <img src={profile.photoURL} alt="" className="id-photo" /> : <div className="avatar-card">{name.charAt(0)}</div>}
-          <div><div style={{ fontSize: '1.15rem', fontWeight: 700 }}>{name}</div><div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{profile?.department || 'Worker'} • {profile?.employeeId}</div></div>
+          <div><div style={{ fontSize: '1.15rem', fontWeight: 700 }}>{name}</div><div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{profile?.department || 'Worker'} • {profile?.employeeId}</div></div>
         </div>
         <div className="flex justify-between items-end" style={{ position: 'relative', zIndex: 1 }}>
           <span style={{ fontSize: '0.7rem', color: '#475569' }}>NFC ENABLED</span>
@@ -364,10 +322,10 @@ function SmartAccess() {
         {['log','canteen','buspass'].map(t => <button key={t} className={`tab-btn ${sub===t?'active':''}`} onClick={() => setSub(t)}>{t==='log'?'Access Log':t==='canteen'?'Canteen':'Bus Pass'}</button>)}
       </div>
       <div className="glass-card" style={{ padding: '1rem' }}>
-        {sub === 'log' && <><h4 style={{ color: 'var(--text-muted)' }}>Access Logs</h4><div className="text-center p-3" style={{ color: 'var(--text-dim)' }}>No recent access logs.</div></>}
+        {sub === 'log' && <><h4 style={{ color: '#94a3b8' }}>Access Logs</h4><div className="text-center p-3" style={{ color: '#64748b' }}>No recent access logs.</div></>}
         {sub === 'canteen' && <>
           <div className="flex justify-between items-center mb-3">
-            <span style={{ color:'var(--text-muted)' }}>Wallet Balance</span>
+            <span style={{ color:'#94a3b8' }}>Wallet Balance</span>
             <span style={{ fontSize:'1.4rem', fontWeight:700, color:'#4ade80' }}>₹{profile?.canteenBalance||0}</span>
           </div>
           <div className="input-group mb-3">
@@ -384,7 +342,7 @@ function SmartAccess() {
           <div style={{ background: '#fff', padding: '1rem', borderRadius: 8, display: 'inline-block' }}>
             <QRCode value={`TMR-${profile?.employeeId || 'DEMO-123'}`} size={150} />
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Scan at bus terminal</div>
+          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.5rem' }}>Scan at bus terminal</div>
         </div>}
       </div>
     </div>

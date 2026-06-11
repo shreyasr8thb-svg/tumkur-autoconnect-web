@@ -1,22 +1,26 @@
-const CACHE_NAME = 'tc-cache-v2';
+// Basic Service Worker for PWA installation
+const CACHE_NAME = 'tc-cache-v1';
+const urlsToCache = [
+  '/'
+];
 
 self.addEventListener('install', event => {
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          return caches.delete(cacheName);
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        return cache.addAll(urlsToCache);
+      })
   );
 });
 
 self.addEventListener('fetch', event => {
-  // Always fetch from network to prevent caching old JS chunks
-  event.respondWith(fetch(event.request));
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
+  );
 });
