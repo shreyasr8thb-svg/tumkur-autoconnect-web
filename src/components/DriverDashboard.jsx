@@ -5,7 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { Navigation, Users, User, AlertTriangle, Check, Scan, Car, MapPin, ClipboardList, Phone } from 'lucide-react';
-import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import DashboardShell from './DashboardShell';
@@ -87,6 +87,12 @@ function DriveMode({ active, setActive, onMenu }) {
       await updateDoc(doc(db, 'users', user.uid), {
         totalEarnings: (profile?.totalEarnings || 0) + earnings,
         totalTrips: (profile?.totalTrips || 0) + 1
+      });
+      await addDoc(collection(db, 'trips'), {
+        ...activeRide,
+        status: 'completed',
+        earnings,
+        completedAt: Date.now()
       });
       await deleteDoc(doc(db, 'rides', activeRide.id));
     }
@@ -262,28 +268,58 @@ function TripLogs() {
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
-    // Listen for completed trips (deleted from rides, but can track in a trips collection)
-    // For now show empty state — trips are removed from rides doc on completion
-    setTrips([]);
-  }, []);
+    if (!user?.uid) return;
+    const q = query(collection(db, 'trips'), where('driverId', '==', user.uid));
+    const unsub = onSnapshot(q, snap => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.completedAt - a.completedAt);
+      setTrips(data);
+    });
+    return () => unsub();
+  }, [user]);
+
+  const todayTrips = trips.filter(t => new Date(t.completedAt).toDateString() === new Date().toDateString());
+  const todayEarnings = todayTrips.reduce((sum, t) => sum + (t.earnings || 0), 0);
 
   return (
     <div className="flex-col gap-3">
       <h3 style={{ margin: 0 }}>Trip History</h3>
       <div className="grid-2">
         <div className="glass-card flex-col items-center">
-          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>0</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{todayTrips.length}</div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>TODAY'S TRIPS</div>
         </div>
         <div className="glass-card flex-col items-center">
-          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>₹0</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>₹{todayEarnings}</div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>TODAY'S EARNINGS</div>
         </div>
       </div>
-      <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>
-        No trips completed yet.<br />
-        <span style={{ fontSize: '0.78rem' }}>Go online in Drive Mode to start accepting rides.</span>
-      </div>
+      
+      {trips.length === 0 ? (
+        <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>
+          <ClipboardList size={40} style={{ marginBottom: 12, opacity: 0.5 }} />
+          <div>No trips completed yet.</div>
+          <span style={{ fontSize: '0.78rem' }}>Go online in Drive Mode to start accepting rides.</span>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
+          {trips.map(trip => (
+            <div key={trip.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h4 style={{ margin: '0 0 4px', fontSize: '1rem' }}>{trip.workerName}</h4>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                  {new Date(trip.completedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                  <MapPin size={12} color="#3b82f6" /> {trip.dropoff}
+                </div>
+              </div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#22c55e' }}>
+                ₹{trip.earnings}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
