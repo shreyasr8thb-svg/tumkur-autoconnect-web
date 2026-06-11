@@ -1,238 +1,392 @@
-import { useState } from 'react';
-import { Calendar, Users, AlertCircle, LogOut, ChevronRight, PieChart, Activity, MessageSquare, Briefcase, PlusCircle, Car } from 'lucide-react';
+/**
+ * HRDashboard – Company HR Portal
+ * - First login: set company name
+ * - View/accept/reject worker join requests
+ * - Manage employees, post announcements
+ * - Community Feed + Chat via DashboardShell
+ */
+import { useState, useEffect } from 'react';
+import {
+  Users, UserCheck, UserX, Building2, Plus, Bell, CheckCircle2,
+  XCircle, Clock, Briefcase, Activity, ChevronRight, Megaphone,
+  AlertTriangle, Car, PieChart
+} from 'lucide-react';
+import {
+  collection, query, where, onSnapshot,
+  doc, setDoc, updateDoc, deleteDoc, getDoc, serverTimestamp, addDoc
+} from 'firebase/firestore';
+import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
+import DashboardShell from './DashboardShell';
 import ProfileView from './ProfileView';
-import AppFooter from './AppFooter';
-import NotificationsPanel from './NotificationsPanel';
 import RideHailing from './RideHailing';
 
+/* ── Main Component ── */
 export default function HRDashboard() {
-  const { profile, signOut } = useUser();
-  const [tab, setTab] = useState('dashboard');
-  const [showNotifs, setShowNotifs] = useState(false);
-  const companyName = profile?.factoryUnit || 'Your Company';
+  const { user, profile } = useUser();
+  const [tab, setTab] = useState('home');
+  const [company, setCompany] = useState(null);
+  const [loadingCompany, setLoadingCompany] = useState(true);
+
+  // Load company profile for this HR user
+  useEffect(() => {
+    if (!user) return;
+    const unsub = onSnapshot(doc(db, 'companies', user.uid), snap => {
+      setCompany(snap.exists() ? { id: snap.id, ...snap.data() } : null);
+      setLoadingCompany(false);
+    });
+    return () => unsub();
+  }, [user]);
+
+  if (loadingCompany) {
+    return (
+      <div className="flex-col items-center justify-center" style={{ flex: 1, gap: 16, minHeight: '100dvh' }}>
+        <div className="spinner" /><p>Loading…</p>
+      </div>
+    );
+  }
+
+  // First time: no company set up yet
+  if (!company) return <CompanySetup user={user} profile={profile} />;
+
+  const tabs = [
+    { id: 'home',     label: 'Dashboard',   icon: <PieChart size={18} /> },
+    { id: 'requests', label: 'Join Requests', icon: <UserCheck size={18} /> },
+    { id: 'workers',  label: 'Employees',   icon: <Users size={18} /> },
+    { id: 'announce', label: 'Announcements', icon: <Megaphone size={18} /> },
+    { id: 'bus',      label: 'Book Ride',   icon: <Car size={18} /> },
+    { id: 'profile',  label: 'Profile',     icon: <Building2 size={18} /> },
+  ];
 
   return (
-    <div className="flex-col" style={{ flex: 1 }}>
-      {/* Top Bar */}
-      <div className="top-bar">
-        <div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-gray-light)' }}>Company Dashboard</div>
-          <div style={{ fontWeight: 600 }}>{companyName}</div>
-        </div>
-        <div className="flex gap-3 items-center">
-          <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setShowNotifs(true)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-          </div>
-          <div className="avatar-sm" style={{ cursor: 'pointer' }} onClick={() => setTab('profile')}>
-            <Users size={18} color="#fff" />
-          </div>
-        </div>
-      </div>
-
-      {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
-
-      <div className="screen" style={{ overflowY: 'auto' }}>
-        {tab === 'dashboard' && <HRHome />}
-        {tab === 'workers' && <Workforce />}
-        {tab === 'jobs' && <PostJobs companyName={companyName} />}
-        {tab === 'bus' && <RideHailing />}
-        {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
-        <AppFooter />
-      </div>
-
-      <BottomNav tab={tab} setTab={setTab} tabs={[
-        { id: 'dashboard', icon: <PieChart size={20}/>, label: 'Analytics' },
-        { id: 'workers', icon: <Users size={20}/>, label: 'Workforce' },
-        { id: 'bus', icon: <Car size={20}/>, label: 'Book Ride' },
-        { id: 'profile', icon: <Users size={20}/>, label: 'Profile' },
-      ]} />
-    </div>
+    <DashboardShell role="HR Manager" title={company.name} tabs={tabs} activeTab={tab} setActiveTab={setTab}>
+      {tab === 'home'     && <HRHome company={company} user={user} />}
+      {tab === 'requests' && <JoinRequests company={company} user={user} />}
+      {tab === 'workers'  && <EmployeeList company={company} />}
+      {tab === 'announce' && <Announcements company={company} user={user} />}
+      {tab === 'bus'      && <RideHailing />}
+      {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
+    </DashboardShell>
   );
 }
 
-function BottomNav({ tab, setTab, tabs }) {
-  return (
-    <div className="bottom-nav">
-      {tabs.map(t => (
-        <div key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
-          {t.icon}<span>{t.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
+/* ── Company Setup (First Login) ── */
+function CompanySetup({ user, profile }) {
+  const [name, setName] = useState('');
+  const [industry, setIndustry] = useState('Manufacturing');
+  const [location, setLocation] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
-function HRHome() {
-  return (
-    <div className="flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <Activity size={22} color="#f87171" />
-        <h2 style={{ margin: 0 }}>Company Health</h2>
-      </div>
+  const industries = ['Manufacturing', 'Automotive', 'Textile', 'Chemical', 'Food Processing', 'Engineering', 'Electronics', 'Pharma', 'Logistics', 'Other'];
 
-      <div className="grid-2">
-        <StatCard title="Total Staff" value="240" trend="+5" positive />
-        <StatCard title="Present Today" value="218" trend="90%" />
-      </div>
-
-      <div className="glass-card">
-        <div className="flex justify-between items-center mb-3">
-          <h3 style={{ margin: 0, fontSize: '1.05rem' }}>AI Leave Predictor</h3>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>14 Days</span>
-        </div>
-        
-        <div className="flex gap-1 mb-2">
-          {[...Array(14)].map((_, i) => {
-            const high = i === 4 || i === 5;
-            const med = i === 3 || i === 6;
-            const bg = high ? '#ef4444' : med ? '#eab308' : '#22c55e';
-            return (
-              <div key={i} className="flex-col items-center gap-1" style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.6rem', color: '#64748b' }}>{10 + i}</div>
-                <div style={{ width: '100%', height: '40px', backgroundColor: bg, borderRadius: '4px', opacity: 0.8 }}></div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex justify-between mt-3 text-center" style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-          <div className="flex items-center gap-1"><div style={{ width: 8, height: 8, backgroundColor: '#22c55e', borderRadius: 2 }} /> Low</div>
-          <div className="flex items-center gap-1"><div style={{ width: 8, height: 8, backgroundColor: '#eab308', borderRadius: 2 }} /> Med</div>
-          <div className="flex items-center gap-1"><div style={{ width: 8, height: 8, backgroundColor: '#ef4444', borderRadius: 2 }} /> High</div>
-        </div>
-      </div>
-
-      <h3 className="flex items-center gap-2" style={{ color: '#f87171', margin: 0, marginTop: 8 }}>
-        <AlertCircle size={20} /> High Risk Alert
-      </h3>
-      
-      <div className="glass-card" style={{ borderLeft: '4px solid #ef4444' }}>
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <strong style={{ color: '#f8fafc' }}>Oct 14 - Oct 15 (Festival)</strong>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Predicted Shortage: 15 Workers</div>
-          </div>
-          <button className="btn btn-outline-sm" style={{ padding: '0.4rem 0.8rem' }}>Plan</button>
-        </div>
-        <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: '0.75rem', marginTop: 12 }}>
-           <Row n="Suresh M." r="Welder" rr="Harvest (Davanagere)" />
-           <Row n="Kiran J." r="Machinist" rr="Travel" last />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ title, value, trend, positive }) {
-  return (
-    <div className="glass-card flex-col gap-1" style={{ padding: '1rem' }}>
-      <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{title}</span>
-      <strong style={{ fontSize: '1.5rem', color: '#f8fafc' }}>{value}</strong>
-      <span style={{ fontSize: '0.75rem', color: positive ? '#4ade80' : '#f87171' }}>{trend}</span>
-    </div>
-  );
-}
-
-function Row({ n, r, rr, last }) {
-  return (
-    <div className="flex justify-between items-center" style={{ paddingBottom: last ? 0 : 8, marginBottom: last ? 0 : 8, borderBottom: last ? 'none' : '1px solid #1e293b' }}>
-      <div>
-        <strong style={{ fontSize: '0.85rem', color: '#e2e8f0' }}>{n}</strong>
-        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{r}</div>
-      </div>
-      <span style={{ fontSize: '0.8rem', color: '#f87171' }}>{rr}</span>
-    </div>
-  );
-}
-
-function Workforce() {
-  return (
-    <div className="flex-col gap-3">
-      <div className="flex justify-between items-center">
-        <h2 style={{ margin: 0 }}>Staff Directory</h2>
-        <div className="badge-outline">240 Total</div>
-      </div>
-      <div className="glass-card p-0 overflow-hidden">
-        <StaffRow name="Ramesh K." role="Machinist" status="present" />
-        <StaffRow name="Suresh M." role="Welder" status="absent" />
-        <StaffRow name="Anil V." role="CNC Operator" status="present" />
-        <StaffRow name="Manjula S." role="Assembly" status="present" />
-      </div>
-    </div>
-  );
-}
-
-function StaffRow({ name, role, status }) {
-  const p = status === 'present';
-  return (
-    <div className="flex justify-between items-center p-3 border-b-dark">
-      <div className="flex items-center gap-3">
-        <div className="avatar-sm" style={{ width: 36, height: 36, fontSize: '0.9rem' }}>{name.charAt(0)}</div>
-        <div>
-          <strong style={{ fontSize: '0.95rem' }}>{name}</strong>
-          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{role}</div>
-        </div>
-      </div>
-      <span style={{ fontSize: '0.75rem', color: p ? '#4ade80' : '#f87171', background: p ? 'rgba(74, 222, 128, 0.1)' : 'rgba(248, 113, 113, 0.1)', padding: '4px 8px', borderRadius: 4 }}>
-        {p ? 'Present' : 'Absent'}
-      </span>
-    </div>
-  );
-}
-
-function PostJobs({ companyName }) {
-  const { showToast } = useUser();
-  const [jobs, setJobs] = useState([
-    { title: 'CNC Operator', type: 'Full-time', salary: '₹15,000/mo' },
-    { title: 'Floor Supervisor', type: 'Contract', salary: '₹22,000/mo' }
-  ]);
-  const [form, setForm] = useState({ title: '', type: 'Full-time', salary: '' });
-
-  const postJob = () => {
-    if (!form.title || !form.salary) return;
-    setJobs([...jobs, form]);
-    setForm({ title: '', type: 'Full-time', salary: '' });
-    showToast('Job requirement posted!');
+  const handleCreate = async () => {
+    if (!name.trim()) { setError('Company name is required'); return; }
+    setSaving(true);
+    try {
+      await setDoc(doc(db, 'companies', user.uid), {
+        name: name.trim(),
+        industry,
+        location: location.trim() || 'Tumkuru, Karnataka',
+        hrUid: user.uid,
+        hrName: profile?.fullName || profile?.email,
+        createdAt: serverTimestamp(),
+        memberCount: 0,
+      });
+    } catch (e) {
+      setError(e.message);
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="flex-col gap-4 p-4">
-      <div className="flex justify-between items-center">
-        <h2 style={{ margin: 0 }}>Active Job Posts</h2>
-        <div className="badge-outline">{jobs.length} Active</div>
+    <div className="screen flex-col justify-center" style={{ gap: '1.5rem', overflowY: 'auto' }}>
+      <div className="text-center">
+        <div style={{ fontSize: '3rem', marginBottom: 8 }}>🏭</div>
+        <h2 style={{ margin: 0 }}>Set Up Your Company</h2>
+        <p style={{ marginTop: 4 }}>Enter your company details to get started on Tumkuru Connect</p>
       </div>
 
       <div className="glass-card flex-col gap-3">
-        <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: 6 }}><PlusCircle size={16} color="#4ade80" /> Post New Job</h3>
+        {error && <div className="error-banner">{error}</div>}
+
         <div className="input-group mb-0">
-          <label className="input-label">Job Title</label>
-          <input className="input-field" value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="e.g. Lathe Master" />
+          <label className="input-label">Company / Factory Name *</label>
+          <input className="input-field" placeholder="e.g. Sri Sai Auto Components Pvt. Ltd." value={name} onChange={e => setName(e.target.value)} />
         </div>
-        <div className="flex gap-2">
-          <div className="input-group mb-0 flex-1">
-            <label className="input-label">Type</label>
-            <select className="input-field" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
-              <option>Full-time</option><option>Contract</option><option>Temporary</option>
-            </select>
-          </div>
-          <div className="input-group mb-0 flex-1">
-            <label className="input-label">Salary</label>
-            <input className="input-field" value={form.salary} onChange={e => setForm({...form, salary: e.target.value})} placeholder="e.g. ₹15,000/mo" />
+
+        <div className="input-group mb-0">
+          <label className="input-label">Industry Sector</label>
+          <select className="input-field" value={industry} onChange={e => setIndustry(e.target.value)} style={{ cursor: 'pointer' }}>
+            {industries.map(i => <option key={i} value={i}>{i}</option>)}
+          </select>
+        </div>
+
+        <div className="input-group mb-0">
+          <label className="input-label">Location</label>
+          <input className="input-field" placeholder="e.g. KIADB Industrial Area, Tumkuru" value={location} onChange={e => setLocation(e.target.value)} />
+        </div>
+
+        <button className="btn btn-primary mt-2" disabled={saving || !name.trim()} onClick={handleCreate}>
+          {saving ? 'Creating…' : 'Create Company Dashboard →'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── HR Home ── */
+function HRHome({ company, user }) {
+  const [requests, setRequests] = useState([]);
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    const q1 = query(collection(db, 'join_requests'), where('companyId', '==', user.uid), where('status', '==', 'pending'));
+    const q2 = query(collection(db, 'company_members'), where('companyId', '==', user.uid));
+    const u1 = onSnapshot(q1, s => setRequests(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+    const u2 = onSnapshot(q2, s => setMembers(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+    return () => { u1(); u2(); };
+  }, [user.uid]);
+
+  return (
+    <div className="flex-col gap-3">
+      {/* Company Header Card */}
+      <div className="glass-card" style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.95))', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="flex items-center gap-3">
+          <div style={{ width: 52, height: 52, borderRadius: '14px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>🏭</div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{company.name}</h3>
+            <p style={{ margin: 0, fontSize: '0.75rem' }}>{company.industry} · {company.location}</p>
           </div>
         </div>
-        <button className="btn btn-primary mt-2" onClick={postJob}>Post Job</button>
       </div>
 
-      <h3 style={{ margin: '10px 0 0 0' }}>Current Postings</h3>
-      {jobs.map((j, i) => (
-        <div key={i} className="glass-card flex justify-between items-center">
-          <div>
-            <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{j.title}</strong>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{companyName} • {j.type}</div>
+      {/* Stats Grid */}
+      <div className="grid-2">
+        <StatCard label="Total Employees" value={members.length} icon="👷" />
+        <StatCard label="Pending Requests" value={requests.length} icon="📋" highlight={requests.length > 0} />
+      </div>
+
+      {/* Pending Requests Preview */}
+      {requests.length > 0 && (
+        <div className="glass-card">
+          <div className="flex justify-between items-center mb-3">
+            <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Clock size={16} color="#fbbf24" /> Pending Requests
+            </h4>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', background: 'rgba(251,191,36,0.12)', padding: '2px 8px', borderRadius: '9999px', color: '#fbbf24' }}>{requests.length} waiting</span>
           </div>
-          <div style={{ color: '#4ade80', fontSize: '0.85rem', fontWeight: 600 }}>{j.salary}</div>
+          {requests.slice(0, 3).map(r => (
+            <RequestRow key={r.id} req={r} compact />
+          ))}
+        </div>
+      )}
+
+      {/* Quick stats */}
+      <div className="glass-card flex-col gap-3">
+        <h4 style={{ margin: 0 }}>Company Overview</h4>
+        <Row label="Industry" value={company.industry} />
+        <Row label="Location" value={company.location} />
+        <Row label="HR Manager" value={company.hrName} />
+        <Row label="Company ID" value={user.uid.slice(0, 8).toUpperCase()} />
+      </div>
+    </div>
+  );
+}
+
+/* ── Join Requests ── */
+function JoinRequests({ company, user }) {
+  const [requests, setRequests] = useState([]);
+  const [filter, setFilter] = useState('pending');
+
+  useEffect(() => {
+    const q = query(collection(db, 'join_requests'), where('companyId', '==', user.uid));
+    return onSnapshot(q, s => setRequests(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+  }, [user.uid]);
+
+  const filtered = requests.filter(r => r.status === filter);
+
+  const accept = async (req) => {
+    await updateDoc(doc(db, 'join_requests', req.id), { status: 'accepted', respondedAt: serverTimestamp() });
+    await setDoc(doc(db, 'company_members', req.workerId), {
+      companyId: user.uid, companyName: company.name,
+      workerName: req.workerName, workerEmail: req.workerEmail,
+      joinedAt: serverTimestamp(), status: 'active',
+    });
+    await updateDoc(doc(db, 'companies', user.uid), { memberCount: (company.memberCount || 0) + 1 });
+    // Notify the worker
+    await addDoc(collection(db, 'notifications'), {
+      userId: req.workerId, type: 'join_accepted',
+      title: '✅ Request Accepted',
+      body: `You have been added to ${company.name}!`,
+      timestamp: serverTimestamp(), read: false,
+    });
+  };
+
+  const reject = async (req) => {
+    await updateDoc(doc(db, 'join_requests', req.id), { status: 'rejected', respondedAt: serverTimestamp() });
+    await addDoc(collection(db, 'notifications'), {
+      userId: req.workerId, type: 'join_rejected',
+      title: '❌ Request Not Approved',
+      body: `Your request to join ${company.name} was not approved.`,
+      timestamp: serverTimestamp(), read: false,
+    });
+  };
+
+  return (
+    <div className="flex-col gap-3">
+      <h3 style={{ margin: 0 }}>Join Requests</h3>
+
+      {/* Filter tabs */}
+      <div className="tab-bar">
+        {['pending', 'accepted', 'rejected'].map(f => (
+          <button key={f} className={`tab-btn ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+            {f === 'pending' && requests.filter(r => r.status === 'pending').length > 0 && (
+              <span style={{ marginLeft: 4, background: 'rgba(255,255,255,0.2)', borderRadius: '9999px', padding: '0 5px', fontSize: '0.65rem' }}>
+                {requests.filter(r => r.status === 'pending').length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0
+        ? <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No {filter} requests</div>
+        : filtered.map(req => (
+          <RequestRow key={req.id} req={req} onAccept={accept} onReject={reject} />
+        ))
+      }
+    </div>
+  );
+}
+
+function RequestRow({ req, onAccept, onReject, compact }) {
+  return (
+    <div className="glass-card flex items-center gap-3" style={{ padding: compact ? '0.75rem' : '1rem', marginBottom: compact ? '0.5rem' : 0 }}>
+      <div className="avatar-sm" style={{ borderRadius: '10px', background: 'rgba(239,68,68,0.2)', color: '#f87171', flexShrink: 0 }}>
+        {(req.workerName || 'W').charAt(0).toUpperCase()}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.workerName}</div>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{req.workerEmail} · {req.department || 'General'}</div>
+        {req.status !== 'pending' && (
+          <span style={{ fontSize: '0.65rem', fontWeight: 700, color: req.status === 'accepted' ? '#4ade80' : '#f87171' }}>
+            {req.status === 'accepted' ? '✅ Accepted' : '❌ Rejected'}
+          </span>
+        )}
+      </div>
+      {req.status === 'pending' && !compact && (
+        <div className="flex gap-2">
+          <button onClick={() => onAccept(req)} style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '8px', padding: '6px 12px', color: '#4ade80', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}>
+            ✓ Accept
+          </button>
+          <button onClick={() => onReject(req)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '8px', padding: '6px 12px', color: '#f87171', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}>
+            ✗ Reject
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Employee List ── */
+function EmployeeList({ company }) {
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    const q = query(collection(db, 'company_members'), where('companyId', '==', company.hrUid));
+    return onSnapshot(q, s => setMembers(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+  }, [company.hrUid]);
+
+  return (
+    <div className="flex-col gap-3">
+      <div className="flex justify-between items-center">
+        <h3 style={{ margin: 0 }}>Employees <span style={{ fontWeight: 400, color: 'var(--text-dim)', fontSize: '0.85rem' }}>({members.length})</span></h3>
+      </div>
+      {members.length === 0
+        ? <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No employees yet. Accept join requests to add workers.</div>
+        : members.map(m => (
+          <div key={m.id} className="glass-card flex items-center gap-3" style={{ padding: '0.85rem' }}>
+            <div className="avatar-sm" style={{ borderRadius: '10px' }}>{(m.workerName || 'W').charAt(0)}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{m.workerName}</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{m.workerEmail}</div>
+            </div>
+            <span style={{ fontSize: '0.68rem', background: 'rgba(34,197,94,0.12)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 8px', borderRadius: '9999px', fontWeight: 700 }}>Active</span>
+          </div>
+        ))
+      }
+    </div>
+  );
+}
+
+/* ── Announcements ── */
+function Announcements({ company, user }) {
+  const [posts, setPosts] = useState([]);
+  const [text, setText] = useState('');
+  const [posting, setPosting] = useState(false);
+
+  useEffect(() => {
+    const q = query(collection(db, 'announcements'), where('companyId', '==', user.uid));
+    return onSnapshot(q, s => setPosts(s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))));
+  }, [user.uid]);
+
+  const post = async () => {
+    if (!text.trim()) return;
+    setPosting(true);
+    await addDoc(collection(db, 'announcements'), {
+      companyId: user.uid, companyName: company.name,
+      text: text.trim(), createdAt: serverTimestamp(),
+    });
+    setText(''); setPosting(false);
+  };
+
+  return (
+    <div className="flex-col gap-3">
+      <h3 style={{ margin: 0 }}>Post Announcement</h3>
+      <div className="glass-card flex-col gap-3">
+        <textarea
+          className="input-field"
+          placeholder="Write an announcement to all your employees..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+          rows={3}
+          style={{ resize: 'none' }}
+        />
+        <button className="btn btn-primary" onClick={post} disabled={posting || !text.trim()}>
+          {posting ? 'Posting…' : <><Megaphone size={16} /> Post Announcement</>}
+        </button>
+      </div>
+      {posts.map(p => (
+        <div key={p.id} className="glass-card">
+          <p style={{ margin: 0 }}>{p.text}</p>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: 6 }}>
+            {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recently'}
+          </div>
         </div>
       ))}
+      {posts.length === 0 && <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '1.5rem' }}>No announcements yet</div>}
+    </div>
+  );
+}
+
+/* ── Helpers ── */
+function StatCard({ label, value, icon, highlight }) {
+  return (
+    <div className="glass-card flex-col gap-1" style={{ border: highlight ? '1px solid rgba(251,191,36,0.3)' : undefined }}>
+      <div style={{ fontSize: '1.6rem' }}>{icon}</div>
+      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: highlight ? '#fbbf24' : 'var(--text-main)' }}>{value}</div>
+      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>{label}</div>
+    </div>
+  );
+}
+
+function Row({ label, value }) {
+  return (
+    <div className="flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.6rem' }}>
+      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{label}</span>
+      <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{value}</span>
     </div>
   );
 }

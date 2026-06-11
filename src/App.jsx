@@ -62,7 +62,7 @@ function AppContent() {
   }
 
   return (
-    <div className="app-shell" style={{ flexDirection: 'row' }}>
+    <div className="app-shell">
       {renderDashboard()}
       {toast && <div className="toast">{toast}</div>}
     </div>

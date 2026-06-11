@@ -1,196 +1,140 @@
+/**
+ * WorkerDashboard – Worker Portal
+ * - Shows company info if joined, or lets worker find & join a company
+ * - All core features: Skill Passport, Salary, Smart Access, Ride, Feed, Chat
+ * - Uses shared DashboardShell for consistent UI across all portals
+ */
 import { useState, useRef, useEffect } from 'react';
-import { Bell, AlertTriangle, ShieldCheck, Bus, Car, Search, IndianRupee, CreditCard, ChevronRight, Navigation, User, Settings, Unlink, Link as LinkIcon, MessageSquare, Image, Upload, Menu, X, Home as HomeIcon, Grid, Calendar, LogOut, Plus, Download, Rss, ArrowLeft } from 'lucide-react';
-import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
+import {
+  ShieldCheck, Car, IndianRupee, CreditCard, AlertTriangle,
+  Upload, Unlink, Building2, Search, CheckCircle2, Clock, X
+} from 'lucide-react';
+import {
+  collection, query, where, onSnapshot, doc, setDoc, deleteDoc,
+  addDoc, serverTimestamp, getDocs
+} from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
-import LiveMap from './LiveMap';
+import DashboardShell from './DashboardShell';
 import ProfileView from './ProfileView';
-import AppFooter from './AppFooter';
+import RideHailing from './RideHailing';
 import QRCode from 'react-qr-code';
 import logo from '../assets/logo.png';
-import ChatBox from './ChatBox';
-import CommunityFeed from './CommunityFeed';
-import DesktopSidebar from './DesktopSidebar';
-import DownloadPage from './DownloadPage';
-import RideHailing from './RideHailing';
-import NotificationsPanel from './NotificationsPanel';
 
 export default function WorkerDashboard({ onSOS }) {
-  const { profile, signOut } = useUser();
+  const { user, profile, signOut } = useUser();
   const [tab, setTab] = useState('home');
-  const [showNotifs, setShowNotifs] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const name = profile?.fullName || profile?.email?.split('@')[0] || 'User';
+
+  const tabs = [
+    { id: 'home',     label: 'Home',         icon: '🏠' },
+    { id: 'company',  label: 'My Company',   icon: '🏭' },
+    { id: 'passport', label: 'Skill Passport', icon: '🎓' },
+    { id: 'salary',   label: 'Earnings',     icon: '💰' },
+    { id: 'access',   label: 'Smart Access', icon: '💳' },
+    { id: 'bus',      label: 'Book Ride',    icon: '🚗' },
+    { id: 'profile',  label: 'Profile',      icon: '👤' },
+  ];
 
   return (
     <>
-      {/* Desktop sidebar (hidden on mobile via CSS) */}
-      <DesktopSidebar tab={tab} setTab={setTab} role="worker" onSignOut={signOut} />
-
-      {/* Main content */}
-      <div className="desktop-main flex-col" style={{ flex: 1, position: 'relative' }}>
-        <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} badge="Worker" onNotif={() => setShowNotifs(true)} onMenu={() => setShowMenu(true)} />
-
-        {/* RideHailing is full-screen — rendered outside .screen to avoid overflow clip */}
-        {tab === 'bus' && <RideHailing />}
-
-        {tab !== 'bus' && (
-          <div className="screen" style={{ overflowY: 'auto' }}>
-            {tab === 'home' && <Home onSOS={onSOS} go={setTab} />}
-            {tab === 'passport' && <SkillPassport />}
-            {tab === 'salary' && <Salary />}
-            {tab === 'access' && <SmartAccess />}
-            {tab === 'chat' && <ChatBox onBack={() => setTab('home')} />}
-            {tab === 'feed' && <CommunityFeed onBack={() => setTab('home')} />}
-            {tab === 'download' && <DownloadPage onBack={() => setTab('home')} />}
-            {tab === 'profile' && <ProfileView onNavigate={setTab} />}
-            {tab !== 'chat' && tab !== 'feed' && tab !== 'download' && <AppFooter />}
-          </div>
-        )}
-
-        {/* Mobile FAB - hidden when ride map is open */}
-        {tab !== 'bus' && (
-          <button className="mobile-fab" onClick={() => setShowMenu(true)} aria-label="Open navigation menu">
-            <Menu size={22} color="#fff" />
-          </button>
-        )}
-
-        {/* Notifications Panel */}
-        {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
-
-      {/* Menu Panel */}
-      {showMenu && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, animation: 'fadeIn 0.2s' }}>
-          <div className="flex-col" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '85%', maxWidth: '320px', background: '#020617', borderRight: '1px solid rgba(255,255,255,0.05)', animation: 'slideInLeft 0.3s forwards' }}>
-            
-            {/* Header */}
-            <div className="flex justify-between items-center p-4 border-b-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-              <div className="flex items-center gap-2">
-                <div style={{ background: '#e11d48', color: '#fff', padding: '4px 8px', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem' }}>TC</div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#f8fafc' }}>Tumkuru Connect</h3>
-              </div>
-              <X size={24} color="#94a3b8" onClick={() => setShowMenu(false)} style={{ cursor: 'pointer' }} />
-            </div>
-
-            {/* Profile Card */}
-            <div className="p-4 border-b-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-              <div className="flex items-center justify-between p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer' }} onClick={() => { setShowMenu(false); setTab('profile'); }}>
-                <div className="flex items-center gap-3">
-                  {profile?.photoURL ? <img src={profile.photoURL} alt="" className="avatar-sm" style={{ objectFit: 'cover', borderRadius: '8px' }} /> : <div className="avatar-sm" style={{ borderRadius: '8px' }}>{name.charAt(0)}</div>}
-                  <div className="overflow-hidden" style={{ width: '130px' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#f8fafc', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{profile?.email || 'user@example.com'}</div>
-                  </div>
-                </div>
-                <ChevronRight size={18} color="#64748b" />
-              </div>
-            </div>
-
-            {/* Create Button */}
-            <div className="p-4">
-              <button className="btn w-100 flex items-center justify-center gap-2" style={{ padding: '0.9rem', borderRadius: '12px', background: '#e11d48', color: '#fff', boxShadow: 'none' }} onClick={() => { setShowMenu(false); setTab('bus'); }}>
-                <Plus size={18} />
-                <span>Request New Ride</span>
-              </button>
-            </div>
-
-            {/* Navigation List */}
-            <div className="flex-col gap-1 p-2" style={{ flex: 1, overflowY: 'auto' }}>
-              <MenuLink icon={<Bell size={20} />} label="Notifications" onClick={() => { setShowMenu(false); setShowNotifs(true); }} />
-              <MenuLink icon={<HomeIcon size={20} />} label="Home" onClick={() => { setShowMenu(false); setTab('home'); }} />
-              <MenuLink icon={<Rss size={20} />} label="Community Feed" onClick={() => { setShowMenu(false); setTab('feed'); }} />
-              <MenuLink icon={<MessageSquare size={20} />} label="Messages & Chat" onClick={() => { setShowMenu(false); setTab('chat'); }} />
-              <MenuLink icon={<Grid size={20} />} label="Skill Passport" onClick={() => { setShowMenu(false); setTab('passport'); }} />
-              <MenuLink icon={<Calendar size={20} />} label="Events & Workshops" onClick={() => { setShowMenu(false); alert('Events coming soon!'); }} />
-              <MenuLink icon={<IndianRupee size={20} />} label="Salary Info" onClick={() => { setShowMenu(false); setTab('salary'); }} />
-
-              {/* Download Section */}
-              <div style={{ margin: '0.5rem 0', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.5rem' }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#334155', letterSpacing: '0.5px', padding: '0 1rem 0.25rem' }}>GET THE APP</div>
-                <MenuLink
-                  icon={<Download size={20} />}
-                  label="Download APK"
-                  badge="v1.2.4"
-                  onClick={() => { setShowMenu(false); setTab('download'); }}
-                />
-              </div>
-            </div>
-
-            {/* Sign Out */}
-            <div className="p-4 border-t-dark" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-              <MenuLink icon={<LogOut size={20} />} label="Sign Out" onClick={signOut} />
-            </div>
-            
-          </div>
-        </div>
+      {/* RideHailing is full-screen: render outside DashboardShell */}
+      {tab === 'bus' && <RideHailing />}
+      {tab !== 'bus' && (
+        <DashboardShell role="Worker" title="Worker Portal" tabs={tabs} activeTab={tab} setActiveTab={setTab}>
+          {tab === 'home'     && <Home onSOS={onSOS} go={setTab} />}
+          {tab === 'company'  && <CompanySection user={user} profile={profile} />}
+          {tab === 'passport' && <SkillPassport />}
+          {tab === 'salary'   && <Salary />}
+          {tab === 'access'   && <SmartAccess />}
+          {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
+        </DashboardShell>
       )}
-      </div>
     </>
   );
 }
 
-
-/* ─── Shared UI ─── */
-function TopBar({ name, photo, onProfile, badge, onNotif, onMenu }) {
-  return (
-    <div className="top-bar">
-      <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
-        {photo ? <img src={photo} className="avatar-sm" alt="" style={{ objectFit: 'cover' }} /> : <div className="avatar-sm">{name.charAt(0)}</div>}
-        <div>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{badge || 'Welcome'}</div>
-          <div style={{ fontWeight: 600 }}>{name}</div>
-        </div>
-      </div>
-      <div className="flex items-center gap-4">
-        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={onNotif}>
-          <Bell size={22} color="#64748b" />
-          <div className="notif-dot" style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
-        </div>
-        <Menu size={24} color="#f8fafc" style={{ cursor: 'pointer' }} onClick={onMenu} />
-      </div>
-    </div>
-  );
-}
-
-function MenuLink({ icon, label, onClick, badge }) {
-  return (
-    <div className="flex items-center gap-3" style={{ padding: '0.85rem 1rem', borderRadius: '12px', cursor: 'pointer', color: '#cbd5e1', transition: 'background 0.2s' }} onClick={onClick} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-      <span style={{ color: '#94a3b8' }}>{icon}</span>
-      <span style={{ fontSize: '0.95rem', fontWeight: 500, flex: 1 }}>{label}</span>
-      {badge && <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: '9999px', background: 'rgba(225,29,72,0.15)', color: '#e11d48', fontWeight: 700 }}>{badge}</span>}
-    </div>
-  );
-}
-
-function BottomNav({ tab, setTab, tabs }) {
-  return (
-    <div className="bottom-nav">
-      {tabs.map(t => (
-        <div key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
-          {t.icon}<span>{t.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Home ─── */
+/* ── Home ── */
 function Home({ onSOS, go }) {
+  const { profile, user } = useUser();
+  const [company, setCompany] = useState(null);
+  const [announcement, setAnnouncement] = useState(null);
+  const name = profile?.fullName?.split(' ')[0] || profile?.email?.split('@')[0] || 'Worker';
+
+  useEffect(() => {
+    if (!user) return;
+    const unsub = onSnapshot(doc(db, 'company_members', user.uid), snap => {
+      setCompany(snap.exists() ? snap.data() : null);
+    });
+    return () => unsub();
+  }, [user]);
+
+  useEffect(() => {
+    if (!company?.companyId) return;
+    const q = query(collection(db, 'announcements'), where('companyId', '==', company.companyId));
+    return onSnapshot(q, s => {
+      const sorted = s.docs.map(d => d.data()).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setAnnouncement(sorted[0] || null);
+    });
+  }, [company]);
+
   return (
     <div className="flex-col gap-3">
-      <div className="sos-card">
-        <button onClick={onSOS} className="btn btn-sos">
-          <AlertTriangle size={28} />
-          <span>EMERGENCY SOS</span>
-        </button>
-        <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 8, textAlign: 'center' }}>Tap to alert Ecosystem Security & Police</p>
+      {/* Welcome banner */}
+      <div className="glass-card" style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.95))', borderColor: 'rgba(239,68,68,0.2)' }}>
+        <div className="flex justify-between items-start">
+          <div>
+            <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '0.08em' }}>WELCOME BACK</div>
+            <h2 style={{ margin: '4px 0 2px', fontSize: '1.2rem' }}>Hello, {name}! 👋</h2>
+            {company
+              ? <p style={{ margin: 0, fontSize: '0.75rem' }}>📍 {company.companyName}</p>
+              : <p style={{ margin: 0, fontSize: '0.75rem', color: '#fbbf24' }}>⚠️ Not joined any company yet</p>
+            }
+          </div>
+          {profile?.photoURL
+            ? <img src={profile.photoURL} alt="" style={{ width: 48, height: 48, borderRadius: '12px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.12)' }} />
+            : <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem', color: '#fff' }}>{name.charAt(0)}</div>
+          }
+        </div>
+        {profile?.employeeId && (
+          <div style={{ marginTop: 10, padding: '6px 10px', background: 'rgba(255,255,255,0.06)', borderRadius: 8, display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)' }}>Employee ID</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, fontFamily: 'monospace' }}>{profile.employeeId}</span>
+          </div>
+        )}
       </div>
-      <h3 style={{ color: '#e2e8f0' }}>Quick Access</h3>
+
+      {/* Announcement from company */}
+      {announcement && (
+        <div className="glass-card" style={{ borderLeft: '3px solid #fbbf24' }}>
+          <div style={{ fontSize: '0.65rem', color: '#fbbf24', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 4 }}>📢 COMPANY ANNOUNCEMENT</div>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1' }}>{announcement.text}</p>
+        </div>
+      )}
+
+      {/* If no company, nudge */}
+      {!company && (
+        <div className="glass-card flex items-center gap-3" style={{ border: '1px solid rgba(251,191,36,0.3)', cursor: 'pointer', background: 'rgba(251,191,36,0.05)' }} onClick={() => go('company')}>
+          <div style={{ fontSize: '1.5rem' }}>🏭</div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fbbf24' }}>Join Your Company</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Search and request to join your workplace</div>
+          </div>
+          <div style={{ marginLeft: 'auto', color: 'var(--text-dim)' }}>›</div>
+        </div>
+      )}
+
+      {/* SOS */}
+      <button onClick={onSOS} style={{ width: '100%', padding: '0.85rem', borderRadius: '14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <AlertTriangle size={18} /> Emergency SOS — Alert Security & Police
+      </button>
+
+      {/* Quick Access */}
+      <div style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.08em' }}>QUICK ACCESS</div>
       <div className="grid-2">
-        <QCard icon={<ShieldCheck size={24} color="#f87171"/>} title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
-        <QCard icon={<Car size={24} color="#f87171"/>} title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
-        <QCard icon={<IndianRupee size={24} color="#f87171"/>} title="Earnings" sub="Salary details" onClick={() => go('salary')} />
-        <QCard icon={<CreditCard size={24} color="#f87171"/>} title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
+        <QCard icon="🎓" title="Skill Passport" sub="Your badges" onClick={() => go('passport')} />
+        <QCard icon="🚗" title="Book Ride" sub="Industrial Shuttle" onClick={() => go('bus')} />
+        <QCard icon="💰" title="Earnings" sub="Salary details" onClick={() => go('salary')} />
+        <QCard icon="💳" title="Smart Access" sub="Card & Canteen" onClick={() => go('access')} />
       </div>
     </div>
   );
@@ -198,15 +142,162 @@ function Home({ onSOS, go }) {
 
 function QCard({ icon, title, sub, onClick }) {
   return (
-    <div className="glass-card flex-col gap-2 action-card" style={{ padding: '1rem', cursor: 'pointer' }} onClick={onClick}>
-      <div className="icon-box">{icon}</div>
-      <strong style={{ fontSize: '0.9rem' }}>{title}</strong>
-      <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{sub}</span>
+    <div className="glass-card flex-col gap-2 action-card" style={{ padding: '0.9rem', cursor: 'pointer' }} onClick={onClick}>
+      <div style={{ fontSize: '1.5rem' }}>{icon}</div>
+      <strong style={{ fontSize: '0.85rem' }}>{title}</strong>
+      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{sub}</span>
     </div>
   );
 }
 
-/* ─── Skill Passport ─── */
+/* ── Company Section ── */
+function CompanySection({ user, profile }) {
+  const [membership, setMembership] = useState(undefined); // undefined=loading, null=none
+  const [request, setRequest] = useState(null);
+  const [companies, setCompanies] = useState([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState('');
+
+  // Watch membership
+  useEffect(() => {
+    if (!user) return;
+    const unsub = onSnapshot(doc(db, 'company_members', user.uid), snap => {
+      setMembership(snap.exists() ? snap.data() : null);
+    });
+    return () => unsub();
+  }, [user]);
+
+  // Watch any pending request
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, 'join_requests'), where('workerId', '==', user.uid), where('status', '==', 'pending'));
+    return onSnapshot(q, s => setRequest(s.docs.length > 0 ? { id: s.docs[0].id, ...s.docs[0].data() } : null));
+  }, [user]);
+
+  // Load companies
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'companies'), s => {
+      setCompanies(s.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, []);
+
+  const sendRequest = async (company) => {
+    setLoading(true);
+    try {
+      await addDoc(collection(db, 'join_requests'), {
+        workerId: user.uid,
+        workerName: profile?.fullName || profile?.email || 'Worker',
+        workerEmail: profile?.email || '',
+        department: profile?.department || 'General',
+        companyId: company.id,
+        companyName: company.name,
+        status: 'pending',
+        timestamp: serverTimestamp(),
+      });
+      showToast('Request sent to ' + company.name + '!');
+    } catch (e) { showToast('Error: ' + e.message); }
+    setLoading(false);
+  };
+
+  const cancelRequest = async () => {
+    if (request) await deleteDoc(doc(db, 'join_requests', request.id));
+  };
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
+
+  const filtered = companies.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()) || c.industry?.toLowerCase().includes(search.toLowerCase()));
+
+  if (membership === undefined) return <div className="spinner" style={{ margin: '3rem auto' }} />;
+
+  // Already a member
+  if (membership) {
+    return (
+      <div className="flex-col gap-3">
+        <h3 style={{ margin: 0 }}>My Company</h3>
+        <div className="glass-card" style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.95))' }}>
+          <div className="flex items-center gap-3 mb-3">
+            <div style={{ width: 52, height: 52, borderRadius: '14px', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' }}>🏭</div>
+            <div>
+              <h3 style={{ margin: 0 }}>{membership.companyName}</h3>
+              <span className="badge-green">Active Employee</span>
+            </div>
+          </div>
+          <div className="flex-col gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 12 }}>
+            <Row label="Joined" value={membership.joinedAt?.toDate ? membership.joinedAt.toDate().toLocaleDateString('en-IN') : 'Recently'} />
+            <Row label="Status" value="Active ✅" />
+          </div>
+        </div>
+        <div className="info-box">
+          <CheckCircle2 size={16} color="#4ade80" />
+          <span>You are an active member of {membership.companyName}. Contact your HR for any changes.</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Pending request
+  if (request) {
+    return (
+      <div className="flex-col gap-3">
+        <h3 style={{ margin: 0 }}>Join Request Pending</h3>
+        <div className="glass-card text-center" style={{ padding: '2rem', borderColor: 'rgba(251,191,36,0.3)' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>⏳</div>
+          <h4 style={{ margin: '0 0 6px', color: '#fbbf24' }}>Awaiting Approval</h4>
+          <p style={{ margin: '0 0 1rem' }}>Your request to join <strong>{request.companyName}</strong> is pending HR approval.</p>
+          <button onClick={cancelRequest} style={{ padding: '0.6rem 1.5rem', borderRadius: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontWeight: 600, cursor: 'pointer' }}>
+            Cancel Request
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // No membership — show search
+  return (
+    <div className="flex-col gap-3">
+      <h3 style={{ margin: 0 }}>Find & Join Your Company</h3>
+      <p style={{ margin: 0, fontSize: '0.85rem' }}>Search for your company and send a join request. HR will approve it.</p>
+
+      {/* Search bar */}
+      <div className="glass-card flex items-center gap-2" style={{ padding: '0.75rem 1rem' }}>
+        <Search size={18} color="var(--text-dim)" />
+        <input
+          className="search-input"
+          placeholder="Search company name or industry..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        {search && <X size={16} color="var(--text-dim)" style={{ cursor: 'pointer' }} onClick={() => setSearch('')} />}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>
+          {companies.length === 0 ? 'No companies registered yet on Tumkuru Connect' : 'No companies match your search'}
+        </div>
+      )}
+
+      {filtered.map(company => (
+        <div key={company.id} className="glass-card flex items-center gap-3" style={{ padding: '0.9rem' }}>
+          <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>🏭</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{company.name}</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{company.industry} · {company.location}</div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 2 }}>{company.memberCount || 0} employees</div>
+          </div>
+          <button onClick={() => sendRequest(company)} disabled={loading} style={{ flexShrink: 0, padding: '6px 14px', borderRadius: '9px', background: 'var(--primary)', color: '#fff', fontWeight: 700, fontSize: '0.78rem', border: 'none', cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
+            Join
+          </button>
+        </div>
+      ))}
+
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+/* ── Skill Passport ── */
 function SkillPassport() {
   const { profile } = useUser();
   const certRef = useRef(null);
@@ -216,7 +307,7 @@ function SkillPassport() {
     const file = e.target.files?.[0];
     if (file) {
       const r = new FileReader();
-      r.onloadend = () => setCerts([...certs, r.result]);
+      r.onloadend = () => setCerts(prev => [...prev, r.result]);
       r.readAsDataURL(file);
     }
   };
@@ -224,132 +315,166 @@ function SkillPassport() {
   return (
     <div className="flex-col gap-3">
       <div className="flex items-center gap-3 mb-2">
-        <div className="avatar-md">{(profile?.fullName||'U').charAt(0)}</div>
-        <div><h2 style={{ margin: 0 }}>{profile?.fullName || 'User'}</h2><p style={{ margin: 0 }}>ID: {profile?.employeeId} • {profile?.department || 'Dept'}</p></div>
+        <div className="avatar-md">{(profile?.fullName || 'U').charAt(0)}</div>
+        <div>
+          <h3 style={{ margin: 0 }}>{profile?.fullName || 'Worker'}</h3>
+          <p style={{ margin: 0, fontSize: '0.8rem' }}>ID: {profile?.employeeId || '—'} · {profile?.department || 'General'}</p>
+        </div>
       </div>
-      
+
       <div className="flex justify-between items-center">
-        <h3 style={{ margin: 0 }}>Badges & Certs</h3>
+        <h4 style={{ margin: 0 }}>Certificates & Badges</h4>
         <button className="btn btn-outline-sm flex items-center gap-2" onClick={() => certRef.current?.click()}>
-          <Upload size={14} /> Add Cert
+          <Upload size={13} /> Upload
         </button>
         <input ref={certRef} type="file" accept="image/*" hidden onChange={handleCert} />
       </div>
 
-      {certs.length === 0 ? (
-        <div className="glass-card mt-2 text-center p-3" style={{ color: '#94a3b8' }}>No certificates uploaded yet.</div>
-      ) : certs.map((c, i) => (
-        <div key={i} className="glass-card flex-col gap-2 p-2 mt-2">
-           <div className="flex justify-between items-center px-2">
-             <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Uploaded Certificate</span>
-             <span className="badge-warning">Pending Auth</span>
-           </div>
-           <img src={c} alt="cert" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8 }} />
-        </div>
-      ))}
+      {certs.length === 0
+        ? <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No certificates uploaded yet.<br /><span style={{ fontSize: '0.75rem' }}>Upload your certificates to build your Skill Passport.</span></div>
+        : certs.map((c, i) => (
+          <div key={i} className="glass-card flex-col gap-2" style={{ padding: '0.75rem' }}>
+            <div className="flex justify-between items-center">
+              <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>Certificate #{i + 1}</span>
+              <span className="badge-warning">Pending Verification</span>
+            </div>
+            <img src={c} alt="cert" style={{ width: '100%', maxHeight: 160, objectFit: 'cover', borderRadius: 8 }} />
+          </div>
+        ))
+      }
 
-      <div className="glass-card mt-2">
-        <h3 style={{ fontSize: '1rem', marginBottom: 12 }}>Career Path</h3>
-        <div className="text-center p-3" style={{ color: '#94a3b8' }}>Update your skills to generate career path.</div>
-        <button className="btn btn-outline-red mt-3 w-100">Request Badge Verification</button>
+      <div className="glass-card">
+        <h4 style={{ margin: '0 0 8px' }}>Career Path</h4>
+        <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: 12 }}>Upload your skills and certificates to generate a personalized career growth path.</div>
+        <button className="btn btn-outline-red w-100">Request Badge Verification</button>
       </div>
     </div>
   );
 }
 
-function PathNode({ title, sub, status }) {
-  const dotClass = status === 'done' ? 'dot-done' : status === 'current' ? 'dot-current' : 'dot-locked';
-  return <div className="path-node"><div className={`path-dot ${dotClass}`} /><strong style={{ color: status === 'locked' ? '#475569' : '#e2e8f0' }}>{title}</strong><span style={{ fontSize: '0.75rem', color: status === 'done' ? '#4ade80' : '#64748b' }}>{sub}</span></div>;
-}
-
-/* ─── Salary ─── */
+/* ── Salary ── */
 function Salary() {
   const { profile } = useUser();
   const base = Number(profile?.baseSalary) || 0;
   const pf = Number(profile?.pfDeduction) || 0;
-  const welfare = Number(profile?.welfareBonus) || 0;
-  const takeHome = base - pf + welfare;
+  const bonus = Number(profile?.welfareBonus) || 0;
+  const takeHome = base - pf + bonus;
 
   return (
     <div className="flex-col gap-3">
-      <div className="text-center mb-2"><h2 style={{ color: '#f87171' }}>Your Earnings</h2></div>
-      <div className="glass-card" style={{ borderTop: '3px solid #f87171' }}>
-        <h4>Monthly Take Home</h4>
-        <div style={{ fontSize: '1.5rem', fontWeight: 700, margin: '8px 0' }}>₹{takeHome.toLocaleString()}</div>
-        <SRow l="Base Salary" v={`₹${base.toLocaleString()}`} />
-        <SRow l="PF Deduction" v={`-₹${pf.toLocaleString()}`} c="#f87171" />
-        <SRow l="Welfare Bonus" v={`+₹${welfare.toLocaleString()}`} c="#4ade80" />
+      <h3 style={{ margin: 0 }}>Earnings</h3>
+      <div className="glass-card" style={{ borderTop: '3px solid #ef4444' }}>
+        <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 4 }}>MONTHLY TAKE HOME</div>
+        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc', marginBottom: 12 }}>₹{takeHome.toLocaleString('en-IN')}</div>
+        <SRow l="Base Salary" v={`₹${base.toLocaleString('en-IN')}`} />
+        <SRow l="PF Deduction" v={`-₹${pf.toLocaleString('en-IN')}`} c="#f87171" />
+        <SRow l="Welfare Bonus" v={`+₹${bonus.toLocaleString('en-IN')}`} c="#4ade80" />
       </div>
-      <div className="highlight-banner" style={{ textAlign: 'center', marginTop: '1rem', padding: '1rem' }}>
-        {takeHome > 0 ? 'Your salary details are up to date.' : 'Please update your salary details in Profile.'}
-      </div>
+      {takeHome === 0 && (
+        <div className="info-box">
+          <span>ℹ️</span>
+          <span>Update your salary details in Profile → Edit Profile to see earnings here.</span>
+        </div>
+      )}
     </div>
   );
 }
 function SRow({ l, v, c }) {
-  return <div className="flex justify-between" style={{ marginBottom: 4 }}><span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{l}</span><span style={{ fontSize: '0.78rem', fontWeight: 600, color: c || '#e2e8f0' }}>{v}</span></div>;
+  return (
+    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 }}>
+      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{l}</span>
+      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: c || '#f8fafc' }}>{v}</span>
+    </div>
+  );
 }
 
-
-
-/* ─── Smart Access ─── */
+/* ── Smart Access ── */
 function SmartAccess() {
   const { profile, updateProfile } = useUser();
-  const [sub, setSub] = useState('log');
+  const [sub, setSub] = useState('card');
   const [amount, setAmount] = useState('');
-  const name = profile?.fullName || 'User';
+  const name = profile?.fullName || 'Worker';
 
   const handleTopUp = (method) => {
-    if (!amount || isNaN(amount) || amount <= 0) return alert('Enter a valid top-up amount');
+    if (!amount || isNaN(amount) || Number(amount) <= 0) return alert('Enter a valid amount');
     const newBal = (profile?.canteenBalance || 0) + Number(amount);
     updateProfile({ canteenBalance: newBal });
-    alert(`Successfully topped up ₹${amount} via ${method}`);
     setAmount('');
+    alert(`✅ Topped up ₹${amount} via ${method}`);
   };
 
   return (
     <div className="flex-col gap-3">
+      <h3 style={{ margin: 0 }}>Smart Access</h3>
+
+      {/* Digital ID Card */}
       <div className="digital-id-card">
         <div className="flex justify-between mb-3" style={{ position: 'relative', zIndex: 1 }}>
-          <div className="flex gap-2 items-center"><img src={logo} alt="" style={{ width: 18, height: 18 }} /><span style={{ fontWeight: 600, letterSpacing: 1, fontSize: '0.82rem' }}>TUMKURU CONNECT</span></div>
+          <span style={{ fontWeight: 700, letterSpacing: 1, fontSize: '0.8rem' }}>TUMKURU CONNECT</span>
           <span className="badge-active">ACTIVE</span>
         </div>
         <div className="flex items-center gap-3 mb-3" style={{ position: 'relative', zIndex: 1 }}>
           {profile?.photoURL ? <img src={profile.photoURL} alt="" className="id-photo" /> : <div className="avatar-card">{name.charAt(0)}</div>}
-          <div><div style={{ fontSize: '1.15rem', fontWeight: 700 }}>{name}</div><div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{profile?.department || 'Worker'} • {profile?.employeeId}</div></div>
+          <div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{name}</div>
+            <div style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{profile?.department || 'Worker'} · {profile?.employeeId || '—'}</div>
+          </div>
         </div>
         <div className="flex justify-between items-end" style={{ position: 'relative', zIndex: 1 }}>
-          <span style={{ fontSize: '0.7rem', color: '#475569' }}>NFC ENABLED</span>
-          <CreditCard size={28} color="#334155" />
+          <span style={{ fontSize: '0.65rem', color: '#475569' }}>NFC ENABLED</span>
+          <CreditCard size={26} color="#334155" />
         </div>
       </div>
+
+      {/* Tabs */}
       <div className="tab-bar">
-        {['log','canteen','buspass'].map(t => <button key={t} className={`tab-btn ${sub===t?'active':''}`} onClick={() => setSub(t)}>{t==='log'?'Access Log':t==='canteen'?'Canteen':'Bus Pass'}</button>)}
+        {[['card', 'ID Card'], ['canteen', 'Canteen'], ['buspass', 'Bus Pass']].map(([id, label]) => (
+          <button key={id} className={`tab-btn ${sub === id ? 'active' : ''}`} onClick={() => setSub(id)}>{label}</button>
+        ))}
       </div>
-      <div className="glass-card" style={{ padding: '1rem' }}>
-        {sub === 'log' && <><h4 style={{ color: '#94a3b8' }}>Access Logs</h4><div className="text-center p-3" style={{ color: '#64748b' }}>No recent access logs.</div></>}
-        {sub === 'canteen' && <>
-          <div className="flex justify-between items-center mb-3">
-            <span style={{ color:'#94a3b8' }}>Wallet Balance</span>
-            <span style={{ fontSize:'1.4rem', fontWeight:700, color:'#4ade80' }}>₹{profile?.canteenBalance||0}</span>
+
+      <div className="glass-card">
+        {sub === 'card' && (
+          <>
+            <h4 style={{ margin: '0 0 10px' }}>Access Logs</h4>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', textAlign: 'center', padding: '1rem 0' }}>No recent access logs.<br />Logs appear when you scan your card at the gate.</div>
+          </>
+        )}
+
+        {sub === 'canteen' && (
+          <>
+            <div className="flex justify-between items-center mb-3">
+              <span style={{ color: 'var(--text-muted)' }}>Canteen Wallet</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#4ade80' }}>₹{profile?.canteenBalance || 0}</span>
+            </div>
+            <input type="number" className="input-field" placeholder="Enter Amount (₹)" value={amount} onChange={e => setAmount(e.target.value)} style={{ marginBottom: 10 }} />
+            <div className="flex-col gap-2">
+              <button className="btn btn-primary" onClick={() => handleTopUp('Salary Deduction')}>Top Up from Salary</button>
+              <button className="btn btn-outline-red" onClick={() => handleTopUp('UPI / Card')}>Top Up via UPI / Card</button>
+            </div>
+          </>
+        )}
+
+        {sub === 'buspass' && (
+          <div className="text-center">
+            <div className="badge-green" style={{ padding: '0.5rem', borderRadius: 8, marginBottom: '1rem', display: 'inline-block' }}>Valid Bus Pass</div>
+            <div style={{ background: '#fff', padding: '1rem', borderRadius: 8, display: 'inline-block', marginBottom: 8 }}>
+              <QRCode value={`TMR-${profile?.employeeId || user?.uid?.slice(0, 8) || 'DEMO'}`} size={140} />
+            </div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Show this QR at the bus terminal</div>
           </div>
-          <div className="input-group mb-3">
-            <input type="number" className="input-field" placeholder="Enter Amount (₹)" value={amount} onChange={e => setAmount(e.target.value)} />
-          </div>
-          <div className="flex-col gap-2">
-            <button className="btn btn-primary" style={{ padding:'0.7rem' }} onClick={() => handleTopUp('Salary Deduction')}>Top Up from Salary</button>
-            <button className="btn btn-outline-red" style={{ padding:'0.7rem' }} onClick={() => handleTopUp('UPI / Cards')}>Top Up via UPI / Card</button>
-            <button className="btn btn-ghost mt-2" style={{ padding:'0.7rem' }} onClick={() => alert('Card unlinked successfully')}><Unlink size={14}/> Unlink Card</button>
-          </div>
-        </>}
-        {sub === 'buspass' && <div className="text-center">
-          <div className="badge-green" style={{padding:'0.75rem',borderRadius:8, marginBottom: '1rem'}}>Valid Bus Pass — Exp: Nov 2025</div>
-          <div style={{ background: '#fff', padding: '1rem', borderRadius: 8, display: 'inline-block' }}>
-            <QRCode value={`TMR-${profile?.employeeId || 'DEMO-123'}`} size={150} />
-          </div>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.5rem' }}>Scan at bus terminal</div>
-        </div>}
+        )}
       </div>
+    </div>
+  );
+}
+
+/* ── Helpers ── */
+function Row({ label, value }) {
+  return (
+    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 }}>
+      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{label}</span>
+      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{value}</span>
     </div>
   );
 }
