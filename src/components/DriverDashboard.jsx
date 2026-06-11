@@ -4,13 +4,14 @@
  * - Trip logs, Community Feed, Chat via DashboardShell
  */
 import { useState, useEffect } from 'react';
-import { Navigation, Users, User, AlertTriangle, Check, Scan, Car, MapPin, ClipboardList } from 'lucide-react';
+import { Navigation, Users, User, AlertTriangle, Check, Scan, Car, MapPin, ClipboardList, Phone } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import DashboardShell from './DashboardShell';
 import ProfileView from './ProfileView';
 import LiveMap from './LiveMap';
+import InAppCall from './InAppCall';
 
 export default function DriverDashboard() {
   const { profile, signOut } = useUser();
@@ -44,6 +45,7 @@ function DriveMode({ active, setActive, onMenu }) {
   const [otpInput, setOtpInput] = useState('');
   const [vehicleType, setVehicleType] = useState(profile?.vehicleType || 'Mini');
   const [vehicleNumber, setVehicleNumber] = useState(profile?.vehicleNumber || '');
+  const [inAppCall, setInAppCall] = useState(false);
 
   useEffect(() => {
     if (!active) { setPendingRides([]); return; }
@@ -210,10 +212,15 @@ function DriveMode({ active, setActive, onMenu }) {
 
         {activeRide && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div>
-              <div style={{ fontSize: '0.65rem', color: '#22c55e', fontWeight: 700, letterSpacing: '0.06em' }}>ACTIVE TRIP</div>
-              <h3 style={{ margin: '2px 0' }}>Passenger: {activeRide.workerName}</h3>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>Drop-off: {activeRide.dropoff}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: '0.65rem', color: '#22c55e', fontWeight: 700, letterSpacing: '0.06em' }}>ACTIVE TRIP</div>
+                <h3 style={{ margin: '2px 0' }}>Passenger: {activeRide.workerName}</h3>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>Drop-off: {activeRide.dropoff}</p>
+              </div>
+              <button onClick={() => setInAppCall(true)} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <Phone size={18} color="#3b82f6" />
+              </button>
             </div>
             {activeRide.status === 'accepted' ? (
               <div style={{ display: 'flex', gap: 8 }}>
@@ -235,6 +242,15 @@ function DriveMode({ active, setActive, onMenu }) {
           </div>
         )}
       </div>
+
+      {inAppCall && (
+        <InAppCall 
+          peerName={activeRide?.workerName || 'Passenger'} 
+          peerPhoto={null} 
+          onEndCall={() => setInAppCall(false)} 
+        />
+      )}
+
       <style>{`@keyframes spin { to { transform: rotate(360deg); }}`}</style>
     </div>
   );
