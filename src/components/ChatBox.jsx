@@ -13,11 +13,30 @@ export default function ChatBox({ onBack }) {
 
   // Preset conversation rooms (group chats by type)
   const presetRooms = [
-    { id: 'general', name: '🏭 General — Tumkuru Connect', desc: 'All workers & staff', type: 'group' },
-    { id: 'hr-announcements', name: '📢 HR Announcements', desc: 'Official HR updates', type: 'group' },
-    { id: 'job-board', name: '💼 Job Board Chat', desc: 'Jobs & interviews', type: 'group' },
-    { id: 'ride-coordination', name: '🚕 Ride Coordination', desc: 'Shuttle schedule', type: 'group' },
+    { id: 'general', name: 'General — Tumkuru Connect', desc: 'All workers & staff', type: 'group' },
+    { id: 'hr-announcements', name: 'HR Announcements', desc: 'Official HR updates', type: 'group' },
+    { id: 'job-board', name: 'Job Board Chat', desc: 'Jobs & interviews', type: 'group' },
+    { id: 'ride-coordination', name: 'Ride Coordination', desc: 'Shuttle schedule', type: 'group' },
   ];
+  
+  const [roomsList, setRoomsList] = useState(presetRooms);
+  const [newRoomName, setNewRoomName] = useState('');
+  const [newRoomDesc, setNewRoomDesc] = useState('');
+
+  const handleCreateRoom = () => {
+    if (!newRoomName.trim()) return;
+    const newRoom = {
+      id: 'room-' + Date.now(),
+      name: newRoomName.trim(),
+      desc: newRoomDesc.trim() || 'New conversation',
+      type: 'group'
+    };
+    setRoomsList([newRoom, ...roomsList]);
+    setShowNew(false);
+    setNewRoomName('');
+    setNewRoomDesc('');
+    openRoom(newRoom);
+  };
 
   const openRoom = (room) => {
     setActiveRoom(room);
@@ -55,10 +74,33 @@ export default function ChatBox({ onBack }) {
       {/* Room list */}
       <div className="flex-col gap-2 p-4 pt-2" style={{ overflowY: 'auto' }}>
         <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#475569', letterSpacing: '0.5px', marginBottom: '4px' }}>CHANNELS</div>
-        {presetRooms.map(room => (
+        {roomsList.map(room => (
           <RoomCard key={room.id} room={room} onClick={() => openRoom(room)} />
         ))}
       </div>
+
+      {/* New Room Modal */}
+      {showNew && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
+          <div className="glass-card flex-col gap-3" style={{ width: '100%', maxWidth: 400, background: 'var(--bg-panel)' }}>
+            <h3 style={{ margin: 0 }}>Create New Channel</h3>
+            <input 
+              placeholder="Channel Name (e.g. Project Alpha)" 
+              value={newRoomName} onChange={e => setNewRoomName(e.target.value)}
+              className="input-field" 
+            />
+            <input 
+              placeholder="Description (Optional)" 
+              value={newRoomDesc} onChange={e => setNewRoomDesc(e.target.value)}
+              className="input-field" 
+            />
+            <div className="flex gap-2 mt-2">
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowNew(false)}>Cancel</button>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleCreateRoom} disabled={!newRoomName.trim()}>Create</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -76,8 +76,8 @@ export default function DashboardShell({
             ))}
           </NavGroup>
 
-          <NavGroup label="COMMUNITY">
-            <NavItem icon={<Rss size={18} />}           label="Innovation Feed" active={shellTab === 'feed'}     onClick={() => go('feed')} />
+        <NavGroup label="COMMUNITY">
+            <NavItem icon={<Rss size={18} />}           label="Feed" active={shellTab === 'feed'}     onClick={() => go('feed')} />
             <NavItem icon={<MessageSquare size={18} />} label="Messages"        active={shellTab === 'chat'}     onClick={() => go('chat')} />
           </NavGroup>
 
@@ -205,7 +205,7 @@ export default function DashboardShell({
                 </NavGroup>
 
                 <NavGroup label="COMMUNITY">
-                  <NavItem icon={<Rss size={18} />}           label="Innovation Feed" active={shellTab === 'feed'}     onClick={() => go('feed')} />
+                  <NavItem icon={<Rss size={18} />}           label="Feed" active={shellTab === 'feed'}     onClick={() => go('feed')} />
                   <NavItem icon={<MessageSquare size={18} />} label="Messages"        active={shellTab === 'chat'}     onClick={() => go('chat')} />
                 </NavGroup>
 
