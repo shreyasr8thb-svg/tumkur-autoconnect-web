@@ -169,11 +169,6 @@ export default function RideHailing() {
             <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>TC Ride</span>
             <div style={{ width: '100%', height: 3, background: '#fff', borderRadius: 2, marginTop: 2 }} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#94a3b8', cursor: 'pointer' }}>
-            <Package size={24} />
-            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Parcel</span>
-            <div style={{ width: '100%', height: 3, background: 'transparent', borderRadius: 2, marginTop: 2 }} />
-          </div>
         </div>
 
         <div style={{ padding: '1rem' }}>
@@ -213,7 +208,6 @@ export default function RideHailing() {
               { name: 'Reserve', icon: <Clock size={28} color="#fff" />, promo: 'Promo' },
               { name: 'Intercity', icon: <CarFront size={28} color="#fff" /> },
               { name: 'Rentals', icon: <Clock size={28} color="#fff" /> },
-              { name: 'Parcel', icon: <Package size={28} color="#fff" /> },
               { name: 'Bus tickets', icon: <Bus size={28} color="#60a5fa" />, promo: 'Promo' },
             ].map((item) => (
               <div key={item.name} onClick={() => setStep('input')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
