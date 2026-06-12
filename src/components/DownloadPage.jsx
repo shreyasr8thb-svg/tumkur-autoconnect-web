@@ -34,7 +34,8 @@ export default function DownloadPage({ onBack }) {
     setApkStatus('loading');
     setTimeout(() => {
       try {
-        const apkUrl = '/TumkuruConnect.apk';
+        const timestamp = new Date().getTime();
+        const apkUrl = `/TumkuruConnect.apk?v=${timestamp}`;
         const a = document.createElement('a');
         a.href = apkUrl;
         a.download = 'TumkuruConnect.apk';
