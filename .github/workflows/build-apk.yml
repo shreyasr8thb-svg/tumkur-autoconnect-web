@@ -75,12 +75,9 @@ jobs:
           cp android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml \
              android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
 
-      # ── 7. Sync Capacitor web assets ─────────────────────────────────────────
-      - name: Copy web assets to Android
-        run: |
-          mkdir -p android/app/src/main/assets/public
-          rm -rf android/app/src/main/assets/public/*
-          cp -r dist/* android/app/src/main/assets/public/
+      # ── 7. Sync Capacitor (web assets + plugin wiring) ─────────────────────
+      - name: Sync Capacitor plugins and web assets
+        run: npx cap sync android
 
       # ── 8. Use committed debug keystore (stable SHA-1 = 78:53:74:BA:B7...) ───
       - name: Setup keystore
