@@ -45,44 +45,64 @@ export default function Login({ onCreateProfile }) {
     setGLoading(true); setError('');
 
     if (isNativeAndroid()) {
-      // Native Android: use @capacitor-firebase/authentication (Capacitor 8 compatible)
-      // This calls the native Google Sign-In SDK directly — no browser redirect needed.
+      // ─── Native Android path ───────────────────────────────────────────
+      // Uses @capacitor-firebase/authentication which calls the native
+      // Google Sign-In SDK directly — no browser redirect needed.
       try {
-        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
+        const { FirebaseAuthentication } = await import(
+          '@capacitor-firebase/authentication'
+        );
 
-        // Trigger native Google Sign-In sheet
+        // Trigger the native Google account picker
         const result = await FirebaseAuthentication.signInWithGoogle();
 
         const idToken     = result?.credential?.idToken;
         const accessToken = result?.credential?.accessToken;
 
-        if (!idToken) throw new Error('No ID token returned from Google Sign-In.');
+        if (!idToken) {
+          throw new Error('No ID token returned from native Google Sign-In.');
+        }
 
-        // Exchange the native Google credential for a Firebase session
-        const credential = GoogleAuthProvider.credential(idToken, accessToken ?? null);
+        // Exchange the native credential for a Firebase web SDK session
+        const credential = GoogleAuthProvider.credential(
+          idToken,
+          accessToken ?? null,
+        );
         await signInWithCredential(auth, credential);
 
       } catch (err) {
         const msg = String(err?.message || err);
-        // Code 12501 = user pressed "Cancel" on the Google account picker — not an error
-        if (!msg.includes('12501') && !msg.toLowerCase().includes('cancel') && !msg.includes('CANCELED')) {
+        // 12501 / CANCELED = user dismissed the account picker — not an error
+        if (
+          !msg.includes('12501') &&
+          !msg.toLowerCase().includes('cancel') &&
+          !msg.includes('CANCELED')
+        ) {
           console.error('[Google Auth] Native error:', msg);
           setError('Google sign-in failed: ' + msg);
         }
-      } finally { setGLoading(false); }
+      } finally {
+        setGLoading(false);
+      }
 
     } else {
-      // Web: standard popup flow
+      // ─── Web path ──────────────────────────────────────────────────────
+      // Standard Firebase popup flow
       try {
         const provider = new GoogleAuthProvider();
         provider.addScope('profile');
         provider.addScope('email');
         await signInWithPopup(auth, provider);
       } catch (err) {
-        if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+        if (
+          err.code !== 'auth/popup-closed-by-user' &&
+          err.code !== 'auth/cancelled-popup-request'
+        ) {
           setError(err.message || 'Google sign in failed.');
         }
-      } finally { setGLoading(false); }
+      } finally {
+        setGLoading(false);
+      }
     }
   };
 

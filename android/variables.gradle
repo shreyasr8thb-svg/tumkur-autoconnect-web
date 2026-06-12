@@ -2,6 +2,9 @@ ext {
     minSdkVersion = 24
     compileSdkVersion = 36
     targetSdkVersion = 36
+    // Enable Google Sign-In in @capacitor-firebase/authentication
+    // Without this, play-services-auth is compileOnly and crashes at runtime
+    rgcfaIncludeGoogle = true
     androidxActivityVersion = '1.11.0'
     androidxAppCompatVersion = '1.7.1'
     androidxCoordinatorLayoutVersion = '1.3.0'
