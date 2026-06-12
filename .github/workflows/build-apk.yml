@@ -81,32 +81,40 @@ jobs:
           rm -rf android/app/src/main/assets/public/*
           cp -r dist/* android/app/src/main/assets/public/
 
-      # ── 8. Stable debug keystore ───────────────────────────────────────────────
-      - name: Setup keystore
+      # ── 8. Stable debug keystore (cached across runs = stable SHA-1) ──────────
+      - name: Restore cached keystore
+        id: cache-keystore
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: debug-keystore-v1-stable
+
+      - name: Generate keystore if not cached
+        if: steps.cache-keystore.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/.android
-          if [ -n "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" ]; then
-            echo "Using stored keystore from secret..."
-            # tr -d strips CR/LF/spaces that GitHub may inject into secrets
-            printf '%s' "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | tr -d '[:space:]' | base64 --decode > ~/.android/debug.keystore
-            echo "Keystore size: $(wc -c < ~/.android/debug.keystore) bytes"
-          else
-            echo "Generating fresh debug keystore..."
-            keytool -genkey -v \
-              -keystore ~/.android/debug.keystore \
-              -storepass android \
-              -alias androiddebugkey \
-              -keypass android \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
-          echo "SHA1:" && keytool -list -v \
+          keytool -genkey -v \
+            -keystore ~/.android/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 36500 \
+            -dname "CN=Tumkuru Connect,O=TumkuruConnect,C=IN"
+          echo "✅ New keystore generated and will be cached"
+
+      - name: Print keystore SHA-1
+        run: |
+          mkdir -p ~/.android
+          echo "=== Keystore SHA-1 (register this in Firebase Console) ==="
+          keytool -list -v \
             -keystore ~/.android/debug.keystore \
             -alias androiddebugkey \
             -storepass android \
-            -keypass android 2>&1 | grep "SHA1:"
+            -keypass android 2>&1 | grep -E "SHA1:|SHA256:"
+          echo "========================================================"
+
 
       # ── 9. Build APK ─────────────────────────────────────────────────────────
       - name: Build debug APK
