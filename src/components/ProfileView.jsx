@@ -53,7 +53,7 @@ export default function ProfileView({ onNavigate }) {
 
       {/* ID Card Section */}
       <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
-        <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>ID Card</h4>
+        <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>ID Card / Certificates</h4>
         {profile?.idCardURL ? (
           <div className="id-card-display">
             <img src={profile.idCardURL} alt="ID Card" />
@@ -63,7 +63,7 @@ export default function ProfileView({ onNavigate }) {
           </div>
         ) : (
           <button className="btn btn-outline-sm" onClick={() => idRef.current?.click()}>
-            <Upload size={14} /> Upload ID Card
+            <Upload size={14} /> Upload ID Card / Certificates
           </button>
         )}
         <input ref={idRef} type="file" accept="image/*" hidden onChange={handlePhoto('idCardURL')} />

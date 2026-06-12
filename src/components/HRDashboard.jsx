@@ -51,6 +51,7 @@ export default function HRDashboard() {
 
   const tabs = [
     { id: 'home',     label: 'Dashboard',   icon: <PieChart size={18} /> },
+    { id: 'jobs',     label: 'Recruitment', icon: <Briefcase size={18} /> },
     { id: 'requests', label: 'Join Requests', icon: <UserCheck size={18} /> },
     { id: 'workers',  label: 'Employees',   icon: <Users size={18} /> },
     { id: 'announce', label: 'Announcements', icon: <Megaphone size={18} /> },
@@ -61,6 +62,7 @@ export default function HRDashboard() {
   return (
     <DashboardShell role="HR Manager" title={company.name} tabs={tabs} activeTab={tab} setActiveTab={setTab}>
       {tab === 'home'     && <HRHome company={company} user={user} />}
+      {tab === 'jobs'     && <Recruitment company={company} user={user} />}
       {tab === 'requests' && <JoinRequests company={company} user={user} />}
       {tab === 'workers'  && <EmployeeList company={company} />}
       {tab === 'announce' && <Announcements company={company} user={user} />}
@@ -218,6 +220,8 @@ function JoinRequests({ company, user }) {
       joinedAt: serverTimestamp(), status: 'active',
     });
     await updateDoc(doc(db, 'companies', user.uid), { memberCount: (company.memberCount || 0) + 1 });
+    // Update user role to worker
+    await updateDoc(doc(db, 'users', req.workerId), { role: 'worker', companyId: user.uid, companyName: company.name });
     // Notify the worker
     await addDoc(collection(db, 'notifications'), {
       userId: req.workerId, type: 'join_accepted',
@@ -276,7 +280,16 @@ function RequestRow({ req, compact, onAccept, onReject, showActions }) {
     <div className="glass-card flex items-center justify-between" style={{ padding: compact ? '0.6rem 0' : '0.85rem', border: 'none', borderBottom: compact ? '1px solid rgba(255,255,255,0.05)' : 'none', borderRadius: compact ? 0 : 12, background: compact ? 'transparent' : 'var(--glass)' }}>
       <div>
         <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{req.workerName}</div>
-        <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{req.department || 'General Worker'}</div>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
+          {req.jobTitle ? `Applied for: ${req.jobTitle}` : (req.department || 'General Worker')}
+        </div>
+        {req.certificateUrl && (
+          <div style={{ marginTop: 4 }}>
+            <a href={req.certificateUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', color: '#60a5fa', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <CheckCircle2 size={12} /> View Certificate
+            </a>
+          </div>
+        )}
       </div>
       {showActions ? (
         <div className="flex gap-2">
@@ -429,6 +442,73 @@ function StatCard({ label, value, icon, highlight }) {
       <div style={{ marginBottom: 4 }}>{icon}</div>
       <div style={{ fontSize: '1.8rem', fontWeight: 800, color: highlight ? '#fbbf24' : '#f8fafc', lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.05em', textAlign: 'center' }}>{label.toUpperCase()}</div>
+    </div>
+  );
+}
+
+/* ── Recruitment ── */
+function Recruitment({ company, user }) {
+  const [jobs, setJobs] = useState([]);
+  const [title, setTitle] = useState('');
+  const [wage, setWage] = useState('');
+  const [tags, setTags] = useState('');
+  const [posting, setPosting] = useState(false);
+
+  useEffect(() => {
+    const q = query(collection(db, 'jobs'), where('companyId', '==', user.uid));
+    return onSnapshot(q, s => setJobs(s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.createdAt?.seconds - a.createdAt?.seconds)));
+  }, [user.uid]);
+
+  const postJob = async () => {
+    if (!title || !wage) return;
+    setPosting(true);
+    await addDoc(collection(db, 'jobs'), {
+      companyId: user.uid,
+      companyName: company.name,
+      hrName: company.hrName,
+      title: title.trim(),
+      wage: Number(wage),
+      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+      createdAt: serverTimestamp(),
+      active: true
+    });
+    setTitle(''); setWage(''); setTags('');
+    setPosting(false);
+  };
+
+  const deleteJob = async (id) => {
+    if (window.confirm('Delete this job post?')) {
+      await deleteDoc(doc(db, 'jobs', id));
+    }
+  };
+
+  return (
+    <div className="flex-col gap-3">
+      <h3 style={{ margin: 0 }}>Open Recruitment</h3>
+      
+      <div className="glass-card flex-col gap-3">
+        <h4 style={{ margin: 0 }}>Post a New Job</h4>
+        <input className="input-field" placeholder="Job Title (e.g. CNC Operator)" value={title} onChange={e => setTitle(e.target.value)} />
+        <div className="input-group mb-0" style={{ position: 'relative' }}>
+          <span style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }}>₹</span>
+          <input type="number" className="input-field" placeholder="Monthly Salary" value={wage} onChange={e => setWage(e.target.value)} style={{ paddingLeft: 28 }} />
+        </div>
+        <input className="input-field" placeholder="Tags (comma separated, e.g. Urgent, Food Included)" value={tags} onChange={e => setTags(e.target.value)} />
+        <button className="btn btn-primary" onClick={postJob} disabled={posting || !title || !wage}>
+          {posting ? 'Posting...' : 'Post Job'}
+        </button>
+      </div>
+
+      <h4 style={{ margin: '1rem 0 0' }}>Active Listings</h4>
+      {jobs.length === 0 ? <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>No active jobs.</div> : jobs.map(j => (
+        <div key={j.id} className="glass-card flex justify-between items-center">
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{j.title}</div>
+            <div style={{ color: '#4ade80', fontSize: '0.85rem', fontWeight: 600 }}>₹{j.wage?.toLocaleString('en-IN')}/mo</div>
+          </div>
+          <button onClick={() => deleteJob(j.id)} className="btn btn-outline-red" style={{ padding: '6px 10px' }}><X size={16}/></button>
+        </div>
+      ))}
     </div>
   );
 }
