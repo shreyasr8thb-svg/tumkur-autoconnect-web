@@ -1,0 +1,6 @@
+{
+  "appId": "com.tumukuru.connect",
+  "appName": "Tumukuru Connect",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
