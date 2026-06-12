@@ -34,12 +34,14 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Sync Capacitor
-        run: npx cap sync android
+      - name: Copy Web Assets to Android
+        run: npx cap copy android
 
       - name: Build APK
         working-directory: ./android
-        run: ./gradlew assembleDebug
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
 
       - name: Copy APK to public folder and Commit
         run: |
