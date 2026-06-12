@@ -76,6 +76,15 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --stacktrace > gradle_output.log 2>&1 || (cat gradle_output.log && exit 1)
 
+      - name: Print SHA-1 for Firebase (add this to Firebase Console)
+        run: |
+          echo "========================================"
+          echo "ADD THIS SHA-1 TO FIREBASE CONSOLE:"
+          keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android 2>/dev/null | grep "SHA1:"
+          echo "========================================"
+          echo "Firebase Console → Project Settings → Your Android App → Add fingerprint"
+
+
       - name: Copy APK to public folder and Commit
         run: |
           mkdir -p public
