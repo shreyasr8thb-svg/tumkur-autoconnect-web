@@ -9,8 +9,6 @@ import {
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
 
-const WEB_CLIENT_ID = '726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com';
-
 const isNativeAndroid = () =>
   typeof window !== 'undefined' &&
   window.Capacitor?.isNativePlatform?.() === true;
@@ -47,42 +45,43 @@ export default function Login({ onCreateProfile }) {
     setGLoading(true); setError('');
 
     if (isNativeAndroid()) {
-      // Native Android: uses @codetrix-studio/capacitor-google-auth
-      // This uses legacy GMS Google Sign-In SDK (not One Tap) - no [28444] error
+      // Native Android: use @capacitor-firebase/authentication (Capacitor 8 compatible)
+      // This calls the native Google Sign-In SDK directly — no browser redirect needed.
       try {
         const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
 
-        // Initialize with web client ID so we get an idToken back
-        await GoogleAuth.initialize({
-          clientId: WEB_CLIENT_ID,
-          scopes: ['profile', 'email'],
-          grantOfflineAccess: true,
-        });
+        // Trigger native Google Sign-In sheet
+        const result = await FirebaseAuthentication.signInWithGoogle();
 
-        const googleUser = await GoogleAuth.signIn();
-        const idToken = googleUser?.authentication?.idToken;
+        const idToken     = result?.credential?.idToken;
+        const accessToken = result?.credential?.accessToken;
 
-        if (!idToken) throw new Error('No ID token returned by Google Sign-In.');
+        if (!idToken) throw new Error('No ID token returned from Google Sign-In.');
 
-        // Exchange for Firebase session
-        const credential = GoogleAuthProvider.credential(idToken);
+        // Exchange the native Google credential for a Firebase session
+        const credential = GoogleAuthProvider.credential(idToken, accessToken ?? null);
         await signInWithCredential(auth, credential);
 
       } catch (err) {
         const msg = String(err?.message || err);
-        // 12501 = user cancelled — not an error
-        if (!msg.includes('12501') && !msg.toLowerCase().includes('cancel')) {
+        // Code 12501 = user pressed "Cancel" on the Google account picker — not an error
+        if (!msg.includes('12501') && !msg.toLowerCase().includes('cancel') && !msg.includes('CANCELED')) {
+          console.error('[Google Auth] Native error:', msg);
           setError('Google sign-in failed: ' + msg);
         }
       } finally { setGLoading(false); }
 
     } else {
-      // Web: standard popup
+      // Web: standard popup flow
       try {
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        const provider = new GoogleAuthProvider();
+        provider.addScope('profile');
+        provider.addScope('email');
+        await signInWithPopup(auth, provider);
       } catch (err) {
-        if (err.code !== 'auth/popup-closed-by-user')
+        if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
           setError(err.message || 'Google sign in failed.');
+        }
       } finally { setGLoading(false); }
     }
   };

@@ -6,15 +6,5 @@
 	"server": {
 		"androidScheme": "https",
 		"cleartext": false
-	},
-	"plugins": {
-		"GoogleAuth": {
-			"scopes": [
-				"profile",
-				"email"
-			],
-			"serverClientId": "726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com",
-			"forceCodeForRefreshToken": true
-		}
 	}
 }
