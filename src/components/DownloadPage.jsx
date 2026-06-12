@@ -5,6 +5,8 @@ import mockup from '../assets/mockup.png';
 const APP_URL = 'https://tumkur-autoconnect-web.vercel.app';
 const APP_NAME = 'Tumkuru Connect';
 const APP_ID = 'com.tumkuruconnect.app';
+// Always points to latest auto-built APK from GitHub Actions
+const APK_URL = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk';
 
 export default function DownloadPage({ onBack }) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -30,14 +32,12 @@ export default function DownloadPage({ onBack }) {
       if (outcome === 'accepted') { setDeferredPrompt(null); return; }
     }
 
-    // Direct APK Download
+    // Direct APK Download from GitHub Releases (always latest)
     setApkStatus('loading');
     setTimeout(() => {
       try {
-        const timestamp = new Date().getTime();
-        const apkUrl = `/TumkuruConnect.apk?v=${timestamp}`;
         const a = document.createElement('a');
-        a.href = apkUrl;
+        a.href = APK_URL;
         a.download = 'TumkuruConnect.apk';
         document.body.appendChild(a);
         a.click();
@@ -99,7 +99,7 @@ export default function DownloadPage({ onBack }) {
               </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '1rem' }}>Android APK</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Direct install · v1.0</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Auto-updated · Always latest</div>
               </div>
             </div>
 
