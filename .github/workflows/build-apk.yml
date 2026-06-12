@@ -76,14 +76,16 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --stacktrace > gradle_output.log 2>&1 || (cat gradle_output.log && exit 1)
 
-      - name: Print SHA-1 for Firebase (add this to Firebase Console)
+      - name: Extract SHA-1 fingerprint for Firebase
         run: |
-          echo "========================================"
-          echo "ADD THIS SHA-1 TO FIREBASE CONSOLE:"
-          keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android 2>/dev/null | grep "SHA1:"
-          echo "========================================"
-          echo "Firebase Console → Project Settings → Your Android App → Add fingerprint"
-
+          mkdir -p public
+          keytool -list -v \
+            -keystore ~/.android/debug.keystore \
+            -alias androiddebugkey \
+            -storepass android \
+            -keypass android 2>&1 | tee public/keystore_info.txt
+          echo "---" >> public/keystore_info.txt
+          echo "Add the SHA1 above to: Firebase Console > Project Settings > Your App > Add fingerprint" >> public/keystore_info.txt
 
       - name: Copy APK to public folder and Commit
         run: |
@@ -92,8 +94,8 @@ jobs:
             cp android/app/build/outputs/apk/debug/app-debug.apk public/TumkuruConnect.apk
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git add public/TumkuruConnect.apk
-            git commit -m "chore: Add latest APK build for Vercel" || echo "No changes to commit"
+            git add public/TumkuruConnect.apk public/keystore_info.txt
+            git commit -m "chore: Add latest APK build and keystore info for Firebase" || echo "No changes to commit"
             git push origin HEAD:main
           else
             echo "APK build failed. Committing logs..."
