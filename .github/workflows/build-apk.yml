@@ -41,17 +41,6 @@ jobs:
         working-directory: ./android
         run: ./gradlew assembleDebug
 
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "android/app/build/outputs/apk/debug/app-debug.apk"
-          tag: "latest"
-          name: "Latest APK Build"
-          body: "Download the latest APK for Tumukuru Connect."
-          allowUpdates: true
-          makeLatest: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Copy APK to public folder and Commit
         run: |
           mkdir -p public
@@ -59,5 +48,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add public/TumkuruConnect.apk
-          git commit -m "chore: Add latest APK build [skip ci]" || echo "No changes to commit"
-          git push origin HEAD:${{ github.ref }}
+          git commit -m "chore: Add latest APK build for Vercel" || echo "No changes to commit"
+          git push origin HEAD:main
