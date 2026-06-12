@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: Copy Web Assets to Android
         run: |
@@ -42,11 +42,10 @@ jobs:
 
       - name: Build APK
         working-directory: ./android
-        continue-on-error: true
         id: gradle_build
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug > gradle_output.log 2>&1
+          ./gradlew assembleDebug --stacktrace > gradle_output.log 2>&1 || (cat gradle_output.log && exit 1)
 
       - name: Copy APK to public folder and Commit
         run: |
