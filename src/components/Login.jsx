@@ -9,8 +9,11 @@ import {
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
 
-const isCapacitor = () =>
-  typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
+const WEB_CLIENT_ID = '726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com';
+
+const isNativeAndroid = () =>
+  typeof window !== 'undefined' &&
+  window.Capacitor?.isNativePlatform?.() === true;
 
 export default function Login({ onCreateProfile }) {
   const [email, setEmail]       = useState('');
@@ -19,6 +22,7 @@ export default function Login({ onCreateProfile }) {
   const [loading, setLoading]   = useState(false);
   const [gLoading, setGLoading] = useState(false);
 
+  /* ── Email / Password ───────────────────────────────────────────────────── */
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     if (!email || !password) return;
@@ -38,34 +42,42 @@ export default function Login({ onCreateProfile }) {
     } finally { setLoading(false); }
   };
 
+  /* ── Google Sign-In ─────────────────────────────────────────────────────── */
   const handleGoogleSignIn = async () => {
     setGLoading(true); setError('');
 
-    if (isCapacitor()) {
-      // ── Native Android Google Sign-In ──────────────────────────────────────
-      // Uses @capacitor-firebase/authentication v8 (Capacitor 8 native plugin)
-      // No browser opens – native Google account picker appears inside app
+    if (isNativeAndroid()) {
+      // Native Android: uses @codetrix-studio/capacitor-google-auth
+      // This uses legacy GMS Google Sign-In SDK (not One Tap) - no [28444] error
       try {
-        const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
 
-        const result = await FirebaseAuthentication.signInWithGoogle();
+        // Initialize with web client ID so we get an idToken back
+        await GoogleAuth.initialize({
+          clientId: WEB_CLIENT_ID,
+          scopes: ['profile', 'email'],
+          grantOfflineAccess: true,
+        });
 
-        // Get the ID token and sign into Firebase web SDK
-        const idToken = result.credential?.idToken;
-        if (!idToken) throw new Error('No ID token received from Google.');
+        const googleUser = await GoogleAuth.signIn();
+        const idToken = googleUser?.authentication?.idToken;
 
+        if (!idToken) throw new Error('No ID token returned by Google Sign-In.');
+
+        // Exchange for Firebase session
         const credential = GoogleAuthProvider.credential(idToken);
         await signInWithCredential(auth, credential);
-        // onAuthStateChanged in UserContext picks up the session automatically
+
       } catch (err) {
-        // Error code 12501 = user cancelled (not an error)
-        if (!String(err).includes('12501') && !String(err).includes('cancelled')) {
-          setError('Google sign-in failed: ' + (err?.message || String(err)));
+        const msg = String(err?.message || err);
+        // 12501 = user cancelled — not an error
+        if (!msg.includes('12501') && !msg.toLowerCase().includes('cancel')) {
+          setError('Google sign-in failed: ' + msg);
         }
       } finally { setGLoading(false); }
 
     } else {
-      // ── Web: standard popup ────────────────────────────────────────────────
+      // Web: standard popup
       try {
         await signInWithPopup(auth, new GoogleAuthProvider());
       } catch (err) {
@@ -75,6 +87,7 @@ export default function Login({ onCreateProfile }) {
     }
   };
 
+  /* ── Render ─────────────────────────────────────────────────────────────── */
   return (
     <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', paddingTop: '2rem' }}>
       <div className="mb-4 text-center">
