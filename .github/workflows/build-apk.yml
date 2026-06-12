@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build & Release Android APK
 
 on:
   push:
@@ -11,30 +11,43 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write   # needed to create/update GitHub Releases
 
     steps:
-      - name: Checkout Source Code
+      # ── 1. Source ─────────────────────────────────────────────────────────────
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      # ── 2. Node ───────────────────────────────────────────────────────────────
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Build Web App
+      # ── 3. Inject google-services.json from GitHub Secret ─────────────────────
+      # Store the file contents as a repo secret named GOOGLE_SERVICES_JSON
+      - name: Write google-services.json
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
+          echo "google-services.json written ($(wc -c < android/app/google-services.json) bytes)"
+
+      # ── 4. Build web assets ───────────────────────────────────────────────────
+      - name: Build web app (Vite)
         run: npm run build
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
+      # ── 5. Java ───────────────────────────────────────────────────────────────
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '21'
 
-      - name: Generate App Icons from logo.png
+      # ── 6. App icons ──────────────────────────────────────────────────────────
+      - name: Generate app icons from logo.png
         run: |
           sudo apt-get install -y imagemagick -q
           LOGO="src/assets/logo.png"
@@ -47,12 +60,10 @@ jobs:
           )
           for DIR in "${!SIZES[@]}"; do
             SIZE="${SIZES[$DIR]}"
-            # Resize with white background for non-transparent areas
             convert "$LOGO" -background white -alpha remove -resize "${SIZE}x${SIZE}" "${DIR}/ic_launcher.png"
             convert "$LOGO" -background white -alpha remove -resize "${SIZE}x${SIZE}" "${DIR}/ic_launcher_round.png"
             convert "$LOGO" -background white -alpha remove -resize "${SIZE}x${SIZE}" "${DIR}/ic_launcher_foreground.png"
           done
-          # Fix adaptive icon XMLs to use white background + our logo foreground
           cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
@@ -63,61 +74,80 @@ jobs:
           cp android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml \
              android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
 
-      - name: Copy Web Assets to Android
+      # ── 7. Sync Capacitor web assets ─────────────────────────────────────────
+      - name: Copy web assets to Android
         run: |
           mkdir -p android/app/src/main/assets/public
           rm -rf android/app/src/main/assets/public/*
           cp -r dist/* android/app/src/main/assets/public/
 
-      - name: Setup Debug Keystore and Extract SHA-1
+      # ── 8. Stable debug keystore (from secret, falls back to fresh generate) ──
+      - name: Setup keystore
         run: |
-          mkdir -p ~/.android public
-          # Always generate a fresh debug keystore (consistent within one build)
-          keytool -genkey -v \
+          mkdir -p ~/.android
+          if [ -n "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" ]; then
+            echo "Using stored keystore from secret..."
+            echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode > ~/.android/debug.keystore
+          else
+            echo "Generating fresh debug keystore..."
+            keytool -genkey -v \
+              -keystore ~/.android/debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          echo "SHA1:" && keytool -list -v \
             -keystore ~/.android/debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
-          # Extract and save SHA-1 fingerprint
-          keytool -list -v \
-            -keystore ~/.android/debug.keystore \
             -alias androiddebugkey \
             -storepass android \
-            -keypass android 2>&1 | grep -E "SHA1:|SHA256:|Alias" | tee public/keystore_info.txt
-          echo "Package: com.tumukuru.connect" >> public/keystore_info.txt
-          echo "Add SHA1 to: Firebase Console > Project spark-a73bb > Settings > Android App > Add fingerprint" >> public/keystore_info.txt
-          cat public/keystore_info.txt
+            -keypass android 2>&1 | grep "SHA1:"
 
-      - name: Build APK
+      # ── 9. Build APK ─────────────────────────────────────────────────────────
+      - name: Build debug APK
         working-directory: ./android
-        id: gradle_build
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace > gradle_output.log 2>&1 || (cat gradle_output.log && exit 1)
-
-      - name: Copy APK to public folder and Commit
-        run: |
-          mkdir -p public
-          if [ -f android/app/build/outputs/apk/debug/app-debug.apk ]; then
-            cp android/app/build/outputs/apk/debug/app-debug.apk public/TumkuruConnect.apk
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            # Force-add built web assets (ignored by android/.gitignore but needed for next build)
-            git add -f android/app/src/main/assets/public/ || true
-            git add public/TumkuruConnect.apk public/keystore_info.txt
-            git commit -m "chore: Update APK and web assets [skip ci]" || echo "No changes to commit"
-            git push origin HEAD:main
-          else
-            echo "APK build failed. Committing logs..."
-            cp android/gradle_output.log public/gradle_output.txt
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git add public/gradle_output.txt
-            git commit -m "chore: Add gradle error log" || echo "No changes"
-            git push origin HEAD:main
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee gradle_output.log
+          if [ ! -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "❌ APK not found after build!"
             exit 1
           fi
+          echo "✅ APK built: $(du -sh app/build/outputs/apk/debug/app-debug.apk | cut -f1)"
+
+      # ── 10. Rename APK with build number ─────────────────────────────────────
+      - name: Prepare APK artifact
+        run: |
+          mkdir -p release-artifacts
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+             release-artifacts/TumkuruConnect.apk
+          echo "APK_PATH=release-artifacts/TumkuruConnect.apk" >> $GITHUB_ENV
+          echo "BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_ENV
+          echo "COMMIT_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      # ── 11. Upload to GitHub Releases (tag: latest-apk) ──────────────────────
+      - name: Delete old 'latest-apk' release (if exists)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest-apk --yes 2>/dev/null || true
+          git push origin :refs/tags/latest-apk 2>/dev/null || true
+
+      - name: Create GitHub Release with APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create latest-apk \
+            --title "Tumkuru Connect – Latest Build" \
+            --notes "**Auto-built APK** from commit \`${{ env.COMMIT_SHORT }}\`
+
+          🕐 Built: ${{ env.BUILD_DATE }}
+          📦 Package: \`com.tumukuru.connect\`
+
+          > ⚠️ This is a debug build. Allow installs from unknown sources in Android settings before installing." \
+            --prerelease \
+            "${{ env.APK_PATH }}"
+          echo "✅ Released to GitHub Releases as 'latest-apk'"

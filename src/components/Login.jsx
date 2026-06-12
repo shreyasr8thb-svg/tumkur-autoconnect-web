@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  onAuthStateChanged
+  signInWithRedirect,
+  getRedirectResult,
 } from 'firebase/auth';
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
@@ -23,9 +24,28 @@ export default function Login({ onCreateProfile }) {
 
   const IN_APP = isCapacitor();
 
-  // When the app returns from Chrome after Google auth,
-  // Firebase auth state listener in UserContext picks it up automatically.
-  // No extra handler needed.
+  // ── On mount: capture the result when Firebase redirects back to the app ──
+  // This fires after a signInWithRedirect() completes and the WebView reloads.
+  useEffect(() => {
+    if (!IN_APP) return; // Only needed inside Capacitor/WebView
+
+    setGoogleLoading(true);
+    getRedirectResult(auth)
+      .then((result) => {
+        // result is null if no redirect was pending — that's fine.
+        if (result?.user) {
+          // Auth state listener in UserContext will pick this up automatically.
+          console.log('Google redirect sign-in success:', result.user.email);
+        }
+      })
+      .catch((err) => {
+        // Ignore "popup closed" or "no redirect" — only show real errors
+        if (err.code && err.code !== 'auth/no-current-user') {
+          setError('Google sign-in failed: ' + (err.message || err.code));
+        }
+      })
+      .finally(() => setGoogleLoading(false));
+  }, [IN_APP]);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -50,31 +70,33 @@ export default function Login({ onCreateProfile }) {
     }
   };
 
-  /* ─── Google Sign-in (web browser only) ─── */
+  /* ─── Google Sign-in: popup for web, redirect for APK ─── */
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setError('');
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        setError(err.message || 'Google sign in failed.');
-      }
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+    const provider = new GoogleAuthProvider();
 
-  /* ─── Open website in Chrome for Google sign-in (APK only) ─── */
-  const handleGoogleInApp = () => {
-    // Open the live Tumkuru Connect website in Chrome where Google auth works
-    const webUrl = 'https://tumkur-autoconnect-web.vercel.app';
-    // window.open with _system opens Chrome on Android (not WebView)
-    window.open(webUrl, '_system');
-    setError('');
-    // Show helpful info
-    setError('Opening website in Chrome... Sign in with Google there, then come back to the app and sign in with email.');
+    if (IN_APP) {
+      // In Capacitor WebView: use redirect (popup is blocked by WebView)
+      try {
+        await signInWithRedirect(auth, provider);
+        // App will reload after redirect; getRedirectResult() above handles the result.
+      } catch (err) {
+        setError('Could not start Google sign-in: ' + (err.message || err.code));
+        setGoogleLoading(false);
+      }
+    } else {
+      // In normal browser: use popup
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        if (err.code !== 'auth/popup-closed-by-user') {
+          setError(err.message || 'Google sign in failed.');
+        }
+      } finally {
+        setGoogleLoading(false);
+      }
+    }
   };
 
   return (
@@ -92,9 +114,9 @@ export default function Login({ onCreateProfile }) {
       <form onSubmit={handleEmailSignIn} className="flex-col gap-3">
         {error && (
           <div style={{
-            background: error.includes('Opening') ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)',
-            border: `1px solid ${error.includes('Opening') ? 'rgba(59,130,246,0.3)' : 'rgba(239,68,68,0.3)'}`,
-            color: error.includes('Opening') ? '#93c5fd' : '#f87171',
+            background: 'rgba(239,68,68,0.1)',
+            border: '1px solid rgba(239,68,68,0.3)',
+            color: '#f87171',
             padding: '0.75rem 1rem', borderRadius: '12px', fontSize: '0.83rem', lineHeight: 1.5
           }}>
             {error}
@@ -131,37 +153,15 @@ export default function Login({ onCreateProfile }) {
 
         <div className="divider-line"><span>OR</span></div>
 
-        {/* Web browser: full Google popup */}
-        {!IN_APP && (
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={googleLoading}
-            className="btn btn-google"
-          >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
-            {googleLoading ? 'Signing in...' : 'Sign in with Google'}
-          </button>
-        )}
-
-        {/* APK: open website in Chrome for Google auth */}
-        {IN_APP && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={handleGoogleInApp}
-              className="btn btn-google"
-              style={{ opacity: 0.9 }}
-            >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
-              Sign in with Google (opens Chrome)
-            </button>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.4 }}>
-              🌐 Google sign-in opens in Chrome for security.
-              After signing in, return here and use email login.
-            </div>
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={googleLoading}
+          className="btn btn-google"
+        >
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
+          {googleLoading ? 'Signing in...' : 'Sign in with Google'}
+        </button>
 
         <button
           type="button"

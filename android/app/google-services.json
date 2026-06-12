@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "726402748544",
+    "project_id": "spark-a73bb",
+    "storage_bucket": "spark-a73bb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726402748544:android:f593c8efb92bc4c60d5665",
+        "android_client_info": {
+          "package_name": "com.tumukuru.connect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "726402748544-hm7mo5g50n0en3i7ruq4p04o27tven8f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tumukuru.connect",
+            "certificate_hash": "060d64e73272344834cdbdb54d849abc4db974fb"
+          }
+        },
+        {
+          "client_id": "726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHC4xrC95Cuz3Obt1dWSp1_S8BclBFCyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
