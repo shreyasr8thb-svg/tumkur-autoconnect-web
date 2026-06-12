@@ -39,7 +39,7 @@ export default function WorkerDashboard({ onSOS }) {
   return (
     <>
       {/* RideHailing is full-screen: render outside DashboardShell */}
-      {tab === 'bus' && <RideHailing />}
+      {tab === 'bus' && <RideHailing onBack={() => setTab('home')} />}
       {tab !== 'bus' && (
         <DashboardShell role="Worker" title="Worker Portal" tabs={tabs} activeTab={tab} setActiveTab={setTab}>
           {tab === 'home'     && <Home onSOS={onSOS} go={setTab} />}

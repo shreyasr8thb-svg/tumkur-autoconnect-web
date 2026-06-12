@@ -23,7 +23,7 @@ export default function JobFinderDashboard({ onSOS }) {
         {tab === 'map' && <JobMap />}
         {tab === 'jobs' && <JobList />}
         {tab === 'applications' && <Applications />}
-        {tab === 'bus' && <RideHailing />}
+        {tab === 'bus' && <RideHailing onBack={() => setTab('home')} />}
         {tab === 'profile' && <div className="p-4"><ProfileView onNavigate={setTab} /></div>}
         <AppFooter />
       </div>

@@ -99,7 +99,7 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
   return <div ref={mapRef} style={{ width: '100%', height: '100%' }} />;
 }
 
-export default function RideHailing() {
+export default function RideHailing({ onBack }) {
   const { user, profile } = useUser();
   const [ride, setRide] = useState(null);
   const [dropoff, setDropoff] = useState('');
@@ -187,11 +187,18 @@ export default function RideHailing() {
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50, background: '#121212', overflowY: 'auto', paddingBottom: '80px' }}>
         {/* Header Tabs */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#fff', cursor: 'pointer' }}>
-            <Car size={24} color="#fff" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>TC Ride</span>
-            <div style={{ width: '100%', height: 3, background: '#fff', borderRadius: 2, marginTop: 2 }} />
+        <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+          {onBack && (
+            <div onClick={onBack} style={{ position: 'absolute', left: '1rem', cursor: 'pointer', padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ArrowLeft size={20} color="#fff" />
+            </div>
+          )}
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#fff', cursor: 'pointer' }}>
+              <Car size={24} color="#fff" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>TC Ride</span>
+              <div style={{ width: '32px', height: 3, background: '#fff', borderRadius: 2, marginTop: 2 }} />
+            </div>
           </div>
         </div>
 
@@ -280,10 +287,17 @@ export default function RideHailing() {
 
       {/* ── Top pill: pickup indicator ── */}
       {!ride && step === 'input' && (
-        <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20 }}>
-          <Navigation size={14} color="#3b82f6" />
-          <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1' }}>📍 Current Location</span>
-        </div>
+        <>
+          <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20 }}>
+            <div onClick={() => setStep('home')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+              <ArrowLeft size={22} color="#fff" />
+            </div>
+          </div>
+          <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20 }}>
+            <Navigation size={14} color="#3b82f6" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1' }}>📍 Current Location</span>
+          </div>
+        </>
       )}
 
       {/* ── Top Pill: Destination View ── */}
