@@ -21,7 +21,7 @@ export default function DownloadPage({ onBack }) {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  // Actual APK Download from GitHub Releases
+  // Actual APK Download from Vercel Public Folder
   const handleAndroidDownload = async () => {
     // Try native PWA install prompt first
     if (deferredPrompt) {
@@ -34,7 +34,7 @@ export default function DownloadPage({ onBack }) {
     setApkStatus('loading');
     setTimeout(() => {
       try {
-        const apkUrl = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/latest/download/app-debug.apk';
+        const apkUrl = '/TumkuruConnect.apk';
         const a = document.createElement('a');
         a.href = apkUrl;
         a.download = 'TumkuruConnect.apk';
@@ -128,7 +128,7 @@ export default function DownloadPage({ onBack }) {
 
             {apkStatus === 'loading' && (
               <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '0.5rem' }}>
-                Fetching latest APK from GitHub Releases...
+                Downloading APK directly...
               </p>
             )}
             {apkStatus === 'error' && (

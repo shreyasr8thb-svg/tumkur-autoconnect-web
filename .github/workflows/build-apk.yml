@@ -51,3 +51,13 @@ jobs:
           allowUpdates: true
           makeLatest: true
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy APK to public folder and Commit
+        run: |
+          mkdir -p public
+          cp android/app/build/outputs/apk/debug/app-debug.apk public/TumkuruConnect.apk
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/TumkuruConnect.apk
+          git commit -m "chore: Add latest APK build [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:${{ github.ref }}
