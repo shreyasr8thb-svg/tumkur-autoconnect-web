@@ -10,6 +10,8 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Source Code
@@ -39,8 +41,13 @@ jobs:
         working-directory: ./android
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: ncipollo/release-action@v1
         with:
-          name: app-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          artifacts: "android/app/build/outputs/apk/debug/app-debug.apk"
+          tag: "latest"
+          name: "Latest APK Build"
+          body: "Download the latest APK for Tumukuru Connect."
+          allowUpdates: true
+          makeLatest: true
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -21,7 +21,7 @@ export default function DownloadPage({ onBack }) {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  // Android: simulate native APK download directly
+  // Actual APK Download from GitHub Releases
   const handleAndroidDownload = async () => {
     // Try native PWA install prompt first
     if (deferredPrompt) {
@@ -30,24 +30,22 @@ export default function DownloadPage({ onBack }) {
       if (outcome === 'accepted') { setDeferredPrompt(null); return; }
     }
 
-    // Direct APK Download (Simulated for Demo)
+    // Direct APK Download
     setApkStatus('loading');
     setTimeout(() => {
       try {
-        const blob = new Blob(["This is a dummy APK file for Tumkuru Connect demo purposes."], { type: "application/vnd.android.package-archive" });
-        const url = URL.createObjectURL(blob);
+        const apkUrl = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/latest/download/app-debug.apk';
         const a = document.createElement('a');
-        a.href = url;
+        a.href = apkUrl;
         a.download = 'TumkuruConnect.apk';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
         setApkStatus('done');
       } catch (err) {
         setApkStatus('error');
       }
-    }, 800); // Small artificial delay to show loading state
+    }, 800);
   };
 
   // iOS: show instructions (iOS doesn't allow direct install)
@@ -123,20 +121,20 @@ export default function DownloadPage({ onBack }) {
               {apkStatus === 'error' && <ExternalLink size={18} />}
               {apkStatus === 'idle' && <Download size={18} />}
               {apkStatus === 'idle' && 'Download APK'}
-              {apkStatus === 'loading' && 'Building APK... please wait'}
+              {apkStatus === 'loading' && 'Downloading... please wait'}
               {apkStatus === 'done' && 'Download Started!'}
-              {apkStatus === 'error' && 'Opening PWABuilder...'}
+              {apkStatus === 'error' && 'Download Failed'}
             </button>
 
             {apkStatus === 'loading' && (
               <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '0.5rem' }}>
-                Generating APK via PWABuilder cloud — this may take 30–60 seconds
+                Fetching latest APK from GitHub Releases...
               </p>
             )}
             {apkStatus === 'error' && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '0.75rem', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '10px', padding: '0.75rem', fontSize: '0.78rem', color: '#fbbf24' }}>
                 <AlertCircle size={15} style={{ flexShrink: 0, marginTop: '1px' }} />
-                <span>Direct build unavailable — redirecting to PWABuilder to generate your APK.</span>
+                <span>Download failed. Please try again or check your internet connection.</span>
               </div>
             )}
 
