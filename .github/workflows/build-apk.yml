@@ -81,40 +81,17 @@ jobs:
           rm -rf android/app/src/main/assets/public/*
           cp -r dist/* android/app/src/main/assets/public/
 
-      # ── 8. Stable debug keystore (cached across runs = stable SHA-1) ──────────
-      - name: Restore cached keystore
-        id: cache-keystore
-        uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: debug-keystore-v1-stable
-
-      - name: Generate keystore if not cached
-        if: steps.cache-keystore.outputs.cache-hit != 'true'
+      # ── 8. Use committed debug keystore (stable SHA-1 = 78:53:74:BA:B7...) ───
+      - name: Setup keystore
         run: |
           mkdir -p ~/.android
-          keytool -genkey -v \
-            -keystore ~/.android/debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 36500 \
-            -dname "CN=Tumkuru Connect,O=TumkuruConnect,C=IN"
-          echo "✅ New keystore generated and will be cached"
-
-      - name: Print keystore SHA-1
-        run: |
-          mkdir -p ~/.android
-          echo "=== Keystore SHA-1 (register this in Firebase Console) ==="
+          cp android/debug.keystore ~/.android/debug.keystore
+          echo "=== Keystore SHA-1 ==="
           keytool -list -v \
             -keystore ~/.android/debug.keystore \
             -alias androiddebugkey \
             -storepass android \
-            -keypass android 2>&1 | grep -E "SHA1:|SHA256:"
-          echo "========================================================"
-
+            -keypass android 2>&1 | grep "SHA1:"
 
       # ── 9. Build APK ─────────────────────────────────────────────────────────
       - name: Build debug APK
