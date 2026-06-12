@@ -28,12 +28,13 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      # ── 3. Inject google-services.json from GitHub Secret ─────────────────────
-      # Store the file contents as a repo secret named GOOGLE_SERVICES_JSON
-      - name: Write google-services.json
+      # ── 3. Use google-services.json from repository ────────────────────────────
+      - name: Verify google-services.json
         run: |
-          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
-          echo "google-services.json written ($(wc -c < android/app/google-services.json) bytes)"
+          echo "google-services.json contents:"
+          cat android/app/google-services.json
+          echo "Package check:"
+          grep -o '"com.tumukuru.connect"' android/app/google-services.json && echo "✅ Package name OK" || echo "❌ Package name missing!"
 
       # ── 4. Build web assets ───────────────────────────────────────────────────
       - name: Build web app (Vite)
