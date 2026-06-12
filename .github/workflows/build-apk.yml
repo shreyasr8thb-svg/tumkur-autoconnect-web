@@ -42,16 +42,29 @@ jobs:
 
       - name: Build APK
         working-directory: ./android
+        continue-on-error: true
+        id: gradle_build
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug > gradle_output.log 2>&1
 
       - name: Copy APK to public folder and Commit
         run: |
           mkdir -p public
-          cp android/app/build/outputs/apk/debug/app-debug.apk public/TumkuruConnect.apk
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/TumkuruConnect.apk
-          git commit -m "chore: Add latest APK build for Vercel" || echo "No changes to commit"
-          git push origin HEAD:main
+          if [ -f android/app/build/outputs/apk/debug/app-debug.apk ]; then
+            cp android/app/build/outputs/apk/debug/app-debug.apk public/TumkuruConnect.apk
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add public/TumkuruConnect.apk
+            git commit -m "chore: Add latest APK build for Vercel" || echo "No changes to commit"
+            git push origin HEAD:main
+          else
+            echo "APK build failed. Committing logs..."
+            cp android/gradle_output.log public/gradle_output.txt
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add public/gradle_output.txt
+            git commit -m "chore: Add gradle error log" || echo "No changes"
+            git push origin HEAD:main
+            exit 1
+          fi

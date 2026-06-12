@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MapPin, Briefcase, ChevronRight, User, Settings, Filter, ShieldCheck, DollarSign, MessageSquare } from 'lucide-react';
+import { Search, MapPin, Briefcase, ChevronRight, User, Settings, Filter, ShieldCheck, DollarSign, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
@@ -16,7 +16,7 @@ export default function JobFinderDashboard({ onSOS }) {
 
   return (
     <div className="flex-col" style={{ flex: 1 }}>
-      <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} onNotifs={() => setShowNotifs(true)} badge="Job Finder" />
+      <TopBar name={name} photo={profile?.photoURL} onProfile={() => setTab('profile')} onNotifs={() => setShowNotifs(true)} badge="Job Finder" onBack={tab !== 'home' ? () => setTab('home') : null} />
       {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
       <div className="screen" style={{ overflowY: 'auto' }}>
         {tab === 'home' && <Home go={setTab} />}
@@ -37,14 +37,21 @@ export default function JobFinderDashboard({ onSOS }) {
   );
 }
 
-function TopBar({ name, photo, onProfile, onNotifs, badge }) {
+function TopBar({ name, photo, onProfile, onNotifs, badge, onBack }) {
   return (
     <div className="top-bar">
-      <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
-        {photo ? <img src={photo} className="avatar-sm" alt="" style={{ objectFit: 'cover' }} /> : <div className="avatar-sm">{name.charAt(0)}</div>}
-        <div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{badge || 'Welcome'}</div>
-          <div style={{ fontWeight: 600 }}>{name}</div>
+      <div className="flex items-center gap-3">
+        {onBack && (
+          <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
+            <ArrowLeft size={24} />
+          </button>
+        )}
+        <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={onProfile}>
+          {photo ? <img src={photo} className="avatar-sm" alt="" style={{ objectFit: 'cover' }} /> : <div className="avatar-sm">{name.charAt(0)}</div>}
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{badge || 'Welcome'}</div>
+            <div style={{ fontWeight: 600 }}>{name}</div>
+          </div>
         </div>
       </div>
       <div className="flex gap-3">

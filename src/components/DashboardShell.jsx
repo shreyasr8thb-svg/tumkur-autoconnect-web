@@ -6,8 +6,9 @@
 import { useState } from 'react';
 import {
   Bell, Menu, X, MessageSquare, Rss,
-  LogOut, Settings, Download, ChevronRight, Plus, Home
+  LogOut, Settings, Download, ChevronRight, Plus, Home, ArrowLeft
 } from 'lucide-react';
+import logo from '../assets/logo.png';
 import { useUser } from '../context/UserContext';
 import NotificationsPanel from './NotificationsPanel';
 import ChatBox from './ChatBox';
@@ -43,7 +44,7 @@ export default function DashboardShell({
       <div className="desktop-sidebar">
         {/* App Logo / Name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '1.25rem 1.5rem' }}>
-          <div style={{ background: 'var(--primary)', color: '#fff', padding: '6px 10px', borderRadius: '8px', fontWeight: 800, fontSize: '0.85rem' }}>TC</div>
+          <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'contain', background: '#fff', padding: '2px' }} />
           <span style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em' }}>Tumkuru Connect</span>
         </div>
 
@@ -106,13 +107,20 @@ export default function DashboardShell({
       <div className="desktop-main">
         {/* Mobile Top Bar */}
         <div className="top-bar mobile-only">
-          <div className="flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => go('profile')}>
-            {profile?.photoURL
-              ? <img src={profile.photoURL} alt="" className="avatar-sm" style={{ objectFit: 'cover' }} />
-              : <div className="avatar-sm">{name.charAt(0).toUpperCase()}</div>}
-            <div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{role}</div>
-              <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-main)' }}>{name}</div>
+          <div className="flex items-center gap-3">
+            {(activeTab !== tabs[0].id || isShell) ? (
+              <button onClick={() => { setShellTab(null); setActiveTab(tabs[0].id); }} style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
+                <ArrowLeft size={24} />
+              </button>
+            ) : null}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => go('profile')}>
+              {profile?.photoURL
+                ? <img src={profile.photoURL} alt="" className="avatar-sm" style={{ objectFit: 'cover' }} />
+                : <div className="avatar-sm">{name.charAt(0).toUpperCase()}</div>}
+              <div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{role}</div>
+                <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-main)' }}>{name}</div>
+              </div>
             </div>
           </div>
 
@@ -174,7 +182,7 @@ export default function DashboardShell({
               {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ background: 'var(--primary)', color: '#fff', padding: '4px 8px', borderRadius: '7px', fontWeight: 800, fontSize: '0.8rem' }}>TC</div>
+                  <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'contain', background: '#fff', padding: '2px' }} />
                   <span style={{ fontWeight: 800, fontSize: '1.05rem' }}>Tumkuru Connect</span>
                 </div>
                 <button onClick={() => setShowMenu(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}>
