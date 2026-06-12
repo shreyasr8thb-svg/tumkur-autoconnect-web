@@ -148,30 +148,20 @@ export default function DownloadPage({ onBack }) {
           {/* iOS Card */}
           <div style={{ width: '100%', maxWidth: '440px', background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '1.5rem', backdropFilter: 'blur(12px)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'linear-gradient(135deg,#818cf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'linear-gradient(135deg,#818cf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.8 }}>
                 <Apple size={22} color="#fff" />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '1rem' }}>iPhone / iPad</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Add to Home Screen</div>
+                <div style={{ fontWeight: 700, fontSize: '1rem', opacity: 0.8 }}>iPhone / iPad</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Coming Soon</div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {iOSInstructions.map(item => (
-                <div key={item.step} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800, color: '#818cf8', flexShrink: 0 }}>{item.step}</div>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', paddingTop: '3px' }}>{item.text}</span>
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: '12px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                Sorry for the delay! We will be available for iPhones also very soon.
+              </span>
             </div>
-
-            <button
-              onClick={() => window.open(APP_URL, '_blank')}
-              style={{ width: '100%', marginTop: '1.25rem', padding: '0.9rem', borderRadius: '12px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-            >
-              <ExternalLink size={16} /> Open in Safari
-            </button>
           </div>
         </div>
 
