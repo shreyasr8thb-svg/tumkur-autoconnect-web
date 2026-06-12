@@ -1,30 +1,40 @@
 /**
  * DashboardShell – shared layout for ALL portals
  * Uses a true responsive layout: Sidebar on Desktop, Drawer + TopBar on Mobile.
- * UI is modeled after the reference professional app (dark theme, red accents).
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Bell, Menu, X, MessageSquare, Rss,
   LogOut, Settings, Download, ChevronRight, Plus, Home, ArrowLeft
 } from 'lucide-react';
 import logo from '../assets/logo.png';
 import { useUser } from '../context/UserContext';
-import NotificationsPanel from './NotificationsPanel';
+import NotificationsPanel, { NotifToastProvider } from './NotificationsPanel';
 import ChatBox from './ChatBox';
 import CommunityFeed from './CommunityFeed';
 import DownloadPage from './DownloadPage';
 import AppFooter from './AppFooter';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export default function DashboardShell({
   role, tabs, activeTab, setActiveTab, children, extraMenuLinks = []
 }) {
-  const { profile, signOut } = useUser();
+  const { user, profile, signOut } = useUser();
   const [showNotifs, setShowNotifs] = useState(false);
   const [showMenu,   setShowMenu]   = useState(false);
   const [shellTab,   setShellTab]   = useState(null); // chat | feed | download
+  const [unreadCount, setUnreadCount] = useState(0);
 
+  const isJobFinder = profile?.role === 'jobfinder' || role === 'Job Finder';
   const name = profile?.fullName || profile?.email?.split('@')[0] || 'User';
+
+  // Real-time unread notification count
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, 'notifications'), where('userId', '==', user.uid), where('read', '==', false));
+    return onSnapshot(q, s => setUnreadCount(s.size));
+  }, [user]);
 
   const go = (t) => {
     setShowMenu(false);
@@ -78,8 +88,8 @@ export default function DashboardShell({
           </NavGroup>
 
         <NavGroup label="COMMUNITY">
-            <NavItem icon={<Rss size={18} />}           label="Feed" active={shellTab === 'feed'}     onClick={() => go('feed')} />
-            <NavItem icon={<MessageSquare size={18} />} label="Messages"        active={shellTab === 'chat'}     onClick={() => go('chat')} />
+            <NavItem icon={<Rss size={18} />} label="Feed" active={shellTab === 'feed'} onClick={() => go('feed')} />
+            {!isJobFinder && <NavItem icon={<MessageSquare size={18} />} label="Messages" active={shellTab === 'chat'} onClick={() => go('chat')} />}
           </NavGroup>
 
           {extraMenuLinks.length > 0 && (
@@ -89,9 +99,9 @@ export default function DashboardShell({
           )}
 
           <NavGroup label="APP">
-            <NavItem icon={<Bell size={18} />}     label="Notifications"                                     onClick={() => setShowNotifs(true)} />
-            <NavItem icon={<Download size={18} />} label="Download App"       active={shellTab === 'download'} onClick={() => go('download')} />
-            <NavItem icon={<Settings size={18} />} label="Settings"                                          onClick={() => go('profile')} />
+            <NavItem icon={<div style={{ position: 'relative', display: 'flex' }}><Bell size={18} />{unreadCount > 0 && <span style={{ position: 'absolute', top: -4, right: -5, background: 'var(--primary)', borderRadius: '50%', width: 10, height: 10, fontSize: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800 }}>{unreadCount > 9 ? '9+' : unreadCount}</span>}</div>} label="Notifications" onClick={() => setShowNotifs(true)} />
+            <NavItem icon={<Download size={18} />} label="Download App" active={shellTab === 'download'} onClick={() => go('download')} />
+            <NavItem icon={<Settings size={18} />} label="Settings" onClick={() => go('profile')} />
           </NavGroup>
         </div>
 
@@ -134,7 +144,7 @@ export default function DashboardShell({
             </button>
             <button onClick={() => setShowNotifs(true)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' }}>
               <Bell size={17} color="var(--text-muted)" />
-              <div style={{ position: 'absolute', top: 7, right: 7, width: 6, height: 6, background: 'var(--primary)', borderRadius: '50%' }} />
+              {unreadCount > 0 && <div style={{ position: 'absolute', top: 6, right: 6, minWidth: 8, height: 8, background: 'var(--primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />}
             </button>
             <button onClick={() => setShowMenu(true)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: '10px', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
               <Menu size={17} color="var(--text-muted)" />
@@ -167,6 +177,7 @@ export default function DashboardShell({
 
         {/* Notifications */}
         {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
+        <NotifToastProvider />
 
         {/* Mobile Drawer Menu */}
         {showMenu && (
@@ -220,8 +231,8 @@ export default function DashboardShell({
                 </NavGroup>
 
                 <NavGroup label="COMMUNITY">
-                  <NavItem icon={<Rss size={18} />}           label="Feed" active={shellTab === 'feed'}     onClick={() => go('feed')} />
-                  <NavItem icon={<MessageSquare size={18} />} label="Messages"        active={shellTab === 'chat'}     onClick={() => go('chat')} />
+                  <NavItem icon={<Rss size={18} />} label="Feed" active={shellTab === 'feed'} onClick={() => go('feed')} />
+                  {!isJobFinder && <NavItem icon={<MessageSquare size={18} />} label="Messages" active={shellTab === 'chat'} onClick={() => go('chat')} />}
                 </NavGroup>
 
                 {extraMenuLinks.length > 0 && (

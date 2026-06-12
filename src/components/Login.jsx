@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, createUserWithEmailAndPassword } from 'firebase/auth';
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
 
@@ -40,7 +40,14 @@ export default function Login({ onCreateProfile }) {
     setError('');
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      // Use redirect flow in WebView/APK, popup in browser
+      const isWebView = /; wv\)/.test(navigator.userAgent) || window.Capacitor !== undefined;
+      if (isWebView) {
+        await signInWithRedirect(auth, provider);
+        // User will be redirected; result handled on next load
+      } else {
+        await signInWithPopup(auth, provider);
+      }
     } catch (err) {
       if (err.code !== 'auth/popup-closed-by-user') {
         setError(err.message || 'Google sign in failed.');
@@ -49,6 +56,21 @@ export default function Login({ onCreateProfile }) {
       setLoading(false);
     }
   };
+
+  // Handle redirect result when returning from Google sign-in
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then(result => {
+        if (result?.user) {
+          // Auth state listener in UserContext handles the rest
+        }
+      })
+      .catch(err => {
+        if (err.code !== 'auth/no-current-user') {
+          setError(err.message || 'Google sign in failed.');
+        }
+      });
+  }, []);
 
   return (
     <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', paddingTop: '2rem' }}>
