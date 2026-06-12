@@ -79,13 +79,17 @@ jobs:
       - name: Extract SHA-1 fingerprint for Firebase
         run: |
           mkdir -p public
+          # Gradle creates ~/.android/debug.keystore automatically during assembleDebug
+          # Extract SHA-1 from it and save to a public file
           keytool -list -v \
             -keystore ~/.android/debug.keystore \
             -alias androiddebugkey \
             -storepass android \
             -keypass android 2>&1 | tee public/keystore_info.txt
+          grep "SHA1:" public/keystore_info.txt || echo "SHA1 not found - check keystore_info.txt" >> public/keystore_info.txt
           echo "---" >> public/keystore_info.txt
-          echo "Add the SHA1 above to: Firebase Console > Project Settings > Your App > Add fingerprint" >> public/keystore_info.txt
+          echo "Package: com.tumukuru.connect" >> public/keystore_info.txt
+          echo "Add SHA1 to: Firebase Console > Project spark-a73bb > Settings > Your Android App > Add fingerprint" >> public/keystore_info.txt
 
       - name: Copy APK to public folder and Commit
         run: |
