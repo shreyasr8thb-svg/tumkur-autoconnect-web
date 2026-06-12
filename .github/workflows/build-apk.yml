@@ -106,8 +106,10 @@ jobs:
             cp android/app/build/outputs/apk/debug/app-debug.apk public/TumkuruConnect.apk
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            # Force-add built web assets (ignored by android/.gitignore but needed for next build)
+            git add -f android/app/src/main/assets/public/ || true
             git add public/TumkuruConnect.apk public/keystore_info.txt
-            git commit -m "chore: Add latest APK build and keystore info for Firebase" || echo "No changes to commit"
+            git commit -m "chore: Update APK and web assets [skip ci]" || echo "No changes to commit"
             git push origin HEAD:main
           else
             echo "APK build failed. Committing logs..."
