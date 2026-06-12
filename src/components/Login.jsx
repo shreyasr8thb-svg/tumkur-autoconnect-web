@@ -4,35 +4,28 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  getRedirectResult
+  onAuthStateChanged
 } from 'firebase/auth';
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
 
-// Detect Android WebView — Google blocks OAuth here since Jan 2021
-const isAndroidWebView = () => {
-  const ua = navigator.userAgent;
-  return (
-    /wv\)/.test(ua) ||             // WebView flag
-    /Version\/\d/.test(ua) ||      // Android browser
-    window.Capacitor !== undefined  // Capacitor runtime
-  );
-};
-
-const IN_APP = isAndroidWebView();
+// Detect if running inside Android Capacitor WebView
+const isCapacitor = () =>
+  typeof window !== 'undefined' &&
+  (window.Capacitor !== undefined || /wv\)/.test(navigator.userAgent));
 
 export default function Login({ onCreateProfile }) {
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [showAppInfo, setShowAppInfo] = useState(false);
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [error, setError]         = useState('');
+  const [loading, setLoading]     = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  /* Handle redirect result on web (ignored in APK) */
-  useEffect(() => {
-    if (IN_APP) return;
-    getRedirectResult(auth).catch(() => {});
-  }, []);
+  const IN_APP = isCapacitor();
+
+  // When the app returns from Chrome after Google auth,
+  // Firebase auth state listener in UserContext picks it up automatically.
+  // No extra handler needed.
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -57,8 +50,9 @@ export default function Login({ onCreateProfile }) {
     }
   };
 
+  /* ─── Google Sign-in (web browser only) ─── */
   const handleGoogleSignIn = async () => {
-    setLoading(true);
+    setGoogleLoading(true);
     setError('');
     try {
       const provider = new GoogleAuthProvider();
@@ -68,20 +62,44 @@ export default function Login({ onCreateProfile }) {
         setError(err.message || 'Google sign in failed.');
       }
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
+  };
+
+  /* ─── Open website in Chrome for Google sign-in (APK only) ─── */
+  const handleGoogleInApp = () => {
+    // Open the live Tumkuru Connect website in Chrome where Google auth works
+    const webUrl = 'https://tumkur-autoconnect-web.vercel.app';
+    // window.open with _system opens Chrome on Android (not WebView)
+    window.open(webUrl, '_system');
+    setError('');
+    // Show helpful info
+    setError('Opening website in Chrome... Sign in with Google there, then come back to the app and sign in with email.');
   };
 
   return (
     <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', paddingTop: '2rem' }}>
       <div className="mb-4 text-center">
-        <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '64px', height: '64px', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: '16px' }} />
+        <img
+          src={logo}
+          alt="Tumkuru Connect Logo"
+          style={{ width: '72px', height: '72px', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: '18px', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }}
+        />
         <h2 className="text-white">Welcome Back</h2>
         <p>Login to your Tumkuru Connect account</p>
       </div>
 
       <form onSubmit={handleEmailSignIn} className="flex-col gap-3">
-        {error && <div className="error-banner">{error}</div>}
+        {error && (
+          <div style={{
+            background: error.includes('Opening') ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)',
+            border: `1px solid ${error.includes('Opening') ? 'rgba(59,130,246,0.3)' : 'rgba(239,68,68,0.3)'}`,
+            color: error.includes('Opening') ? '#93c5fd' : '#f87171',
+            padding: '0.75rem 1rem', borderRadius: '12px', fontSize: '0.83rem', lineHeight: 1.5
+          }}>
+            {error}
+          </div>
+        )}
 
         <div className="input-group">
           <label className="input-label">Email Address</label>
@@ -113,52 +131,35 @@ export default function Login({ onCreateProfile }) {
 
         <div className="divider-line"><span>OR</span></div>
 
-        {/* Google Sign-in: works on web browser, shows info banner in APK */}
-        {IN_APP ? (
-          <div
-            style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '14px', padding: '0.85rem 1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => setShowAppInfo(v => !v)}
-          >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px', opacity: 0.5 }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', fontWeight: 600 }}>Google Sign-in</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Available on web — tap to learn more</div>
-            </div>
-            <span style={{ fontSize: '0.7rem', color: '#60a5fa' }}>{showAppInfo ? '▲' : '▼'}</span>
-          </div>
-        ) : (
+        {/* Web browser: full Google popup */}
+        {!IN_APP && (
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={googleLoading}
             className="btn btn-google"
           >
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
-            Sign in with Google
+            {googleLoading ? 'Signing in...' : 'Sign in with Google'}
           </button>
         )}
 
-        {/* Info banner shown when user taps the disabled Google button in APK */}
-        {IN_APP && showAppInfo && (
-          <div style={{
-            background: 'rgba(59,130,246,0.08)',
-            border: '1px solid rgba(59,130,246,0.2)',
-            borderRadius: '12px', padding: '0.9rem 1rem',
-            fontSize: '0.82rem', color: '#93c5fd', lineHeight: 1.6
-          }}>
-            <div style={{ fontWeight: 700, marginBottom: '4px', color: '#60a5fa' }}>ℹ️ About Google Sign-in</div>
-            Google has restricted OAuth login inside Android apps for security reasons.
-            <br /><br />
-            ✅ Use <strong>Email + Password</strong> in this app (works perfectly)<br />
-            🌐 Use Google sign-in on our <strong>website</strong> at your browser
-            <br /><br />
-            <strong>Don't have an account?</strong> Tap "Create New Profile" below.
+        {/* APK: open website in Chrome for Google auth */}
+        {IN_APP && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={handleGoogleInApp}
+              className="btn btn-google"
+              style={{ opacity: 0.9 }}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
+              Sign in with Google (opens Chrome)
+            </button>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.4 }}>
+              🌐 Google sign-in opens in Chrome for security.
+              After signing in, return here and use email login.
+            </div>
           </div>
         )}
 
