@@ -16,16 +16,63 @@ Starting a Gradle Daemon (subsequent builds will be faster)
 > Configure project :app
 WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
 
+> Configure project :capacitor-cordova-android-plugins
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :capacitor-android:preBuild UP-TO-DATE
+> Task :capacitor-android:preDebugBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preDebugBuild UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :capacitor-cordova-android-plugins:writeDebugAarMetadata
+> Task :capacitor-android:writeDebugAarMetadata
+> Task :capacitor-android:processDebugNavigationResources
+> Task :capacitor-cordova-android-plugins:processDebugNavigationResources
+> Task :app:checkDebugAarMetadata
+> Task :app:processDebugNavigationResources
+> Task :app:generateDebugResValues
+> Task :app:compileDebugNavigationResources
+> Task :capacitor-android:generateDebugResValues
+> Task :capacitor-android:generateDebugResources
+> Task :capacitor-android:packageDebugResources
+> Task :capacitor-cordova-android-plugins:generateDebugResValues
+> Task :capacitor-cordova-android-plugins:generateDebugResources
+> Task :capacitor-cordova-android-plugins:packageDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :capacitor-android:extractDeepLinksDebug
+> Task :capacitor-cordova-android-plugins:extractDeepLinksDebug
+> Task :capacitor-android:compileDebugLibraryResources
+> Task :capacitor-android:parseDebugLocalResources
+> Task :app:parseDebugLocalResources
+> Task :capacitor-cordova-android-plugins:compileDebugLibraryResources
+> Task :capacitor-android:processDebugManifest
+> Task :capacitor-android:generateDebugRFile
+> Task :capacitor-cordova-android-plugins:processDebugManifest
+> Task :capacitor-cordova-android-plugins:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :capacitor-android:javaPreCompileDebug
+> Task :capacitor-cordova-android-plugins:generateDebugRFile
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :capacitor-android:compileDebugJavaWithJavac FAILED
+
 [Incubating] Problems report is available at: file:///home/runner/work/tumkur-autoconnect-web/tumkur-autoconnect-web/android/build/reports/problems/problems-report.html
 
 FAILURE: Build failed with an exception.
 
-* Where:
-Script '/home/runner/work/tumkur-autoconnect-web/tumkur-autoconnect-web/android/app/capacitor.build.gradle' line: 10
-
 * What went wrong:
-A problem occurred evaluating script.
-> Could not read script '/home/runner/work/tumkur-autoconnect-web/tumkur-autoconnect-web/android/capacitor-cordova-android-plugins/cordova.variables.gradle' as it does not exist.
+Execution failed for task ':capacitor-android:compileDebugJavaWithJavac'.
+> Java compilation initialization error
+    error: invalid source release: 21
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
@@ -33,10 +80,5 @@ A problem occurred evaluating script.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
-
-You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
-
-For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
-
-BUILD FAILED in 26s
+BUILD FAILED in 55s
+38 actionable tasks: 38 executed
