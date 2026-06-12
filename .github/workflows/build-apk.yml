@@ -26,7 +26,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       # ── 3. Inject google-services.json from GitHub Secret ─────────────────────
       # Store the file contents as a repo secret named GOOGLE_SERVICES_JSON

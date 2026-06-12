@@ -4,8 +4,7 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithCredential,
 } from 'firebase/auth';
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
@@ -23,29 +22,6 @@ export default function Login({ onCreateProfile }) {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const IN_APP = isCapacitor();
-
-  // ── On mount: capture the result when Firebase redirects back to the app ──
-  // This fires after a signInWithRedirect() completes and the WebView reloads.
-  useEffect(() => {
-    if (!IN_APP) return; // Only needed inside Capacitor/WebView
-
-    setGoogleLoading(true);
-    getRedirectResult(auth)
-      .then((result) => {
-        // result is null if no redirect was pending — that's fine.
-        if (result?.user) {
-          // Auth state listener in UserContext will pick this up automatically.
-          console.log('Google redirect sign-in success:', result.user.email);
-        }
-      })
-      .catch((err) => {
-        // Ignore "popup closed" or "no redirect" — only show real errors
-        if (err.code && err.code !== 'auth/no-current-user') {
-          setError('Google sign-in failed: ' + (err.message || err.code));
-        }
-      })
-      .finally(() => setGoogleLoading(false));
-  }, [IN_APP]);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -70,24 +46,52 @@ export default function Login({ onCreateProfile }) {
     }
   };
 
-  /* ─── Google Sign-in: popup for web, redirect for APK ─── */
+  /* ─── Google Sign-In ─── */
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setError('');
-    const provider = new GoogleAuthProvider();
 
     if (IN_APP) {
-      // In Capacitor WebView: use redirect (popup is blocked by WebView)
+      // ── Native Android Google Sign-In (no browser opens) ──────────────────
+      // Uses @codetrix-studio/capacitor-google-auth which calls the native
+      // Android Google Sign-In SDK, returning an idToken we pass to Firebase.
       try {
-        await signInWithRedirect(auth, provider);
-        // App will reload after redirect; getRedirectResult() above handles the result.
+        // Dynamically import to avoid errors on web where the native plugin isn't available
+        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
+
+        // Initialize the plugin (reads serverClientId from capacitor.config.json)
+        await GoogleAuth.initialize({
+          clientId: '726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com',
+          scopes: ['profile', 'email'],
+          grantOfflineAccess: true,
+        });
+
+        // This shows the native Google account picker — no Chrome, stays in app
+        const googleUser = await GoogleAuth.signIn();
+
+        if (!googleUser?.authentication?.idToken) {
+          throw new Error('No ID token returned from Google Sign-In.');
+        }
+
+        // Exchange the native ID token for a Firebase credential
+        const credential = GoogleAuthProvider.credential(
+          googleUser.authentication.idToken
+        );
+        await signInWithCredential(auth, credential);
+        // onAuthStateChanged in UserContext will pick up the user automatically
       } catch (err) {
-        setError('Could not start Google sign-in: ' + (err.message || err.code));
+        if (err.message?.includes('12501') || err.message?.includes('cancelled')) {
+          // User cancelled — don't show an error
+        } else {
+          setError('Google sign-in failed: ' + (err.message || String(err)));
+        }
+      } finally {
         setGoogleLoading(false);
       }
     } else {
-      // In normal browser: use popup
+      // ── Web browser: standard popup ────────────────────────────────────────
       try {
+        const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
       } catch (err) {
         if (err.code !== 'auth/popup-closed-by-user') {
@@ -159,7 +163,11 @@ export default function Login({ onCreateProfile }) {
           disabled={googleLoading}
           className="btn btn-google"
         >
-          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+            alt="G"
+            style={{ width: '18px' }}
+          />
           {googleLoading ? 'Signing in...' : 'Sign in with Google'}
         </button>
 
