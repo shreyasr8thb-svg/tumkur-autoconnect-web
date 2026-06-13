@@ -85,11 +85,46 @@ jobs:
           mkdir -p ~/.android
           cp android/debug.keystore ~/.android/debug.keystore
           echo "=== Keystore SHA-1 ==="
-          keytool -list -v \
+          KEYSTORE_SHA1=$(keytool -list -v \
             -keystore ~/.android/debug.keystore \
             -alias androiddebugkey \
             -storepass android \
-            -keypass android 2>&1 | grep "SHA1:"
+            -keypass android 2>&1 | grep "SHA1:" | awk '{print $2}' | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          echo "Keystore SHA-1: $KEYSTORE_SHA1"
+
+          # Extract SHA-1 from google-services.json and compare
+          GS_SHA1=$(python3 -c "
+          import json, sys
+          data = json.load(open('android/app/google-services.json'))
+          clients = data.get('client', [])
+          for c in clients:
+              for o in c.get('oauth_client', []):
+                  info = o.get('android_info', {})
+                  if info.get('package_name') == 'com.tumukuru.connect':
+                      print(info.get('certificate_hash', '').lower())
+                      sys.exit(0)
+          print('')
+          ")
+          echo "google-services.json SHA-1: $GS_SHA1"
+
+          if [ "$KEYSTORE_SHA1" != "$GS_SHA1" ]; then
+            echo "❌ SHA-1 MISMATCH! Keystore=$KEYSTORE_SHA1 vs google-services.json=$GS_SHA1"
+            echo "   Update the certificate_hash in google-services.json or recommit the debug.keystore."
+            exit 1
+          fi
+          echo "✅ SHA-1 fingerprints match — Google Auth will work"
+
+      # ── 8b. Verify Google Auth build flag ────────────────────────────────────
+      - name: Verify rgcfaIncludeGoogle flag
+        run: |
+          if grep -q "rgcfaIncludeGoogle=1" android/gradle.properties; then
+            echo "✅ rgcfaIncludeGoogle=1 is set — native Google Sign-In will be compiled in"
+          else
+            echo "❌ MISSING: rgcfaIncludeGoogle=1 not found in android/gradle.properties"
+            echo "   This flag is required by @capacitor-firebase/authentication."
+            echo "   Google Sign-In will crash at runtime without it!"
+            exit 1
+          fi
 
       # ── 9. Build APK ─────────────────────────────────────────────────────────
       - name: Build debug APK

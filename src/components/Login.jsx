@@ -53,7 +53,8 @@ export default function Login({ onCreateProfile }) {
           '@capacitor-firebase/authentication'
         );
 
-        // Trigger the native Google account picker
+        // Trigger the native Google account picker.
+        // webClientId must be the OAuth 2.0 web client (type 3) from google-services.json
         const result = await FirebaseAuthentication.signInWithGoogle();
 
         const idToken     = result?.credential?.idToken;
@@ -72,14 +73,26 @@ export default function Login({ onCreateProfile }) {
 
       } catch (err) {
         const msg = String(err?.message || err);
+        const code = String(err?.code || '');
+
         // 12501 / CANCELED = user dismissed the account picker — not an error
         if (
-          !msg.includes('12501') &&
-          !msg.toLowerCase().includes('cancel') &&
-          !msg.includes('CANCELED')
+          msg.includes('12501') ||
+          msg.toLowerCase().includes('cancel') ||
+          msg.includes('CANCELED')
         ) {
+          // User cancelled — silently ignore
+        } else if (msg.includes('12500') || code.includes('12500')) {
+          // Developer error: SHA-1 / package name mismatch in Firebase Console
+          console.error('[Google Auth] Developer error (12500):', msg);
+          setError('Google sign-in configuration error. Please contact support (code: 12500).');
+        } else if (msg.includes('10:') || msg.includes('error code: 10')) {
+          // Wrong OAuth client ID configured
+          console.error('[Google Auth] OAuth client error (10):', msg);
+          setError('Google sign-in setup error. Please contact support (code: 10).');
+        } else {
           console.error('[Google Auth] Native error:', msg);
-          setError('Google sign-in failed: ' + msg);
+          setError('Google sign-in failed. Please try again or use email login.');
         }
       } finally {
         setGLoading(false);

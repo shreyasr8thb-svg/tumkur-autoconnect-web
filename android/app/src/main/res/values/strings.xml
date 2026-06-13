@@ -4,5 +4,7 @@
     <string name="title_activity_main">Tumukuru Connect</string>
     <string name="package_name">com.tumukuru.connect</string>
     <string name="custom_url_scheme">com.tumukuru.connect</string>
+    <!-- Web OAuth client ID (type 3) — used by native Google Sign-In to get an ID token for Firebase -->
     <string name="server_client_id">726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com</string>
 </resources>
