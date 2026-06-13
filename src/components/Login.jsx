@@ -6,8 +6,85 @@ import {
   signInWithPopup,
   signInWithCredential,
 } from 'firebase/auth';
+import { Download, CheckCircle2, Smartphone } from 'lucide-react';
 import logo from '../assets/logo.png';
-import DownloadPromo from './DownloadPromo';
+
+const APK_URL = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk';
+
+function AppDownloadBanner() {
+  const [status, setStatus] = useState('idle'); // idle | done
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  // Hide banner inside the native app — no need to download if already installed
+  const isNative = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.() === true;
+  if (isNative) return null;
+
+  const handleDownload = () => {
+    const a = document.createElement('a');
+    a.href = APK_URL;
+    a.download = 'TumkuruConnect.apk';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setStatus('done');
+    setTimeout(() => setStatus('idle'), 5000);
+  };
+
+  return (
+    <div style={{
+      background: 'linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(15,23,42,0.95) 100%)',
+      border: '1px solid rgba(239,68,68,0.3)',
+      borderRadius: '18px',
+      padding: '1.1rem 1.25rem',
+      marginBottom: '1.5rem',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Glow accent */}
+      <div style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, background: 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
+        <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'linear-gradient(135deg,#ef4444,#b91c1c)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Smartphone size={18} color="#fff" />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#fff', lineHeight: 1.2 }}>
+            Download Tumkuru Connect App
+          </div>
+          <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>
+            Android APK · Auto-updated · 55 MB
+          </div>
+        </div>
+        {/* Live badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '9999px', padding: '3px 9px' }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} className="animate-pulse" />
+          <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.03em' }}>LATEST</span>
+        </div>
+      </div>
+
+      <button
+        onClick={handleDownload}
+        style={{
+          width: '100%', padding: '0.75rem', borderRadius: '12px',
+          background: status === 'done' ? '#22c55e' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+          color: '#fff', fontWeight: 700, fontSize: '0.9rem',
+          border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+          boxShadow: status === 'done' ? '0 4px 15px rgba(34,197,94,0.4)' : '0 4px 15px rgba(239,68,68,0.4)',
+          transition: 'all 0.3s ease',
+        }}
+      >
+        {status === 'done' ? <CheckCircle2 size={17} /> : <Download size={17} />}
+        {status === 'done' ? '✓ Download Started! Check your downloads folder' : 'Download APK — Free'}
+      </button>
+
+      {isAndroid && status === 'idle' && (
+        <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '0.5rem', lineHeight: 1.5 }}>
+          After download: open APK → tap Install → allow "Unknown sources" if asked
+        </p>
+      )}
+    </div>
+  );
+}
 
 const isNativeAndroid = () =>
   typeof window !== 'undefined' &&
@@ -121,7 +198,10 @@ export default function Login({ onCreateProfile }) {
 
   /* ── Render ─────────────────────────────────────────────────────────────── */
   return (
-    <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', paddingTop: '2rem' }}>
+    <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', paddingTop: '1.25rem' }}>
+      {/* ── Download banner (shown to all visitors before login) ── */}
+      <AppDownloadBanner />
+
       <div className="mb-4 text-center">
         <img src={logo} alt="Logo" style={{ width: '72px', height: '72px', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: '18px', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }} />
         <h2 className="text-white">Welcome Back</h2>
@@ -161,9 +241,6 @@ export default function Login({ onCreateProfile }) {
         </button>
       </form>
 
-      <div style={{ marginTop: '2rem' }}>
-        <DownloadPromo />
-      </div>
     </div>
   );
 }
