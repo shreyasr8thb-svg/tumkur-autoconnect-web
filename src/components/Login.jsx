@@ -11,10 +11,9 @@ import logo from '../assets/logo.png';
 
 const APK_URL = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk';
 
-function AppDownloadBanner() {
+function AppDownloadBanner({ compact, full }) {
   const [status, setStatus] = useState('idle'); // idle | done
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  // Hide banner inside the native app — no need to download if already installed
+  // Hide inside the native app — no need to download if already installed
   const isNative = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.() === true;
   if (isNative) return null;
 
@@ -29,33 +28,57 @@ function AppDownloadBanner() {
     setTimeout(() => setStatus('idle'), 5000);
   };
 
-  return (
+  // ── Compact variant: single slim bar ──
+  if (compact) return (
+    <button
+      onClick={handleDownload}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        width: '100%', padding: '0.6rem 1rem', marginBottom: '1rem',
+        background: status === 'done' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.1)',
+        border: `1px solid ${status === 'done' ? 'rgba(34,197,94,0.35)' : 'rgba(239,68,68,0.35)'}`,
+        borderRadius: '12px', cursor: 'pointer', transition: 'all 0.3s',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Smartphone size={15} color={status === 'done' ? '#4ade80' : '#ef4444'} />
+        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: status === 'done' ? '#4ade80' : '#f87171' }}>
+          {status === 'done' ? '✓ Download started! Check your files' : '📲 Download the Android App — Free'}
+        </span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '9999px', padding: '2px 8px' }}>
+        <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e' }} className="animate-pulse" />
+        <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#4ade80' }}>LATEST</span>
+      </div>
+    </button>
+  );
+
+  // ── Full variant: large download card ──
+  if (full) return (
     <div style={{
-      background: 'linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(15,23,42,0.95) 100%)',
-      border: '1px solid rgba(239,68,68,0.3)',
-      borderRadius: '18px',
-      padding: '1.1rem 1.25rem',
-      marginBottom: '1.5rem',
+      marginTop: '1.5rem',
+      background: 'linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(15,23,42,0.98) 100%)',
+      border: '1px solid rgba(239,68,68,0.25)',
+      borderRadius: '20px',
+      padding: '1.25rem',
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Glow accent */}
-      <div style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, background: 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: -40, right: -20, width: 150, height: 150, background: 'radial-gradient(circle, rgba(239,68,68,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
-        <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'linear-gradient(135deg,#ef4444,#b91c1c)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Smartphone size={18} color="#fff" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+        <div style={{ width: 42, height: 42, borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#b91c1c)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 15px rgba(239,68,68,0.35)' }}>
+          <Smartphone size={20} color="#fff" />
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#fff', lineHeight: 1.2 }}>
-            Download Tumkuru Connect App
+          <div style={{ fontWeight: 800, fontSize: '1rem', color: '#fff', lineHeight: 1.2 }}>
+            Get the App on Android
           </div>
-          <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>
-            Android APK · Auto-updated · 55 MB
+          <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', marginTop: '2px' }}>
+            Auto-updated every time there's a new version
           </div>
         </div>
-        {/* Live badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '9999px', padding: '3px 9px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '9999px', padding: '3px 9px', flexShrink: 0 }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} className="animate-pulse" />
           <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.03em' }}>LATEST</span>
         </div>
@@ -64,27 +87,31 @@ function AppDownloadBanner() {
       <button
         onClick={handleDownload}
         style={{
-          width: '100%', padding: '0.75rem', borderRadius: '12px',
+          width: '100%', padding: '0.85rem', borderRadius: '13px',
           background: status === 'done' ? '#22c55e' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-          color: '#fff', fontWeight: 700, fontSize: '0.9rem',
+          color: '#fff', fontWeight: 700, fontSize: '0.95rem',
           border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-          boxShadow: status === 'done' ? '0 4px 15px rgba(34,197,94,0.4)' : '0 4px 15px rgba(239,68,68,0.4)',
+          boxShadow: status === 'done' ? '0 4px 15px rgba(34,197,94,0.4)' : '0 4px 20px rgba(239,68,68,0.4)',
           transition: 'all 0.3s ease',
         }}
       >
-        {status === 'done' ? <CheckCircle2 size={17} /> : <Download size={17} />}
-        {status === 'done' ? '✓ Download Started! Check your downloads folder' : 'Download APK — Free'}
+        {status === 'done' ? <CheckCircle2 size={18} /> : <Download size={18} />}
+        {status === 'done' ? '✓ Download Started — Check your Downloads folder' : 'Download APK — Free'}
       </button>
 
-      {isAndroid && status === 'idle' && (
-        <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '0.5rem', lineHeight: 1.5 }}>
-          After download: open APK → tap Install → allow "Unknown sources" if asked
+      {status === 'idle' && (
+        <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: '0.6rem', lineHeight: 1.5 }}>
+          After download: Open the APK file → tap Install → allow "Unknown sources" if asked
         </p>
       )}
     </div>
   );
+
+  return null;
 }
+
+
 
 const isNativeAndroid = () =>
   typeof window !== 'undefined' &&
@@ -198,9 +225,10 @@ export default function Login({ onCreateProfile }) {
 
   /* ── Render ─────────────────────────────────────────────────────────────── */
   return (
-    <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', paddingTop: '1.25rem' }}>
-      {/* ── Download banner (shown to all visitors before login) ── */}
-      <AppDownloadBanner />
+    <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', padding: '1.25rem' }}>
+
+      {/* ── Compact sticky download pill at the top ── */}
+      <AppDownloadBanner compact />
 
       <div className="mb-4 text-center">
         <img src={logo} alt="Logo" style={{ width: '72px', height: '72px', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: '18px', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }} />
@@ -241,6 +269,10 @@ export default function Login({ onCreateProfile }) {
         </button>
       </form>
 
+      {/* ── Full download card below form (always reachable by scrolling) ── */}
+      <AppDownloadBanner full />
+
     </div>
   );
 }
+
