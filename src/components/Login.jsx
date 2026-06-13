@@ -6,8 +6,9 @@ import {
   signInWithPopup,
   signInWithCredential,
 } from 'firebase/auth';
-import { Download, CheckCircle2, Smartphone } from 'lucide-react';
+import { Smartphone } from 'lucide-react';
 import logo from '../assets/logo.png';
+import DownloadPromo from './DownloadPromo';
 
 const APK_URL = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk';
 
@@ -53,60 +54,8 @@ function AppDownloadBanner({ compact, full }) {
     </button>
   );
 
-  // ── Full variant: large download card ──
-  if (full) return (
-    <div style={{
-      marginTop: '1.5rem',
-      background: 'linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(15,23,42,0.98) 100%)',
-      border: '1px solid rgba(239,68,68,0.25)',
-      borderRadius: '20px',
-      padding: '1.25rem',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      <div style={{ position: 'absolute', top: -40, right: -20, width: 150, height: 150, background: 'radial-gradient(circle, rgba(239,68,68,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-        <div style={{ width: 42, height: 42, borderRadius: '12px', background: 'linear-gradient(135deg,#ef4444,#b91c1c)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 15px rgba(239,68,68,0.35)' }}>
-          <Smartphone size={20} color="#fff" />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: '1rem', color: '#fff', lineHeight: 1.2 }}>
-            Get the App on Android
-          </div>
-          <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', marginTop: '2px' }}>
-            Auto-updated every time there's a new version
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '9999px', padding: '3px 9px', flexShrink: 0 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} className="animate-pulse" />
-          <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.03em' }}>LATEST</span>
-        </div>
-      </div>
-
-      <button
-        onClick={handleDownload}
-        style={{
-          width: '100%', padding: '0.85rem', borderRadius: '13px',
-          background: status === 'done' ? '#22c55e' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-          color: '#fff', fontWeight: 700, fontSize: '0.95rem',
-          border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-          boxShadow: status === 'done' ? '0 4px 15px rgba(34,197,94,0.4)' : '0 4px 20px rgba(239,68,68,0.4)',
-          transition: 'all 0.3s ease',
-        }}
-      >
-        {status === 'done' ? <CheckCircle2 size={18} /> : <Download size={18} />}
-        {status === 'done' ? '✓ Download Started — Check your Downloads folder' : 'Download APK — Free'}
-      </button>
-
-      {status === 'idle' && (
-        <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: '0.6rem', lineHeight: 1.5 }}>
-          After download: Open the APK file → tap Install → allow "Unknown sources" if asked
-        </p>
-      )}
-    </div>
-  );
+  // full variant delegates to the themed DownloadPromo component
+  if (full) return <DownloadPromo />;
 
   return null;
 }
