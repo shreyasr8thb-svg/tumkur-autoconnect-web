@@ -101,14 +101,21 @@ export default function Login({ onCreateProfile }) {
       // ─── Native Android path ───────────────────────────────────────────
       // Uses @capacitor-firebase/authentication which calls the native
       // Google Sign-In SDK directly — no browser redirect needed.
+      //
+      // IMPORTANT: useCredentialManager: false is required.
+      // The Credential Manager API (default) is called with Application context
+      // instead of Activity context inside the plugin, causing silent failures
+      // on many devices. The classic GoogleSignIn intent flow is reliable.
       try {
         const { FirebaseAuthentication } = await import(
           '@capacitor-firebase/authentication'
         );
 
         // Trigger the native Google account picker.
-        // webClientId must be the OAuth 2.0 web client (type 3) from google-services.json
-        const result = await FirebaseAuthentication.signInWithGoogle();
+        // useCredentialManager:false forces the stable GoogleSignIn intent API.
+        const result = await FirebaseAuthentication.signInWithGoogle({
+          useCredentialManager: false,
+        });
 
         const idToken     = result?.credential?.idToken;
         const accessToken = result?.credential?.accessToken;
@@ -128,6 +135,8 @@ export default function Login({ onCreateProfile }) {
         const msg = String(err?.message || err);
         const code = String(err?.code || '');
 
+        console.error('[Google Auth] Native error details:', { msg, code, err });
+
         // 12501 / CANCELED = user dismissed the account picker — not an error
         if (
           msg.includes('12501') ||
@@ -138,11 +147,15 @@ export default function Login({ onCreateProfile }) {
         } else if (msg.includes('12500') || code.includes('12500')) {
           // Developer error: SHA-1 / package name mismatch in Firebase Console
           console.error('[Google Auth] Developer error (12500):', msg);
-          setError('Google sign-in configuration error. Please contact support (code: 12500).');
-        } else if (msg.includes('10:') || msg.includes('error code: 10')) {
+          setError('Configuration error (12500). SHA-1 mismatch — contact support.');
+        } else if (msg.includes('10:') || msg.includes('error code: 10') || code === '10') {
           // Wrong OAuth client ID configured
           console.error('[Google Auth] OAuth client error (10):', msg);
-          setError('Google sign-in setup error. Please contact support (code: 10).');
+          setError('OAuth client error (10). Please contact support.');
+        } else if (msg.includes('NO_CREDENTIAL') || msg.includes('GetCredentialException')) {
+          // Credential Manager failed — this should not happen with useCredentialManager:false
+          console.error('[Google Auth] Credential Manager error:', msg);
+          setError('Google sign-in unavailable on this device. Please use email login.');
         } else {
           console.error('[Google Auth] Native error:', msg);
           setError('Google sign-in failed. Please try again or use email login.');
