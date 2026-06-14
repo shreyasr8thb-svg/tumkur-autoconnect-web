@@ -8,17 +8,44 @@ import JobFinderDashboard from './components/JobFinderDashboard'
 import DriverDashboard from './components/DriverDashboard'
 import HRDashboard from './components/HRDashboard'
 import SOSAlert from './components/SOSAlert'
+import NativeLoginFallback from './components/NativeLoginFallback'
+import { App as CapacitorApp } from '@capacitor/app'
+import { auth } from './firebase'
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth'
 
 function AppContent() {
   const { user, profile, loading, toast, signOut } = useUser()
-  const [showSplash, setShowSplash] = useState(true)
+  const [showSplash, setShowSplash] = useState(window.location.pathname !== '/native-login')
   const [showCreate, setShowCreate] = useState(false)
+
+  useEffect(() => {
+    // Intercept deep links from the native fallback
+    const listener = CapacitorApp.addListener('appUrlOpen', async data => {
+      if (data.url.includes('tumkuruconnect://login')) {
+        const url = new URL(data.url);
+        const idToken = url.searchParams.get('idToken');
+        if (idToken) {
+          try {
+            const credential = GoogleAuthProvider.credential(idToken);
+            await signInWithCredential(auth, credential);
+          } catch (e) {
+            console.error("Deep link auth failed", e);
+          }
+        }
+      }
+    });
+    return () => { listener.then(l => l.remove()); }
+  }, []);
 
   const handleSOS = () => {
     window.location.href = 'tel:112'
   }
 
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2200); return () => clearTimeout(t); }, [])
+
+  if (window.location.pathname === '/native-login') {
+    return <NativeLoginFallback />
+  }
 
   if (showSplash) return <div className="app-shell"><Splash /></div>
 

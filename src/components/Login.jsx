@@ -121,7 +121,13 @@ export default function Login({ onCreateProfile }) {
         } else if (msg.includes('12500') || code.includes('12500')) {
           setError('Google Auth failed (12500). If you built this locally, your local SHA-1 is not in Firebase. Please use the APK from the website or use Email Login.');
         } else if (msg.includes('10:') || msg.includes('error code: 10') || code === '10') {
-          setError('Google Auth failed (10). OAuth client ID mismatch. Please use Email Login.');
+          // Fallback to Web Browser Auth
+          setError('Native Google Sign-In unavailable. Opening secure browser login...');
+          import('@capacitor/browser').then(({ Browser }) => {
+            Browser.open({ url: 'https://tumkur-autoconnect-web.vercel.app/native-login' });
+          }).catch(err => {
+            setError('Could not open browser fallback. Please use Email Login.');
+          });
         } else {
           setError(`Google sign-in unavailable: ${msg}. Please use Email Login.`);
         }
