@@ -12,6 +12,7 @@ import NativeLoginFallback from './components/NativeLoginFallback'
 import { App as CapacitorApp } from '@capacitor/app'
 import { auth } from './firebase'
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth'
+import { Analytics } from '@vercel/analytics/react'
 
 function AppContent() {
   const { user, profile, loading, toast, signOut } = useUser()
@@ -130,6 +131,7 @@ export default function App() {
     <ErrorBoundary>
       <UserProvider>
         <AppContent />
+        <Analytics />
       </UserProvider>
     </ErrorBoundary>
   );
