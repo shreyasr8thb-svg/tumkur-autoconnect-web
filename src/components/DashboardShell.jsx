@@ -100,7 +100,7 @@ export default function DashboardShell({
 
           <NavGroup label="APP">
             <NavItem icon={<div style={{ position: 'relative', display: 'flex' }}><Bell size={18} />{unreadCount > 0 && <span style={{ position: 'absolute', top: -4, right: -5, background: 'var(--primary)', borderRadius: '50%', width: 10, height: 10, fontSize: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800 }}>{unreadCount > 9 ? '9+' : unreadCount}</span>}</div>} label="Notifications" onClick={() => setShowNotifs(true)} />
-            <NavItem icon={<Download size={18} />} label="Download App" active={shellTab === 'download'} onClick={() => go('download')} />
+            <NavItem icon={<Download size={18} />} label="Download App" onClick={() => window.open('https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk', '_blank')} />
             <NavItem icon={<Settings size={18} />} label="Settings" onClick={() => go('profile')} />
           </NavGroup>
         </div>
@@ -242,7 +242,7 @@ export default function DashboardShell({
                 )}
 
                 <NavGroup label="APP">
-                  <NavItem icon={<Download size={18} />} label="Download App"       active={shellTab === 'download'} onClick={() => go('download')} />
+                  <NavItem icon={<Download size={18} />} label="Download App" onClick={() => window.open('https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk', '_blank')} />
                   <NavItem icon={<Settings size={18} />} label="Settings"                                            onClick={() => go('profile')} />
                 </NavGroup>
               </div>

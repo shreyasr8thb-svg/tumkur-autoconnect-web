@@ -183,92 +183,7 @@ export default function RideHailing({ onBack }) {
 
   const cancelRide = () => deleteDoc(doc(db, 'rides', user.uid));
 
-  if (step === 'home' && !ride) {
-    return (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50, background: '#121212', overflowY: 'auto', paddingBottom: '80px' }}>
-        {/* Header Tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
-          {onBack && (
-            <div onClick={onBack} style={{ position: 'absolute', left: '1rem', cursor: 'pointer', padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ArrowLeft size={20} color="#fff" />
-            </div>
-          )}
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#fff', cursor: 'pointer' }}>
-              <Car size={24} color="#fff" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>TC Ride</span>
-              <div style={{ width: '32px', height: 3, background: '#fff', borderRadius: 2, marginTop: 2 }} />
-            </div>
-          </div>
-        </div>
 
-        <div style={{ padding: '1rem' }}>
-          {/* Search Pill */}
-          <div onClick={() => setStep('input')} style={{ background: '#27272a', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '12px 16px', gap: '12px', cursor: 'pointer', marginBottom: '1.5rem' }}>
-            <Search size={22} color="#f8fafc" />
-            <span style={{ flex: 1, fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc' }}>Where to? (or tap map)</span>
-            <div style={{ background: '#18181b', borderRadius: '100px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={16} color="#f8fafc" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>Later</span>
-            </div>
-          </div>
-
-          {/* Saved Places */}
-          <div style={{ background: '#1c1c1e', borderRadius: '16px', padding: '0.5rem', marginBottom: '2rem' }}>
-            {SUGGESTIONS.slice(0, 2).map((s, i) => (
-              <div key={s.name} onClick={() => { setDropoff(s.name); setStep('options'); }} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', borderBottom: i === 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' }}>
-                <div style={{ width: 40, height: 40, borderRadius: '10px', background: '#7f1d1d', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <MapPin size={20} color="#fca5a5" />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc' }}>{s.name}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{s.name}, Tumkur District</div>
-                  <div style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '4px', fontWeight: 600 }}>15% off select trips</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* For You Grid */}
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem', marginTop: 0 }}>For you</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-            {[
-              { name: 'Trip', icon: <Car size={28} color="#fff" />, promo: '25%' },
-              { name: 'Auto', icon: <Users size={28} color="#fcd34d" /> },
-              { name: 'Bike Saver', icon: <Bike size={28} color="#cbd5e1" /> },
-              { name: 'Reserve', icon: <Clock size={28} color="#fff" />, promo: 'Promo' },
-              { name: 'Intercity', icon: <CarFront size={28} color="#fff" /> },
-              { name: 'Rentals', icon: <Clock size={28} color="#fff" /> },
-              { name: 'Bus tickets', icon: <Bus size={28} color="#60a5fa" />, promo: 'Promo' },
-            ].map((item) => (
-              <div key={item.name} onClick={() => setStep('input')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                  {item.promo && (
-                    <div style={{ position: 'absolute', top: -6, background: '#dc2626', color: '#fff', fontSize: '0.65rem', fontWeight: 800, padding: '2px 6px', borderRadius: '10px', whiteSpace: 'nowrap', zIndex: 2 }}>
-                      {item.promo}
-                    </div>
-                  )}
-                  {item.icon}
-                </div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', textAlign: 'center' }}>{item.name}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Banner */}
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem' }}>TC Black has arrived</h3>
-          <div style={{ background: '#27272a', borderRadius: '16px', overflow: 'hidden', height: 180, position: 'relative', cursor: 'pointer' }} onClick={() => setStep('input')}>
-             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8))', zIndex: 1 }} />
-             <img src="https://images.unsplash.com/photo-1629897048514-3dd74142ff23?auto=format&fit=crop&q=80&w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Black Cab" />
-             <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', zIndex: 2 }}>
-               <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>Try Black</div>
-               <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Premium business class rides</div>
-             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Full-screen layout: map behind, bottom sheet on top
   return (
@@ -286,7 +201,7 @@ export default function RideHailing({ onBack }) {
       </div>
 
       {/* ── Top pill: pickup indicator ── */}
-      {!ride && step === 'input' && (
+      {!ride && (step === 'input' || step === 'home') && (
         <>
           <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20 }}>
             <div onClick={() => setStep('home')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
@@ -298,6 +213,20 @@ export default function RideHailing({ onBack }) {
             <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1' }}>📍 Current Location</span>
           </div>
         </>
+      )}
+
+      {/* ── Top Search Bar (Floating) ── */}
+      {!ride && step === 'home' && (
+        <div style={{ position: 'absolute', top: 14, left: 64, right: 14, zIndex: 20 }}>
+          <div onClick={() => setStep('input')} style={{ background: 'rgba(30,41,59,0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '10px 16px', gap: '12px', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+            <Search size={22} color="#f8fafc" />
+            <span style={{ flex: 1, fontSize: '1rem', fontWeight: 600, color: '#f8fafc' }}>Where to? (or tap map)</span>
+            <div style={{ background: '#0f172a', borderRadius: '100px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Clock size={14} color="#f8fafc" />
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f8fafc' }}>Now</span>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ── Top Pill: Destination View ── */}
@@ -332,6 +261,44 @@ export default function RideHailing({ onBack }) {
         <div style={{ width: 48, height: 5, background: 'rgba(255,255,255,0.2)', borderRadius: 4, margin: '14px auto 0', flexShrink: 0 }} />
 
         <div style={{ padding: '1rem 1.25rem 2rem', overflowY: 'auto', flex: 1 }}>
+
+          {/* ── STEP: Home Sheet Content ── */}
+          {!ride && step === 'home' && (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem', marginTop: 0 }}>For you</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                {[
+                  { name: 'Trip', icon: <Car size={26} color="#fff" />, promo: '25%' },
+                  { name: 'Auto', icon: <Users size={26} color="#fcd34d" /> },
+                  { name: 'Moto', icon: <Bike size={26} color="#cbd5e1" /> },
+                  { name: 'Reserve', icon: <Clock size={26} color="#fff" /> },
+                ].map((item) => (
+                  <div key={item.name} onClick={() => setStep('input')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <div style={{ width: 54, height: 54, borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                      {item.promo && (
+                        <div style={{ position: 'absolute', top: -6, background: '#ef4444', color: '#fff', fontSize: '0.6rem', fontWeight: 800, padding: '2px 6px', borderRadius: '10px', whiteSpace: 'nowrap', zIndex: 2 }}>{item.promo}</div>
+                      )}
+                      {item.icon}
+                    </div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#cbd5e1', textAlign: 'center' }}>{item.name}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>Recent Places</div>
+              {SUGGESTIONS.slice(0, 2).map((s, i) => (
+                <div key={s.name} onClick={() => { setDropoff(s.name); setStep('options'); }} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 0', borderBottom: i === 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <MapPin size={18} color="#f87171" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f8fafc' }}>{s.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Industrial Zone, Tumkur</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* ── STEP: Input ── */}
           {!ride && step === 'input' && (
