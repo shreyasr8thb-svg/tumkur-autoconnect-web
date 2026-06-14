@@ -391,8 +391,8 @@ export default function RideHailing({ onBack }) {
                   <div key={v.id} onClick={() => setSelectedVehicle(v.id)} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '12px 14px', borderRadius: 16, marginBottom: '0.5rem',
-                    border: `2px solid ${isSelected ? '#fff' : 'transparent'}`,
-                    background: isSelected ? '#1c1c1e' : 'transparent',
+                    border: `2px solid ${isSelected ? '#ef4444' : 'transparent'}`,
+                    background: isSelected ? 'rgba(239,68,68,0.1)' : 'transparent',
                     cursor: 'pointer', transition: 'all 0.2s',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -439,9 +439,8 @@ export default function RideHailing({ onBack }) {
 
               {/* Action Bar */}
               <div style={{ padding: '0 1.25rem 1.25rem', display: 'flex', gap: 10 }}>
-                <button onClick={requestRide} style={{
-                  flex: 1, padding: '1.1rem', borderRadius: 12, background: '#e4e4e7',
-                  color: '#18181b', fontWeight: 700, fontSize: '1.05rem', border: 'none', cursor: 'pointer',
+                <button onClick={requestRide} className="btn btn-primary" style={{
+                  flex: 1, padding: '1.1rem', borderRadius: 12, fontWeight: 700, fontSize: '1.05rem', border: 'none', cursor: 'pointer',
                 }}>
                   Choose {vehicleOptions.find(v => v.id === selectedVehicle)?.name}
                 </button>

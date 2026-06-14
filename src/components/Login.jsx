@@ -13,8 +13,7 @@ import DownloadPromo from './DownloadPromo';
 const APK_URL = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk';
 
 function AppDownloadBanner({ compact, full }) {
-  const [status, setStatus] = useState('idle'); // idle | done
-  // Hide inside the native app — no need to download if already installed
+  const [status, setStatus] = useState('idle');
   const isNative = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.() === true;
   if (isNative) return null;
 
@@ -29,7 +28,6 @@ function AppDownloadBanner({ compact, full }) {
     setTimeout(() => setStatus('idle'), 5000);
   };
 
-  // ── Compact variant: single slim bar ──
   if (compact) return (
     <button
       onClick={handleDownload}
@@ -54,13 +52,9 @@ function AppDownloadBanner({ compact, full }) {
     </button>
   );
 
-  // full variant delegates to the themed DownloadPromo component
   if (full) return <DownloadPromo />;
-
   return null;
 }
-
-
 
 const isNativeAndroid = () =>
   typeof window !== 'undefined' &&
@@ -98,79 +92,46 @@ export default function Login({ onCreateProfile }) {
     setGLoading(true); setError('');
 
     if (isNativeAndroid()) {
-      // ─── Native Android path ───────────────────────────────────────────
-      // Uses @capacitor-firebase/authentication which calls the native
-      // Google Sign-In SDK directly — no browser redirect needed.
-      //
-      // IMPORTANT: useCredentialManager: false is required.
-      // The Credential Manager API (default) is called with Application context
-      // instead of Activity context inside the plugin, causing silent failures
-      // on many devices. The classic GoogleSignIn intent flow is reliable.
+      // ─── Native Android WebView path ───────────────────────────────────
       try {
-        const { FirebaseAuthentication } = await import(
-          '@capacitor-firebase/authentication'
-        );
-
-        // Trigger the native Google account picker.
-        // useCredentialManager:false forces the stable GoogleSignIn intent API.
+        const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+        
+        // Force the older stable intent-based flow instead of Credential Manager
         const result = await FirebaseAuthentication.signInWithGoogle({
-          useCredentialManager: false,
+          useCredentialManager: false
         });
 
-        const idToken     = result?.credential?.idToken;
+        const idToken = result?.credential?.idToken;
         const accessToken = result?.credential?.accessToken;
 
-        if (!idToken) {
-          throw new Error('No ID token returned from native Google Sign-In.');
-        }
+        if (!idToken) throw new Error('No ID token returned.');
 
-        // Exchange the native credential for a Firebase web SDK session
-        const credential = GoogleAuthProvider.credential(
-          idToken,
-          accessToken ?? null,
-        );
+        const credential = GoogleAuthProvider.credential(idToken, accessToken ?? null);
         await signInWithCredential(auth, credential);
 
       } catch (err) {
         const msg = String(err?.message || err);
         const code = String(err?.code || '');
-
         console.error('[Google Auth] Native error details:', { msg, code, err });
 
-        // 12501 / CANCELED = user dismissed the account picker — not an error
-        if (
-          msg.includes('12501') ||
-          msg.toLowerCase().includes('cancel') ||
-          msg.includes('CANCELED')
-        ) {
-          // User cancelled — silently ignore
+        if (msg.includes('12501') || msg.toLowerCase().includes('cancel') || msg.includes('CANCELED')) {
+          // User cancelled
         } else if (msg.includes('12500') || code.includes('12500')) {
-          // Developer error: SHA-1 / package name mismatch in Firebase Console
-          console.error('[Google Auth] Developer error (12500):', msg);
-          setError('Configuration error (12500). SHA-1 mismatch — contact support.');
+          setError('Google Auth failed (12500). If you built this locally, your local SHA-1 is not in Firebase. Please use the APK from the website or use Email Login.');
         } else if (msg.includes('10:') || msg.includes('error code: 10') || code === '10') {
-          // Wrong OAuth client ID configured
-          console.error('[Google Auth] OAuth client error (10):', msg);
-          setError('OAuth client error (10). Please contact support.');
-        } else if (msg.includes('NO_CREDENTIAL') || msg.includes('GetCredentialException')) {
-          // Credential Manager failed — this should not happen with useCredentialManager:false
-          console.error('[Google Auth] Credential Manager error:', msg);
-          setError('Google sign-in unavailable on this device. Please use email login.');
+          setError('Google Auth failed (10). OAuth client ID mismatch. Please use Email Login.');
         } else {
-          console.error('[Google Auth] Native error:', msg);
-          setError('Google sign-in failed. Please try again or use email login.');
+          setError(`Google sign-in unavailable: ${msg}. Please use Email Login.`);
         }
       } finally {
         setGLoading(false);
       }
-
     } else {
-      // ─── Web path ──────────────────────────────────────────────────────
-      // Standard Firebase popup flow
+      // ─── Web browser: popup flow works fine ───────────────────────────
+      const provider = new GoogleAuthProvider();
+      provider.addScope('profile');
+      provider.addScope('email');
       try {
-        const provider = new GoogleAuthProvider();
-        provider.addScope('profile');
-        provider.addScope('email');
         await signInWithPopup(auth, provider);
       } catch (err) {
         if (
@@ -189,7 +150,6 @@ export default function Login({ onCreateProfile }) {
   return (
     <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', padding: '1.25rem' }}>
 
-      {/* ── Compact sticky download pill at the top ── */}
       <AppDownloadBanner compact />
 
       <div className="mb-4 text-center">
@@ -223,7 +183,7 @@ export default function Login({ onCreateProfile }) {
 
         <button type="button" onClick={handleGoogleSignIn} disabled={gLoading} className="btn btn-google">
           <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" style={{ width: '18px' }} />
-          {gLoading ? 'Signing in...' : 'Sign in with Google'}
+          {gLoading ? 'Opening Google...' : 'Sign in with Google'}
         </button>
 
         <button type="button" onClick={onCreateProfile} className="btn btn-outline-red mt-2">
@@ -231,10 +191,8 @@ export default function Login({ onCreateProfile }) {
         </button>
       </form>
 
-      {/* ── Full download card below form (always reachable by scrolling) ── */}
       <AppDownloadBanner full />
 
     </div>
   );
 }
-
