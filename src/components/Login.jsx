@@ -99,7 +99,9 @@ export default function Login({ onCreateProfile }) {
         if (!FirebaseAuthentication) throw new Error("Plugin not loaded");
         
         // Force the older stable intent-based flow instead of Credential Manager
+        // Must explicitly provide the Web Client ID, otherwise it uses the Android Client ID and throws Error 10.
         const result = await FirebaseAuthentication.signInWithGoogle({
+          clientId: '726402748544-oofc0ql6fa05v4u7f210pbgis72u4mp2.apps.googleusercontent.com',
           useCredentialManager: false
         });
 
