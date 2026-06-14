@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
+import { Geolocation } from '@capacitor/geolocation';
 
 const TUMKUR = { lat: 13.3379, lng: 77.1173 };
 
@@ -26,13 +27,16 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
 
   // Get user geolocation
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        pos => setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => setGeoError(true),
-        { timeout: 8000 }
-      );
-    }
+    const fetchLoc = async () => {
+      try {
+        await Geolocation.requestPermissions();
+        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 8000 });
+        setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      } catch (e) {
+        setGeoError(true);
+      }
+    };
+    fetchLoc();
   }, []);
 
   useEffect(() => {

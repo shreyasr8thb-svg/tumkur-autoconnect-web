@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bus, Car, Search, ArrowLeft, MapPin, Navigation, Phone, Star, X, Clock, Shield, Bike, CarFront, Users, Package } from 'lucide-react';
+import { Geolocation } from '@capacitor/geolocation';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
@@ -142,12 +143,16 @@ export default function RideHailing({ onBack }) {
   ];
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        p => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
-        () => {}, { timeout: 6000 }
-      );
-    }
+    const fetchLoc = async () => {
+      try {
+        await Geolocation.requestPermissions();
+        const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 6000 });
+        setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
+      } catch (e) {
+        // Fallback or ignore
+      }
+    };
+    fetchLoc();
   }, []);
 
   useEffect(() => {

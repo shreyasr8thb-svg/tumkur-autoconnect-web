@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut as firebaseSignOut, deleteUser } from 'fire
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 
 const UserContext = createContext(null);
+import { Geolocation } from '@capacitor/geolocation';
 
 const DEFAULT_PROFILE = {
   fullName: '', dob: '', phone: '', email: '',
@@ -23,13 +24,27 @@ export function UserProvider({ children }) {
 
   // GPS Location
   useEffect(() => {
-    if (!navigator.geolocation) return;
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => setLocation({ lat: 13.3379, lng: 77.1173 }), // Tumkur fallback
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
-    );
-    return () => navigator.geolocation.clearWatch(watchId);
+    let watchId = null;
+    const startWatch = async () => {
+      try {
+        await Geolocation.requestPermissions();
+        watchId = await Geolocation.watchPosition(
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 },
+          (pos, err) => {
+            if (pos) setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+            else if (err) setLocation({ lat: 13.3379, lng: 77.1173 });
+          }
+        );
+      } catch (e) {
+        setLocation({ lat: 13.3379, lng: 77.1173 }); // Tumkur fallback
+      }
+    };
+    startWatch();
+    return () => {
+      if (watchId != null) {
+        Geolocation.clearWatch({ id: watchId }).catch(() => {});
+      }
+    };
   }, []);
 
   useEffect(() => {
