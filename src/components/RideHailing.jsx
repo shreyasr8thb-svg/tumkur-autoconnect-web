@@ -251,9 +251,10 @@ export default function RideHailing({ onBack }) {
         boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
         border: '1px solid rgba(255,255,255,0.1)',
         borderBottom: 'none',
-        maxHeight: '75%',
+        maxHeight: step === 'home' ? '45%' : '75%',
         overflow: 'hidden',
-        display: 'flex', flexDirection: 'column'
+        display: 'flex', flexDirection: 'column',
+        transition: 'max-height 0.3s ease-in-out'
       }}>
         {/* Handle */}
         <div style={{ width: 48, height: 5, background: 'rgba(255,255,255,0.2)', borderRadius: 4, margin: '14px auto 0', flexShrink: 0 }} />
