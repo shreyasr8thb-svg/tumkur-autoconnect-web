@@ -4,6 +4,7 @@ import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import InAppCall from './InAppCall';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const TUMKUR = { lat: 13.3379, lng: 77.1173 };
@@ -20,8 +21,7 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
-    import('leaflet').then((L) => {
-      const map = L.map(mapRef.current, {
+    const map = L.map(mapRef.current, {
         zoomControl: false,
         attributionControl: false,
         scrollWheelZoom: true,
@@ -70,7 +70,6 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
       mapInstance.current = map;
-    });
     return () => {
       if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
     };
@@ -78,8 +77,7 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
 
   useEffect(() => {
     if (!mapInstance.current || !dropoffPos) return;
-    import('leaflet').then((L) => {
-      const map = mapInstance.current;
+    const map = mapInstance.current;
       map.eachLayer((layer) => {
         if (layer instanceof L.Polyline || (layer.options.icon && layer.options.icon.options.className === 'dest-icon')) {
           map.removeLayer(layer);
@@ -94,7 +92,6 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
       });
       L.marker([dropoffPos.lat, dropoffPos.lng], { icon: destIcon }).addTo(map);
       map.fitBounds([[userPos.lat, userPos.lng], [dropoffPos.lat, dropoffPos.lng]], { padding: [60, 60] });
-    });
   }, [dropoffPos, userPos]);
 
   return <div ref={mapRef} style={{ width: '100%', height: '100%' }} />;
