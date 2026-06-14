@@ -7,6 +7,7 @@ import {
   signInWithCredential,
 } from 'firebase/auth';
 import { Smartphone } from 'lucide-react';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
 
@@ -94,8 +95,6 @@ export default function Login({ onCreateProfile }) {
     if (isNativeAndroid()) {
       // ─── Native Android WebView path ───────────────────────────────────
       try {
-        const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
-        
         // Force the older stable intent-based flow instead of Credential Manager
         const result = await FirebaseAuthentication.signInWithGoogle({
           useCredentialManager: false
