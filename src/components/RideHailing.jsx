@@ -190,7 +190,7 @@ export default function RideHailing({ onBack }) {
       {/* ── Full-screen map ── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         <MapView userPos={userPos} dropoffPos={dropoffPos} rideStatus={ride?.status} onMapClick={(latlng) => {
-          if (!ride && (step === 'input' || step === 'options')) {
+          if (!ride && (step === 'home' || step === 'input' || step === 'options')) {
             setCustomDropoff(latlng);
             setDropoff('Pinned Location');
             setStep('options');
@@ -202,7 +202,7 @@ export default function RideHailing({ onBack }) {
       {!ride && (step === 'input' || step === 'home') && (
         <>
           <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20 }}>
-            <div onClick={() => setStep('home')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+            <div onClick={() => step === 'home' ? (onBack && onBack()) : setStep('home')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
               <ArrowLeft size={22} color="#fff" />
             </div>
           </div>
