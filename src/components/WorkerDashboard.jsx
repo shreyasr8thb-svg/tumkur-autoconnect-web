@@ -402,7 +402,7 @@ function SRow({ l, v, c }) {
 
 /* ── Smart Access ── */
 function SmartAccess() {
-  const { profile, updateProfile } = useUser();
+  const { user, profile, updateProfile } = useUser();
   const [sub, setSub] = useState('card');
   const [amount, setAmount] = useState('');
   const name = profile?.fullName || 'Worker';
