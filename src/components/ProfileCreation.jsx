@@ -18,6 +18,8 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState(null);
+  const [userOtp, setUserOtp] = useState('');
   const photoRef = useRef(null);
   const idRef = useRef(null);
 
@@ -48,12 +50,45 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
     setError(''); setStep(step + 1);
   };
 
-  const submit = async (e) => {
-    e.preventDefault(); setLoading(true); setError('');
+  const triggerOtp = async (e) => {
+    e.preventDefault();
+    if (isCompleting) return finalSubmit();
+    
+    setLoading(true); setError('');
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(otp);
+
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: form.email,
+          subject: 'Your Tumkuru Connect Verification Code',
+          text: `Your OTP is: ${otp}`,
+          html: `<div style="font-family:sans-serif;padding:20px;"><h2>Verify Your Email</h2><p>Your one-time password (OTP) is: <strong style="font-size:24px;color:#e11d48;letter-spacing:2px;">${otp}</strong></p><p>Please enter this code in the app to complete your registration.</p></div>`
+        })
+      });
+      setStep(4); // Move to OTP step
+    } catch (err) {
+      setError('Failed to send OTP to email. Please check your address.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const finalSubmit = async () => {
+    setLoading(true); setError('');
     try {
       let currentUid = user?.uid;
       
       if (!isCompleting) {
+        if (userOtp !== generatedOtp) {
+          setError('Invalid OTP. Please try again.');
+          setLoading(false);
+          return;
+        }
+
         const cred = await createUserWithEmailAndPassword(auth, form.email, form.password);
         await updateProfile(cred.user, { displayName: form.fullName, photoURL: form.photoURL || '' });
         currentUid = cred.user.uid;
@@ -109,7 +144,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
       <div className="glass-card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {error && <div className="error-box mb-2">{error}</div>}
 
-        <form onSubmit={step === 3 ? submit : (e) => e.preventDefault()} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <form onSubmit={step === 3 ? triggerOtp : (step === 4 ? (e) => { e.preventDefault(); finalSubmit(); } : (e) => e.preventDefault())} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {step === 1 && (
             <div className="flex-col gap-3 flex-1">
               <h3>Identity Details</h3>
@@ -203,12 +238,34 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
             </div>
           )}
 
+          {step === 4 && (
+            <div className="flex-col gap-3 flex-1 items-center justify-center text-center">
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(225,29,72,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', color: '#e11d48' }}>
+                <CheckCircle size={28} />
+              </div>
+              <h3 style={{ margin: 0 }}>Verify Email</h3>
+              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 16px' }}>We sent a 6-digit OTP to <strong>{form.email}</strong></p>
+              
+              <input 
+                type="text" 
+                maxLength={6}
+                value={userOtp}
+                onChange={e => setUserOtp(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '1rem', fontSize: '1.5rem', letterSpacing: 8, fontWeight: 800, textAlign: 'center', width: '200px', outline: 'none' }}
+              />
+              <button type="button" onClick={triggerOtp} disabled={loading} style={{ background: 'transparent', border: 'none', color: '#3b82f6', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: 8 }}>
+                Resend OTP
+              </button>
+            </div>
+          )}
+
           <div className="flex gap-2 mt-3" style={{ marginTop: 'auto' }}>
-            {step > 1 && <button type="button" className="btn btn-ghost" onClick={() => { setError(''); setStep(step-1); }} style={{flex:1}}>Back</button>}
-            {step < 3
-              ? <button type="button" className="btn btn-primary" onClick={next} style={{flex:2}}>Next →</button>
-              : <button type="submit" className="btn btn-primary" disabled={loading} style={{flex:2}}>{loading ? 'Creating...' : 'Create Profile'}</button>
-            }
+            {step > 1 && step < 4 && <button type="button" className="btn btn-ghost" onClick={() => { setError(''); setStep(step-1); }} style={{flex:1}}>Back</button>}
+            {step === 4 && <button type="button" className="btn btn-ghost" onClick={() => { setError(''); setStep(3); }} style={{flex:1}}>Cancel</button>}
+            {step < 3 && <button type="button" className="btn btn-primary" onClick={next} style={{flex:2}}>Next →</button>}
+            {step === 3 && <button type="submit" className="btn btn-primary" disabled={loading} style={{flex:2}}>{loading ? 'Sending OTP...' : (isCompleting ? 'Save Profile' : 'Verify Email')}</button>}
+            {step === 4 && <button type="submit" className="btn btn-primary" disabled={loading || userOtp.length < 6} style={{flex:2}}>{loading ? 'Creating...' : 'Confirm & Create'}</button>}
           </div>
         </form>
       </div>
