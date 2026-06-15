@@ -14,7 +14,7 @@ const ROLES = [
 ];
 
 export default function ProfileCreation({ onCancel, isCompleting = false }) {
-  const { user, updateProfile: updateCtxProfile } = useUser();
+  const { user, updateProfile: updateCtxProfile, showToast } = useUser();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -100,9 +100,25 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
               to: form.email,
               subject: 'Welcome to Tumkuru Connect!',
               text: 'You have successfully created your Tumkuru Connect account.',
-              html: '<strong>Welcome to Tumkuru Connect! Your profile has been created successfully.</strong>'
+              html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                  <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://tumkur-autoconnect-web.vercel.app/assets/logo.png" alt="Tumkuru Connect Logo" style="width: 80px; height: 80px; border-radius: 15px;" />
+                  </div>
+                  <h2 style="color: #1e293b; text-align: center;">Welcome to Tumkuru Connect! 🎉</h2>
+                  <p style="color: #475569; font-size: 16px;">Hello ${form.fullName},</p>
+                  <p style="color: #475569; font-size: 16px;">Your profile has been created successfully. We're thrilled to have you onboard!</p>
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://tumkur-autoconnect-web.vercel.app" style="background-color: #e11d48; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Open Dashboard</a>
+                  </div>
+                  <p style="color: #475569; font-size: 14px;">If you have any questions, feel free to reply to this email.</p>
+                  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                  <p style="color: #94a3b8; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} Tumkuru Connect. All rights reserved.</p>
+                </div>
+              `
             })
           });
+          showToast('Profile created! Welcome email sent.');
         } catch(e) { console.error('Failed to send email', e); }
       } else {
         await updateProfile(user, { displayName: form.fullName, photoURL: form.photoURL || '' });

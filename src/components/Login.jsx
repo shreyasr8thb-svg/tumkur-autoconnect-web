@@ -12,18 +12,35 @@ import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
 
 // Helper to send email via Vercel Serverless Function
-const sendWelcomeEmail = async (email) => {
+const sendWelcomeEmail = async (email, showToast) => {
   try {
     await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: email,
-        subject: 'New Sign-In to Tumkuru Connect',
+        subject: 'Security Alert: New Sign-In to Tumkuru Connect',
         text: 'You have successfully signed in to your Tumkuru Connect account.',
-        html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img src="https://tumkur-autoconnect-web.vercel.app/assets/logo.png" alt="Tumkuru Connect" style="width: 80px; height: 80px; border-radius: 15px;" />
+            </div>
+            <h2 style="color: #1e293b; text-align: center;">New Sign-In Detected</h2>
+            <p style="color: #475569; font-size: 16px;">Hello,</p>
+            <p style="color: #475569; font-size: 16px;">We detected a new sign-in to your Tumkuru Connect account.</p>
+            <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+              <p style="margin: 0; color: #334155; font-size: 14px;"><strong>Account:</strong> ${email}</p>
+              <p style="margin: 5px 0 0 0; color: #334155; font-size: 14px;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <p style="color: #475569; font-size: 14px;">If this was you, no further action is required.</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+            <p style="color: #94a3b8; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} Tumkuru Connect. All rights reserved.</p>
+          </div>
+        `
       })
     });
+    if (showToast) showToast('Login successful! Security email sent.');
   } catch(e) { console.error('Failed to send email', e); }
 };
 
@@ -66,11 +83,14 @@ function AppDownloadBanner({ compact, full }) {
   return null;
 }
 
+import { useUser } from '../context/UserContext';
+
 const isNativeAndroid = () =>
   typeof window !== 'undefined' &&
   window.Capacitor?.isNativePlatform?.() === true;
 
 export default function Login({ onCreateProfile }) {
+  const { showToast } = useUser();
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
@@ -84,7 +104,7 @@ export default function Login({ onCreateProfile }) {
     setLoading(true); setError('');
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      sendWelcomeEmail(cred.user.email);
+      sendWelcomeEmail(cred.user.email, showToast);
     } catch (err) {
       const c = err.code || '';
       if (c === 'auth/user-not-found' || c === 'auth/invalid-credential')
@@ -120,7 +140,7 @@ export default function Login({ onCreateProfile }) {
 
         const credential = GoogleAuthProvider.credential(idToken, accessToken ?? null);
         const cred = await signInWithCredential(auth, credential);
-        sendWelcomeEmail(cred.user.email);
+        sendWelcomeEmail(cred.user.email, showToast);
 
       } catch (err) {
         const msg = String(err?.message || err);
@@ -152,7 +172,7 @@ export default function Login({ onCreateProfile }) {
       provider.addScope('email');
       try {
         const cred = await signInWithPopup(auth, provider);
-        sendWelcomeEmail(cred.user.email);
+        sendWelcomeEmail(cred.user.email, showToast);
       } catch (err) {
         if (
           err.code !== 'auth/popup-closed-by-user' &&

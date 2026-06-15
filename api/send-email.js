@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
   try {
     const info = await transporter.sendMail({
-      from: '"Tumkuru Connect" <tumkuru.connect@gmail.com>',
+      from: '"Tumkuru Connect Security" <tumkuru.connect@gmail.com>',
       to,
       subject,
       text,
