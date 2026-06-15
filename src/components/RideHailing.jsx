@@ -295,13 +295,15 @@ export default function RideHailing({ onBack }) {
 
       {/* ── Top Search Bar (Floating) ── */}
       {!ride && step === 'home' && (
-        <div style={{ position: 'absolute', top: 14, left: 64, right: 14, zIndex: 20 }}>
-          <div onClick={() => setStep('input')} style={{ background: 'rgba(30,41,59,0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '10px 16px', gap: '12px', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-            <Search size={22} color="#f8fafc" />
-            <span style={{ flex: 1, fontSize: '1rem', fontWeight: 600, color: '#f8fafc' }}>Where to? (or tap map)</span>
-            <div style={{ background: '#0f172a', borderRadius: '100px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Clock size={14} color="#f8fafc" />
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f8fafc' }}>Now</span>
+        <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none' }}>
+          <div style={{ width: '100%', maxWidth: 800, padding: '0 14px 0 64px', pointerEvents: 'auto' }}>
+            <div onClick={() => setStep('input')} style={{ background: 'rgba(30,41,59,0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '10px 16px', gap: '12px', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+              <Search size={22} color="#f8fafc" />
+              <span style={{ flex: 1, fontSize: '1rem', fontWeight: 600, color: '#f8fafc' }}>Where to? (or tap map)</span>
+              <div style={{ background: '#0f172a', borderRadius: '100px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Clock size={14} color="#f8fafc" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f8fafc' }}>Now</span>
+              </div>
             </div>
           </div>
         </div>
@@ -309,21 +311,23 @@ export default function RideHailing({ onBack }) {
 
       {/* ── Top Pill: Destination View ── */}
       {step === 'options' && (
-        <div style={{ position: 'absolute', top: 14, left: 14, right: 14, display: 'flex', gap: 10, zIndex: 20 }}>
-          <div onClick={() => setStep('input')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
-            <ArrowLeft size={22} color="#fff" />
-          </div>
-          <div style={{ flex: 1, background: '#121212', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
-            <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Home</div>
-            <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{dropoff}</div>
-            <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, marginTop: '2px' }}>{selectedDist} km • {Math.round(selectedDist * 3)} mins away</div>
+        <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none' }}>
+          <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 800, padding: '0 14px', pointerEvents: 'auto' }}>
+            <div onClick={() => setStep('input')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+              <ArrowLeft size={22} color="#fff" />
+            </div>
+            <div style={{ flex: 1, background: '#121212', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+              <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Home</div>
+              <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{dropoff}</div>
+              <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, marginTop: '2px' }}>{selectedDist} km • {Math.round(selectedDist * 3)} mins away</div>
+            </div>
           </div>
         </div>
       )}
 
       {/* ── Bottom Sheet ── */}
       <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30,
+        position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 800, zIndex: 30,
         background: 'rgba(15, 23, 42, 0.85)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
