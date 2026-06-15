@@ -117,6 +117,7 @@ export default function RideHailing({ onBack }) {
   const [selectedVehicle, setSelectedVehicle] = useState('Mini');
   const [userPos, setUserPos] = useState(TUMKUR);
   const [customDropoff, setCustomDropoff] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(null);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -173,7 +174,8 @@ export default function RideHailing({ onBack }) {
     }
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dropoff)}&viewbox=77.05,13.4,77.2,13.2&bounded=1`);
+        // Removed bounded=1 so users can search outside Tumkur (e.g. Bangalore)
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dropoff)}&viewbox=77.05,13.4,77.2,13.2`);
         const data = await res.json();
         const results = data.slice(0, 5).map(d => ({
           name: d.display_name.split(',')[0],
@@ -190,9 +192,14 @@ export default function RideHailing({ onBack }) {
     return () => clearTimeout(timer);
   }, [dropoff, userPos]);
 
-  const selectedDropoffObj = searchResults.find(s => s.name === dropoff) || SUGGESTIONS_WITH_DIST.find(s => s.name === dropoff);
-  const selectedDist = selectedDropoffObj ? parseFloat(selectedDropoffObj.dist) : 5.0;
-  const dropoffPos = selectedDropoffObj ? { lat: selectedDropoffObj.lat, lng: selectedDropoffObj.lng } : null;
+  const handleSelectDestination = (s) => {
+    setDropoff(s.name);
+    setSelectedDestination(s);
+    setStep('options');
+  };
+
+  const selectedDist = selectedDestination ? parseFloat(selectedDestination.dist) : 5.0;
+  const dropoffPos = selectedDestination ? { lat: selectedDestination.lat, lng: selectedDestination.lng } : null;
 
   const vehicleOptions = [
     { id: 'Bike', name: 'Moto', price: `₹${Math.round(20 + selectedDist * 12)}`, eta: '1 min', seats: '1 seat', icon: <Bike size={28} color="#94a3b8" />, desc: 'Beat the traffic' },
@@ -273,7 +280,7 @@ export default function RideHailing({ onBack }) {
           if (!ride && (step === 'home' || step === 'input' || step === 'options')) {
             setCustomDropoff(latlng);
             setDropoff('Pinned Location');
-            setStep('options');
+            handleSelectDestination({ name: 'Pinned Location', lat: latlng.lat, lng: latlng.lng, dist: getDistance(userPos.lat, userPos.lng, latlng.lat, latlng.lng) });
           }
         }} />
       </div>
@@ -376,7 +383,7 @@ export default function RideHailing({ onBack }) {
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>Recent Places</div>
               <div style={{ background: '#1c1c1e', borderRadius: '16px', padding: '0.5rem', marginBottom: '2rem' }}>
                 {SUGGESTIONS.slice(0, 2).map((s, i) => (
-                  <div key={s.name} onClick={() => { setDropoff(s.name); setStep('options'); }} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', borderBottom: i === 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' }}>
+                  <div key={s.name} onClick={() => handleSelectDestination({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) })} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', borderBottom: i === 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' }}>
                     <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <MapPin size={20} color="#f87171" />
                     </div>
@@ -423,7 +430,7 @@ export default function RideHailing({ onBack }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#475569', letterSpacing: '0.06em', marginBottom: 4 }}>POPULAR DESTINATIONS</div>
                   {SUGGESTIONS.map(s => (
-                    <div key={s.name} onClick={() => setDropoff(s.name)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
+                    <div key={s.name} onClick={() => handleSelectDestination({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -431,7 +438,7 @@ export default function RideHailing({ onBack }) {
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>{s.name}</div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{s.dist} km away</div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{getDistance(userPos.lat, userPos.lng, s.lat, s.lng)} km away</div>
                       </div>
                     </div>
                   ))}
@@ -442,7 +449,7 @@ export default function RideHailing({ onBack }) {
               {dropoff && searchResults.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 200, overflowY: 'auto' }}>
                   {searchResults.map(s => (
-                    <div key={s.fullName} onClick={() => setDropoff(s.name)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
+                    <div key={s.fullName} onClick={() => handleSelectDestination(s)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -457,12 +464,11 @@ export default function RideHailing({ onBack }) {
                 </div>
               )}
 
-              <button
-                onClick={() => dropoff && setStep('options')}
-                style={{ padding: '1rem', borderRadius: 14, background: dropoff ? 'linear-gradient(135deg,#e11d48,#be123c)' : 'rgba(255,255,255,0.08)', color: dropoff ? '#fff' : '#475569', fontWeight: 700, fontSize: '0.95rem', border: 'none', cursor: dropoff ? 'pointer' : 'not-allowed', boxShadow: dropoff ? '0 4px 16px rgba(225,29,72,0.35)' : 'none', transition: 'all 0.2s' }}
-              >
-                Find Rides
-              </button>
+              {dropoff && searchResults.length === 0 && (
+                <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
+                   Searching for "{dropoff}"...
+                </div>
+              )}
             </div>
           )}
 
