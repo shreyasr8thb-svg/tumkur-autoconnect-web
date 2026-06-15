@@ -22,7 +22,7 @@ export default function DownloadPage({ onBack }) {
   };
 
   return (
-    <div style={{ background: '#09090b', minHeight: '100vh', color: '#fff', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
+    <div style={{ background: '#09090b', minHeight: '100%', color: '#fff', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
       {/* Background glow effects */}
       <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '40%', height: '50%', background: 'radial-gradient(circle, rgba(225,29,72,0.15) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', top: '20%', right: '-10%', width: '50%', height: '60%', background: 'radial-gradient(circle, rgba(225,29,72,0.1) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
