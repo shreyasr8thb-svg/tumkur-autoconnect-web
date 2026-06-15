@@ -130,7 +130,34 @@ export default function RideHailing({ onBack }) {
 
   const SUGGESTIONS_WITH_DIST = SUGGESTIONS.map(s => ({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) }));
 
-  const selectedDropoffObj = SUGGESTIONS_WITH_DIST.find(s => s.name === dropoff);
+  const [queryText, setQueryText] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  
+  useEffect(() => {
+    if (!dropoff || dropoff === 'Pinned Location' || dropoff.length < 3) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dropoff)}&viewbox=77.05,13.4,77.2,13.2&bounded=1`);
+        const data = await res.json();
+        const results = data.slice(0, 5).map(d => ({
+          name: d.display_name.split(',')[0],
+          fullName: d.display_name,
+          lat: parseFloat(d.lat),
+          lng: parseFloat(d.lon),
+          dist: getDistance(userPos.lat, userPos.lng, parseFloat(d.lat), parseFloat(d.lon))
+        }));
+        setSearchResults(results);
+      } catch (e) {
+        console.error("Search error", e);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [dropoff, userPos]);
+
+  const selectedDropoffObj = searchResults.find(s => s.name === dropoff) || SUGGESTIONS_WITH_DIST.find(s => s.name === dropoff);
   const selectedDist = selectedDropoffObj ? parseFloat(selectedDropoffObj.dist) : 5.0;
   const dropoffPos = selectedDropoffObj ? { lat: selectedDropoffObj.lat, lng: selectedDropoffObj.lng } : null;
 
@@ -142,23 +169,28 @@ export default function RideHailing({ onBack }) {
     { id: 'SUV', name: 'TC SUV', price: `₹${Math.round(80 + selectedDist * 35)}`, eta: '7 min', seats: '6 seats', icon: <Bus size={28} color="#10b981" />, desc: 'Premium spacious SUV' },
   ];
 
-  useEffect(() => {
-    const fetchLoc = async () => {
-      try {
-        await Geolocation.requestPermissions();
-        const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 6000 });
-        setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
-      } catch (e) {
-        // Fallback or ignore
-      }
-    };
-    fetchLoc();
-  }, []);
+  const fetchLoc = async () => {
+    try {
+      await Geolocation.requestPermissions();
+      const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 6000 });
+      setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
+    } catch (e) {}
+  };
 
   useEffect(() => {
     if (!user) return;
     const unsub = onSnapshot(doc(db, 'rides', user.uid), snap => {
-      if (snap.exists()) { setRide(snap.data()); }
+      if (snap.exists()) {
+        const data = snap.data();
+        if (Date.now() - data.timestamp > 3600000) {
+          // Clear stuck old rides automatically
+          deleteDoc(doc(db, 'rides', user.uid));
+          setRide(null);
+          setStep('home');
+        } else {
+          setRide(data);
+        }
+      }
       else { 
         setRide(null); 
         setStep(prev => (prev === 'pending' || prev === 'tracking' ? 'home' : prev)); 
@@ -211,9 +243,9 @@ export default function RideHailing({ onBack }) {
               <ArrowLeft size={22} color="#fff" />
             </div>
           </div>
-          <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20 }}>
+          <div onClick={fetchLoc} style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20, cursor: 'pointer' }}>
             <Navigation size={14} color="#3b82f6" />
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1' }}>📍 Current Location</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1' }}>📍 Locate Me</span>
           </div>
         </>
       )}
@@ -353,6 +385,25 @@ export default function RideHailing({ onBack }) {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>{s.name}</div>
                         <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{s.dist} km away</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Search Results */}
+              {dropoff && searchResults.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 200, overflowY: 'auto' }}>
+                  {searchResults.map(s => (
+                    <div key={s.fullName} onClick={() => setDropoff(s.name)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <MapPin size={14} color="#3b82f6" />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.fullName} • {s.dist} km away</div>
                       </div>
                     </div>
                   ))}

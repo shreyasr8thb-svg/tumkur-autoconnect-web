@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   signInWithCredential,
 } from 'firebase/auth';
+import { collection, addDoc } from 'firebase/firestore';
 import { Smartphone } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import logo from '../assets/logo.png';
@@ -74,7 +75,17 @@ export default function Login({ onCreateProfile }) {
     if (!email || !password) return;
     setLoading(true); setError('');
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      try {
+        await addDoc(collection(db, 'mail'), {
+          to: cred.user.email,
+          message: {
+            subject: 'New Sign-In to Tumkuru Connect',
+            text: 'You have successfully signed in to your Tumkuru Connect account.',
+            html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
+          }
+        });
+      } catch(e) { console.error('Failed to queue email', e); }
     } catch (err) {
       const c = err.code || '';
       if (c === 'auth/user-not-found' || c === 'auth/invalid-credential')
@@ -109,7 +120,17 @@ export default function Login({ onCreateProfile }) {
         if (!idToken) throw new Error('No ID token returned.');
 
         const credential = GoogleAuthProvider.credential(idToken, accessToken ?? null);
-        await signInWithCredential(auth, credential);
+        const cred = await signInWithCredential(auth, credential);
+        try {
+          await addDoc(collection(db, 'mail'), {
+            to: cred.user.email,
+            message: {
+              subject: 'New Sign-In to Tumkuru Connect',
+              text: 'You have successfully signed in to your Tumkuru Connect account.',
+              html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
+            }
+          });
+        } catch(e) { console.error('Failed to queue email', e); }
 
       } catch (err) {
         const msg = String(err?.message || err);
@@ -140,7 +161,17 @@ export default function Login({ onCreateProfile }) {
       provider.addScope('profile');
       provider.addScope('email');
       try {
-        await signInWithPopup(auth, provider);
+        const cred = await signInWithPopup(auth, provider);
+        try {
+          await addDoc(collection(db, 'mail'), {
+            to: cred.user.email,
+            message: {
+              subject: 'New Sign-In to Tumkuru Connect',
+              text: 'You have successfully signed in to your Tumkuru Connect account.',
+              html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
+            }
+          });
+        } catch(e) { console.error('Failed to queue email', e); }
       } catch (err) {
         if (
           err.code !== 'auth/popup-closed-by-user' &&

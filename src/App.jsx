@@ -12,6 +12,7 @@ import NativeLoginFallback from './components/NativeLoginFallback'
 import { App as CapacitorApp } from '@capacitor/app'
 import { auth } from './firebase'
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth'
+import { LocalNotifications } from '@capacitor/local-notifications'
 
 function AppContent() {
   const { user, profile, loading, toast, signOut } = useUser()
@@ -35,6 +36,37 @@ function AppContent() {
       }
     });
     return () => { listener.then(l => l.remove()); }
+  }, []);
+
+  useEffect(() => {
+    const checkUpdate = async () => {
+      try {
+        const res = await fetch('/version.json?t=' + Date.now());
+        const data = await res.json();
+        const CURRENT_VERSION = '1.0.0'; // Updated to 1.0.1 in public
+        if (data.version && data.version !== CURRENT_VERSION) {
+          try {
+            await LocalNotifications.requestPermissions();
+            await LocalNotifications.schedule({
+              notifications: [
+                {
+                  title: "Update Available",
+                  body: "A new version of Tumkuru Connect is available. Tap to update.",
+                  id: 1,
+                  schedule: { at: new Date(Date.now() + 1000 * 5) },
+                }
+              ]
+            });
+            LocalNotifications.addListener('localNotificationActionPerformed', () => {
+              window.open(data.url || 'https://tumkur-autoconnect.vercel.app/download', '_system');
+            });
+          } catch(e) {}
+        }
+      } catch (e) {}
+    };
+    if (window.Capacitor?.isNativePlatform?.()) {
+      checkUpdate();
+    }
   }, []);
 
   const handleSOS = () => {
