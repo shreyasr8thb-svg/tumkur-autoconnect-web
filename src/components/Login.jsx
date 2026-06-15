@@ -35,14 +35,7 @@ function AppDownloadBanner({ compact, full }) {
   if (isNative) return null;
 
   const handleDownload = () => {
-    const a = document.createElement('a');
-    a.href = APK_URL + '?t=' + Date.now();
-    a.download = 'TumkuruConnect.apk';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setStatus('done');
-    setTimeout(() => setStatus('idle'), 5000);
+    window.location.href = '/download';
   };
 
   if (compact) return (
@@ -57,9 +50,9 @@ function AppDownloadBanner({ compact, full }) {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Smartphone size={15} color={status === 'done' ? '#4ade80' : '#ef4444'} />
-        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: status === 'done' ? '#4ade80' : '#f87171' }}>
-          {status === 'done' ? '✓ Download started! Check your files' : '📲 Download the Android App — Free'}
+        <Smartphone size={15} color="#ef4444" />
+        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f87171' }}>
+          📲 Download the Android App — Free
         </span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '9999px', padding: '2px 8px' }}>

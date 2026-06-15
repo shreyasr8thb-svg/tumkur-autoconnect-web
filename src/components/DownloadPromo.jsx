@@ -10,18 +10,7 @@ export default function DownloadPromo() {
   const [downloaded, setDownloaded] = useState(false);
 
   const handleDownload = () => {
-    setDownloading(true);
-    const a = document.createElement('a');
-    a.href = APK_DOWNLOAD_URL;
-    a.download = 'TumkuruConnect.apk';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => {
-      setDownloading(false);
-      setDownloaded(true);
-      setTimeout(() => setDownloaded(false), 4000);
-    }, 1200);
+    window.location.href = '/download';
   };
 
   return (
@@ -140,22 +129,11 @@ export default function DownloadPromo() {
           {!downloading && downloaded && <CheckCircle2 size={18} />}
           {!downloading && !downloaded && <Download size={18} />}
           <span>
-            {downloading ? 'Starting Download...' : downloaded ? 'Download Started!' : 'Download APK'}
+            Get The App Now
           </span>
         </button>
 
         {/* ── Install tip (shown after download) ── */}
-        {downloaded && (
-          <div style={{
-            marginTop: '0.75rem', padding: '0.65rem 0.9rem',
-            background: 'rgba(34,197,94,0.07)',
-            border: '1px solid rgba(34,197,94,0.18)',
-            borderRadius: '10px', fontSize: '0.76rem',
-            color: '#6ee7b7', lineHeight: 1.55,
-          }}>
-            📲 To install: open the APK file on your phone → allow "Install from unknown sources" if prompted.
-          </div>
-        )}
 
         {/* ── Feature chips ── */}
         <div style={{
