@@ -5,11 +5,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithCredential,
-  PhoneAuthProvider,
-  RecaptchaVerifier,
-  signInWithPhoneNumber
 } from 'firebase/auth';
-import { Smartphone, Mail, Phone } from 'lucide-react';
+import { Smartphone } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
@@ -80,14 +77,6 @@ export default function Login({ onCreateProfile }) {
   const [loading, setLoading]   = useState(false);
   const [gLoading, setGLoading] = useState(false);
 
-  /* ── Phone Auth State ── */
-  const [loginMode, setLoginMode] = useState('email'); // 'email' | 'phone'
-  const [phoneNumber, setPhoneNumber] = useState('+91');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [verificationId, setVerificationId] = useState('');
-  const [webConfirmation, setWebConfirmation] = useState(null);
-
   /* ── Email / Password ───────────────────────────────────────────────────── */
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -107,51 +96,6 @@ export default function Login({ onCreateProfile }) {
       else
         setError(err.message || 'Sign in failed.');
     } finally { setLoading(false); }
-  };
-
-  /* ── Phone Auth ─────────────────────────────────────────────────────────── */
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    if (!phoneNumber || phoneNumber.length < 10) return setError("Invalid phone number");
-    setLoading(true); setError('');
-    try {
-      if (isNativeAndroid()) {
-        const FirebaseAuthentication = Capacitor.Plugins.FirebaseAuthentication;
-        if (!FirebaseAuthentication) throw new Error("Plugin missing");
-        const res = await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber });
-        setVerificationId(res.verificationId);
-      } else {
-        if (!window.recaptchaVerifier) {
-          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
-        }
-        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-        setWebConfirmation(confirmationResult);
-      }
-      setOtpSent(true);
-    } catch (err) {
-      setError("Failed to send OTP: " + (err.message || err));
-      if (window.recaptchaVerifier) window.recaptchaVerifier.render().then(w => window.recaptchaVerifier.reset(w));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (!otp) return;
-    setLoading(true); setError('');
-    try {
-      if (isNativeAndroid()) {
-        const credential = PhoneAuthProvider.credential(verificationId, otp);
-        await signInWithCredential(auth, credential);
-      } else {
-        await webConfirmation.confirm(otp);
-      }
-    } catch (err) {
-      setError("Invalid OTP: " + (err.message || err));
-    } finally {
-      setLoading(false);
-    }
   };
 
   /* ── Google Sign-In ─────────────────────────────────────────────────────── */
@@ -234,70 +178,27 @@ export default function Login({ onCreateProfile }) {
         <p>Login to your Tumkuru Connect account</p>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.05)', padding: '6px', borderRadius: '100px' }}>
-        <button onClick={() => setLoginMode('email')} style={{ flex: 1, padding: '8px', borderRadius: '100px', border: 'none', background: loginMode === 'email' ? '#e11d48' : 'transparent', color: loginMode === 'email' ? '#fff' : '#94a3b8', fontWeight: 600, fontSize: '0.9rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'all 0.2s' }}>
-          <Mail size={16} /> Email
-        </button>
-        <button onClick={() => setLoginMode('phone')} style={{ flex: 1, padding: '8px', borderRadius: '100px', border: 'none', background: loginMode === 'phone' ? '#e11d48' : 'transparent', color: loginMode === 'phone' ? '#fff' : '#94a3b8', fontWeight: 600, fontSize: '0.9rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, cursor: 'pointer', transition: 'all 0.2s' }}>
-          <Phone size={16} /> Phone
-        </button>
-      </div>
-
-      {loginMode === 'email' ? (
-        <form onSubmit={handleEmailSignIn} className="flex-col gap-3">
-          {error && (
-            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '0.75rem 1rem', borderRadius: '12px', fontSize: '0.83rem', lineHeight: 1.5 }}>
-              {error}
-            </div>
-          )}
-
-          <div className="input-group">
-            <label className="input-label">Email Address</label>
-            <input type="email" className="input-field" placeholder="worker@tumkur.in" value={email} onChange={e => setEmail(e.target.value)} required />
+      <form onSubmit={handleEmailSignIn} className="flex-col gap-3">
+        {error && (
+          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '0.75rem 1rem', borderRadius: '12px', fontSize: '0.83rem', lineHeight: 1.5 }}>
+            {error}
           </div>
+        )}
 
-          <div className="input-group">
-            <label className="input-label">Password</label>
-            <input type="password" className="input-field" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
-          </div>
+        <div className="input-group">
+          <label className="input-label">Email Address</label>
+          <input type="email" className="input-field" placeholder="worker@tumkur.in" value={email} onChange={e => setEmail(e.target.value)} required />
+        </div>
 
-          <button type="submit" className="btn btn-primary mt-2" disabled={loading}>
-            {loading ? 'Signing In...' : 'Continue with Email'}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="flex-col gap-3">
-          <div id="recaptcha-container"></div>
-          {error && (
-            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '0.75rem 1rem', borderRadius: '12px', fontSize: '0.83rem', lineHeight: 1.5 }}>
-              {error}
-            </div>
-          )}
+        <div className="input-group">
+          <label className="input-label">Password</label>
+          <input type="password" className="input-field" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
+        </div>
 
-          {!otpSent ? (
-            <div className="input-group">
-              <label className="input-label">Mobile Number</label>
-              <input type="tel" className="input-field" placeholder="+91 98765 43210" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required />
-              <button type="submit" className="btn btn-primary mt-3" disabled={loading}>
-                {loading ? 'Sending OTP...' : 'Send OTP'}
-              </button>
-            </div>
-          ) : (
-            <div className="input-group">
-              <label className="input-label">Enter 6-digit OTP</label>
-              <input type="number" className="input-field" placeholder="123456" value={otp} onChange={e => setOtp(e.target.value)} required />
-              <button type="submit" className="btn btn-primary mt-3" disabled={loading}>
-                {loading ? 'Verifying...' : 'Verify & Sign In'}
-              </button>
-              <button type="button" onClick={() => { setOtpSent(false); setOtp(''); }} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '0.85rem', marginTop: '1rem', cursor: 'pointer', textDecoration: 'underline' }}>
-                Change Phone Number
-              </button>
-            </div>
-          )}
-        </form>
-      )}
+        <button type="submit" className="btn btn-primary mt-2" disabled={loading}>
+          {loading ? 'Signing In...' : 'Continue with Email'}
+        </button>
 
-      <div className="flex-col gap-3 mt-3">
         <div className="divider-line"><span>OR</span></div>
 
         <button type="button" onClick={handleGoogleSignIn} disabled={gLoading} className="btn btn-google">
@@ -308,7 +209,7 @@ export default function Login({ onCreateProfile }) {
         <button type="button" onClick={onCreateProfile} className="btn btn-outline-red mt-2">
           Create New Profile
         </button>
-      </div>
+      </form>
 
       <AppDownloadBanner full />
 
