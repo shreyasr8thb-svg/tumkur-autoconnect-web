@@ -1,177 +1,137 @@
-import React, { useState, useEffect } from 'react';
-import { Download, CheckCircle2, ChevronLeft, Smartphone, Apple, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { Download, CheckCircle2, Zap, Bell, Smartphone, ChevronLeft } from 'lucide-react';
 import mockup from '../assets/mockup.png';
 
-const APP_URL = 'https://tumkur-autoconnect-web.vercel.app';
-const APP_NAME = 'Tumkuru Connect';
-const APP_ID = 'com.tumkuruconnect.app';
-// Always points to latest auto-built APK from GitHub Actions
 const APK_URL = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk';
 
 export default function DownloadPage({ onBack }) {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [apkStatus, setApkStatus] = useState('idle'); // idle | loading | done | error
-  const [isIOS, setIsIOS] = useState(false);
-  const [isAndroid, setIsAndroid] = useState(false);
+  const [status, setStatus] = useState('idle');
 
-  useEffect(() => {
-    const ua = navigator.userAgent || '';
-    setIsIOS(/iPad|iPhone|iPod/.test(ua) && !window.MSStream);
-    setIsAndroid(/Android/.test(ua));
-    const handler = (e) => { e.preventDefault(); setDeferredPrompt(e); };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  // Actual APK Download from Vercel Public Folder
-  const handleAndroidDownload = async () => {
-    // Try native PWA install prompt first
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') { setDeferredPrompt(null); return; }
-    }
-
-    // Direct APK Download from GitHub Releases (always latest)
-    setApkStatus('loading');
-    setTimeout(() => {
-      try {
-        window.location.href = APK_URL;
-        setApkStatus('done');
-      } catch (err) {
-        setApkStatus('error');
-      }
-    }, 800);
+  const handleDownload = () => {
+    setStatus('loading');
+    window.location.href = APK_URL;
+    setTimeout(() => setStatus('done'), 1500);
   };
 
-  // iOS: show instructions (iOS doesn't allow direct install)
-  const iOSInstructions = [
-    { step: '1', text: 'Tap the Share icon at the bottom of Safari' },
-    { step: '2', text: 'Scroll down and tap "Add to Home Screen"' },
-    { step: '3', text: 'Tap "Add" in the top right corner' },
-  ];
-
-  const features = [
-    'Real-time ride booking',
-    'Offline access',
-    'Push notifications',
-    'Biometric login',
-    'Community feed & chat',
-  ];
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      window.location.href = '/';
+    }
+  };
 
   return (
-    <div style={{ background: 'var(--bg-dark)', minHeight: '100%', color: 'var(--text-main)', position: 'relative' }}>
-      {onBack && (
-        <button onClick={onBack} style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 10, background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: '12px', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)' }}>
-          <ChevronLeft size={22} />
+    <div style={{ background: '#09090b', minHeight: '100vh', color: '#fff', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
+      {/* Background glow effects */}
+      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '40%', height: '50%', background: 'radial-gradient(circle, rgba(225,29,72,0.15) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '20%', right: '-10%', width: '50%', height: '60%', background: 'radial-gradient(circle, rgba(225,29,72,0.1) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+
+      {/* Navigation */}
+      <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 10 }}>
+        <button onClick={handleBack} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+          <ChevronLeft size={24} />
         </button>
-      )}
-
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '1.5rem 1.25rem', paddingTop: onBack ? '4rem' : '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-
-        {/* Header */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ display: 'inline-block', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '9999px', padding: '4px 14px', fontSize: '0.72rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '1rem', letterSpacing: '0.05em' }}>
-            MOBILE APP
-          </div>
-          <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.15, margin: 0 }}>
-            Get Tumkuru Connect<br />
-            <span style={{ color: 'var(--primary)' }}>On Your Device</span>
-          </h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '0.75rem', maxWidth: '520px', margin: '0.75rem auto 0', fontSize: '0.95rem', lineHeight: 1.6 }}>
-            Install the app for offline access, push notifications, and the full native experience.
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(0,0,0,0.5)', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
+          <div style={{ width: 28, height: 28, background: '#e11d48', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>TC</div>
+          <span style={{ fontWeight: 600, fontSize: '0.95rem', letterSpacing: '0.02em' }}>Tumkuru Connect</span>
         </div>
+      </div>
 
-        {/* Two-column layout on desktop */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
-
-          {/* Android Card */}
-          <div style={{ width: '100%', maxWidth: '440px', background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '1.5rem', backdropFilter: 'blur(12px)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'linear-gradient(135deg,#4ade80,#22c55e)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Smartphone size={22} color="#fff" />
-              </div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '1rem' }}>Android APK</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Auto-updated · Always latest</div>
-              </div>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1.5rem', position: 'relative', zIndex: 1 }}>
+        
+        {/* Hero Section */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'center', marginBottom: '6rem' }}>
+          
+          {/* Text Content */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(225,29,72,0.1)', border: '1px solid rgba(225,29,72,0.2)', padding: '6px 14px', borderRadius: '100px', marginBottom: '1.5rem' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#e11d48', boxShadow: '0 0 8px #e11d48' }} className="animate-pulse" />
+              <span style={{ color: '#e11d48', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em' }}>LATEST VERSION AVAILABLE</span>
             </div>
 
-            <button
-              onClick={handleAndroidDownload}
-              disabled={apkStatus === 'loading'}
+            <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, lineHeight: 1.1, margin: 0, letterSpacing: '-0.02em' }}>
+              Experience <br />
+              <span style={{ color: '#e11d48' }}>Tumkuru Connect</span><br />
+              On Your Mobile
+            </h1>
+
+            <p style={{ fontSize: '1.05rem', color: '#a1a1aa', lineHeight: 1.6, marginTop: '1.5rem', marginBottom: '2.5rem', maxWidth: '480px' }}>
+              Get the full Tumkuru Connect experience with real-time notifications, smoother animations, and offline access. Join the community anytime, anywhere.
+            </p>
+
+            <button 
+              onClick={handleDownload}
               style={{
-                width: '100%', padding: '0.9rem', borderRadius: '12px',
-                background: apkStatus === 'done' ? '#22c55e' : apkStatus === 'error' ? '#f59e0b' : 'var(--primary)',
-                color: '#fff', fontWeight: 700, fontSize: '0.95rem',
-                border: 'none', cursor: apkStatus === 'loading' ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                opacity: apkStatus === 'loading' ? 0.8 : 1,
-                boxShadow: '0 4px 15px rgba(239,68,68,0.35)',
-                transition: 'all 0.3s',
+                background: status === 'done' ? '#10b981' : '#e11d48',
+                color: '#fff', border: 'none', padding: '1rem 2rem', borderRadius: '14px',
+                fontSize: '1.05rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px',
+                boxShadow: status === 'done' ? '0 10px 25px rgba(16,185,129,0.3)' : '0 10px 25px rgba(225,29,72,0.4)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: status === 'loading' ? 'scale(0.98)' : 'scale(1)'
               }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              {apkStatus === 'loading' && <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />}
-              {apkStatus === 'done' && <CheckCircle2 size={18} />}
-              {apkStatus === 'error' && <ExternalLink size={18} />}
-              {apkStatus === 'idle' && <Download size={18} />}
-              {apkStatus === 'idle' && 'Download APK'}
-              {apkStatus === 'loading' && 'Downloading... please wait'}
-              {apkStatus === 'done' && 'Download Started!'}
-              {apkStatus === 'error' && 'Download Failed'}
+              {status === 'loading' ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : (status === 'done' ? <CheckCircle2 size={22} /> : <Download size={22} />)}
+              {status === 'loading' ? 'Starting Download...' : (status === 'done' ? 'Download Started!' : 'Download APK')}
             </button>
 
-            {apkStatus === 'loading' && (
-              <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '0.5rem' }}>
-                Downloading APK directly...
-              </p>
-            )}
-            {apkStatus === 'error' && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '0.75rem', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '10px', padding: '0.75rem', fontSize: '0.78rem', color: '#fbbf24' }}>
-                <AlertCircle size={15} style={{ flexShrink: 0, marginTop: '1px' }} />
-                <span>Download failed. Please try again or check your internet connection.</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '0.85rem', fontWeight: 600 }}>
+                <CheckCircle2 size={16} /> Safe & Secure
               </div>
-            )}
-
-            <div style={{ marginTop: '1rem', fontSize: '0.72rem', color: 'var(--text-dim)', lineHeight: 1.6 }}>
-              <strong style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>After downloading:</strong>
-              Open the APK file → Allow installation from unknown sources → Install
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '0.85rem', fontWeight: 600 }}>
+                <CheckCircle2 size={16} /> v1.0.3 (Latest)
+              </div>
             </div>
           </div>
 
-          {/* iOS Card */}
-          <div style={{ width: '100%', maxWidth: '440px', background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '1.5rem', backdropFilter: 'blur(12px)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'linear-gradient(135deg,#818cf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.8 }}>
-                <Apple size={22} color="#fff" />
-              </div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '1rem', opacity: 0.8 }}>iPhone / iPad</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Coming Soon</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: '12px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                Sorry for the delay! We will be available for iPhones also very soon.
-              </span>
-            </div>
+          {/* Mockup Image */}
+          <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', height: '80%', background: '#e11d48', filter: 'blur(120px)', opacity: 0.15, borderRadius: '50%' }} />
+            <img src={mockup} alt="App Mockup" style={{ width: '100%', maxWidth: '380px', transform: 'rotate(5deg) scale(1.05)', filter: 'drop-shadow(0 30px 40px rgba(0,0,0,0.5))' }} />
           </div>
         </div>
 
-        {/* Features */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', justifyContent: 'center' }}>
-          {features.map(f => (
-            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '9999px', padding: '5px 12px', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              <CheckCircle2 size={13} color="#4ade80" /> {f}
+        {/* Features Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '6rem' }}>
+          {[
+            { icon: <Zap size={24} color="#e11d48" />, title: 'Blazing Fast', desc: 'Native performance and optimized assets ensure the app runs smoothly even on older devices.' },
+            { icon: <Bell size={24} color="#e11d48" />, title: 'Push Notifications', desc: 'Never miss an update. Get notified instantly about new rides, messages, and team requests.' },
+            { icon: <Smartphone size={24} color="#e11d48" />, title: 'Native UI', desc: 'An interface designed specifically for mobile users, with gesture support and haptic feedback.' }
+          ].map((feature, i) => (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '2rem', transition: 'transform 0.3s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+              <div style={{ width: 48, height: 48, borderRadius: '14px', background: 'rgba(225,29,72,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', border: '1px solid rgba(225,29,72,0.2)' }}>
+                {feature.icon}
+              </div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.75rem', color: '#fff' }}>{feature.title}</h3>
+              <p style={{ color: '#a1a1aa', lineHeight: 1.6, margin: 0, fontSize: '0.95rem' }}>{feature.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* Mockup Image (desktop) */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <img src={mockup} alt="Tumkuru Connect Mobile App" style={{ maxWidth: '260px', width: '100%', borderRadius: '20px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', opacity: 0.9 }} />
+        {/* How to Install Timeline */}
+        <div style={{ textAlign: 'center', padding: '4rem 0', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 3rem' }}>How to Install</h2>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', textAlign: 'left', maxWidth: '800px', margin: '0 auto' }}>
+            {[
+              { step: '1', title: 'Download APK', desc: 'Click the download button above.' },
+              { step: '2', title: 'Allow Unknown Sources', desc: 'Enable installation in your browser settings.' },
+              { step: '3', title: 'Install & Open', desc: 'Open the file and follow instructions.' }
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#a1a1aa', flexShrink: 0 }}>
+                  {item.step}
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700, margin: '0 0 0.25rem', color: '#fff' }}>{item.title}</h4>
+                  <p style={{ color: '#71717a', fontSize: '0.85rem', lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>
