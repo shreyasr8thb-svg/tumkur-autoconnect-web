@@ -7,6 +7,7 @@ import { useUser } from '../context/UserContext';
 import InAppCall from './InAppCall';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import tcBlackImg from '../assets/tc-black.png';
 
 const TUMKUR = { lat: 13.3379, lng: 77.1173 };
 const FACTORIES = [
@@ -387,7 +388,7 @@ export default function RideHailing({ onBack }) {
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem' }}>TC Black has arrived</h3>
               <div style={{ background: '#27272a', borderRadius: '16px', overflow: 'hidden', height: 180, position: 'relative', cursor: 'pointer' }} onClick={() => setStep('input')}>
                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8))', zIndex: 1 }} />
-                 <img src="https://images.unsplash.com/photo-1629897048514-3dd74142ff23?auto=format&fit=crop&q=80&w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Black Cab" />
+                 <img src={tcBlackImg} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="TC Black Cab" />
                  <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', zIndex: 2 }}>
                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>Try Black</div>
                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Premium business class rides</div>
