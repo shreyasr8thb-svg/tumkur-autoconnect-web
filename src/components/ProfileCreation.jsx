@@ -58,16 +58,17 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
         await updateProfile(cred.user, { displayName: form.fullName, photoURL: form.photoURL || '' });
         currentUid = cred.user.uid;
         try {
-          const { collection, addDoc } = await import('firebase/firestore');
-          await addDoc(collection(db, 'mail'), {
-            to: form.email,
-            message: {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: form.email,
               subject: 'Welcome to Tumkuru Connect!',
               text: 'You have successfully created your Tumkuru Connect account.',
               html: '<strong>Welcome to Tumkuru Connect! Your profile has been created successfully.</strong>'
-            }
+            })
           });
-        } catch(e) { console.error('Failed to queue email', e); }
+        } catch(e) { console.error('Failed to send email', e); }
       } else {
         await updateProfile(user, { displayName: form.fullName, photoURL: form.photoURL || '' });
       }

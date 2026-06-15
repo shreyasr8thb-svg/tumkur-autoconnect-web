@@ -6,11 +6,26 @@ import {
   signInWithPopup,
   signInWithCredential,
 } from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore';
 import { Smartphone } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import logo from '../assets/logo.png';
 import DownloadPromo from './DownloadPromo';
+
+// Helper to send email via Vercel Serverless Function
+const sendWelcomeEmail = async (email) => {
+  try {
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: email,
+        subject: 'New Sign-In to Tumkuru Connect',
+        text: 'You have successfully signed in to your Tumkuru Connect account.',
+        html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
+      })
+    });
+  } catch(e) { console.error('Failed to send email', e); }
+};
 
 const APK_URL = 'https://github.com/shreyasr8thb-svg/tumkur-autoconnect-web/releases/download/latest-apk/TumkuruConnect.apk';
 
@@ -76,16 +91,7 @@ export default function Login({ onCreateProfile }) {
     setLoading(true); setError('');
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      try {
-        await addDoc(collection(db, 'mail'), {
-          to: cred.user.email,
-          message: {
-            subject: 'New Sign-In to Tumkuru Connect',
-            text: 'You have successfully signed in to your Tumkuru Connect account.',
-            html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
-          }
-        });
-      } catch(e) { console.error('Failed to queue email', e); }
+      sendWelcomeEmail(cred.user.email);
     } catch (err) {
       const c = err.code || '';
       if (c === 'auth/user-not-found' || c === 'auth/invalid-credential')
@@ -121,16 +127,7 @@ export default function Login({ onCreateProfile }) {
 
         const credential = GoogleAuthProvider.credential(idToken, accessToken ?? null);
         const cred = await signInWithCredential(auth, credential);
-        try {
-          await addDoc(collection(db, 'mail'), {
-            to: cred.user.email,
-            message: {
-              subject: 'New Sign-In to Tumkuru Connect',
-              text: 'You have successfully signed in to your Tumkuru Connect account.',
-              html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
-            }
-          });
-        } catch(e) { console.error('Failed to queue email', e); }
+        sendWelcomeEmail(cred.user.email);
 
       } catch (err) {
         const msg = String(err?.message || err);
@@ -162,16 +159,7 @@ export default function Login({ onCreateProfile }) {
       provider.addScope('email');
       try {
         const cred = await signInWithPopup(auth, provider);
-        try {
-          await addDoc(collection(db, 'mail'), {
-            to: cred.user.email,
-            message: {
-              subject: 'New Sign-In to Tumkuru Connect',
-              text: 'You have successfully signed in to your Tumkuru Connect account.',
-              html: '<strong>Welcome back! You have successfully signed in to your Tumkuru Connect account.</strong>'
-            }
-          });
-        } catch(e) { console.error('Failed to queue email', e); }
+        sendWelcomeEmail(cred.user.email);
       } catch (err) {
         if (
           err.code !== 'auth/popup-closed-by-user' &&
