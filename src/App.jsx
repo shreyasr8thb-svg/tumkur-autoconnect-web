@@ -41,9 +41,9 @@ function AppContent() {
   useEffect(() => {
     const checkUpdate = async () => {
       try {
-        const res = await fetch('/version.json?t=' + Date.now());
+        const res = await fetch('https://tumkur-autoconnect-web.vercel.app/version.json?t=' + Date.now());
         const data = await res.json();
-        const CURRENT_VERSION = '1.0.0'; // Updated to 1.0.1 in public
+        const CURRENT_VERSION = '1.0.2'; // The hardcoded version of THIS build
         if (data.version && data.version !== CURRENT_VERSION) {
           try {
             await LocalNotifications.requestPermissions();
