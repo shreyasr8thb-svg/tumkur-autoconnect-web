@@ -13,6 +13,7 @@ import { App as CapacitorApp } from '@capacitor/app'
 import { auth } from './firebase'
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth'
 import { LocalNotifications } from '@capacitor/local-notifications'
+import DownloadPage from './components/DownloadPage'
 
 function AppContent() {
   const { user, profile, loading, toast, signOut } = useUser()
@@ -77,6 +78,10 @@ function AppContent() {
 
   if (window.location.pathname === '/native-login') {
     return <NativeLoginFallback />
+  }
+
+  if (window.location.pathname === '/download' || window.location.pathname === '/download/') {
+    return <DownloadPage />
   }
 
   if (showSplash) return <div className="app-shell"><Splash /></div>
