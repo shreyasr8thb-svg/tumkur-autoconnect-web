@@ -61,7 +61,19 @@ function AppContent() {
             LocalNotifications.addListener('localNotificationActionPerformed', () => {
               window.open(data.url || 'https://tumkur-autoconnect.vercel.app/download', '_system');
             });
-          } catch(e) {}
+            
+            // Fallback: If notifications are disabled or fail, show an in-app alert after a short delay
+            setTimeout(() => {
+              if (window.confirm("A new version of Tumkuru Connect is available! Would you like to update now to get the latest features and fixes?")) {
+                window.open(data.url || 'https://tumkur-autoconnect-web.vercel.app/download', '_system');
+              }
+            }, 3000);
+          } catch(e) {
+            // If LocalNotifications plugin fails entirely, show alert immediately
+            if (window.confirm("A new version of Tumkuru Connect is available! Would you like to update now?")) {
+              window.open(data.url || 'https://tumkur-autoconnect-web.vercel.app/download', '_system');
+            }
+          }
         }
       } catch (e) {}
     };
