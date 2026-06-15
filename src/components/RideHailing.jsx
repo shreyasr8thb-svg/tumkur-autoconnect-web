@@ -19,6 +19,7 @@ const FACTORIES = [
 function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
+  const userMarkerRef = useRef(null);
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -49,7 +50,7 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
         </div>`,
         iconSize: [24, 24], className: '',
       });
-      L.marker([userPos.lat, userPos.lng], { icon: userIcon }).addTo(map).bindPopup('<b>📍 You</b>');
+      userMarkerRef.current = L.marker([userPos.lat, userPos.lng], { icon: userIcon }).addTo(map).bindPopup('<b>📍 You</b>');
 
       // Factory/destination markers
       FACTORIES.forEach(f => {
@@ -75,6 +76,15 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
       if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
     };
   }, []);
+
+  useEffect(() => {
+    if (mapInstance.current && userMarkerRef.current) {
+      userMarkerRef.current.setLatLng([userPos.lat, userPos.lng]);
+      if (!dropoffPos) {
+        mapInstance.current.flyTo([userPos.lat, userPos.lng], 15);
+      }
+    }
+  }, [userPos, dropoffPos]);
 
   useEffect(() => {
     if (!mapInstance.current || !dropoffPos) return;
@@ -134,6 +144,28 @@ export default function RideHailing({ onBack }) {
   const [searchResults, setSearchResults] = useState([]);
   
   useEffect(() => {
+    // Try to get location silently on mount
+    const checkLoc = async () => {
+      try {
+        if (window.Capacitor?.isNativePlatform?.()) {
+          const perm = await Geolocation.checkPermissions();
+          if (perm.location === 'granted') {
+             const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+             setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
+          }
+        } else {
+           navigator.geolocation.getCurrentPosition(
+             (p) => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
+             () => {},
+             { enableHighAccuracy: true }
+           );
+        }
+      } catch (e) {}
+    };
+    checkLoc();
+  }, []);
+
+  useEffect(() => {
     if (!dropoff || dropoff === 'Pinned Location' || dropoff.length < 3) {
       setSearchResults([]);
       return;
@@ -171,10 +203,20 @@ export default function RideHailing({ onBack }) {
 
   const fetchLoc = async () => {
     try {
-      await Geolocation.requestPermissions();
-      const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 6000 });
-      setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
-    } catch (e) {}
+      if (window.Capacitor?.isNativePlatform?.()) {
+        await Geolocation.requestPermissions();
+        const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 6000 });
+        setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
+      } else {
+        navigator.geolocation.getCurrentPosition(
+          (p) => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
+          () => alert("Please allow location permissions in your browser."),
+          { enableHighAccuracy: true }
+        );
+      }
+    } catch (e) {
+      alert("Could not get location. Please check your phone settings.");
+    }
   };
 
   useEffect(() => {
