@@ -150,14 +150,14 @@ export default function RideHailing({ onBack }) {
         if (window.Capacitor?.isNativePlatform?.()) {
           const perm = await Geolocation.checkPermissions();
           if (perm.location === 'granted') {
-             const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+             const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, maximumAge: 0 });
              setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
           }
         } else {
            navigator.geolocation.getCurrentPosition(
              (p) => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
              () => {},
-             { enableHighAccuracy: true }
+             { enableHighAccuracy: true, maximumAge: 0 }
            );
         }
       } catch (e) {}
@@ -205,17 +205,17 @@ export default function RideHailing({ onBack }) {
     try {
       if (window.Capacitor?.isNativePlatform?.()) {
         await Geolocation.requestPermissions();
-        const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 6000 });
+        const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
         setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
       } else {
         navigator.geolocation.getCurrentPosition(
           (p) => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
-          () => alert("Please allow location permissions in your browser."),
-          { enableHighAccuracy: true }
+          (err) => alert("Please allow location permissions: " + err.message),
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       }
     } catch (e) {
-      alert("Could not get location. Please check your phone settings.");
+      alert("Could not get location. Check your phone settings: " + (e.message || e));
     }
   };
 
