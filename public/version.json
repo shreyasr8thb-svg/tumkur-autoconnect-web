@@ -1,5 +1,5 @@
 {
-  "version": "1.0.6",
+  "version": "1.0.7",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Critical update: Enhanced GPS accuracy, new 'TC Black' branding, and improved destination search!"
+  "message": "Critical update: Email verification implemented to replace phone verification."
 }
