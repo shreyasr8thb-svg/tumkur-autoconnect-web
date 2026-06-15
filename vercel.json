@@ -1,3 +1,9 @@
 {
-  "name": "tumkur-autoconnect-web"
+  "name": "tumkur-autoconnect-web",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
