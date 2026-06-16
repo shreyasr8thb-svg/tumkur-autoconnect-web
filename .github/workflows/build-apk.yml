@@ -11,7 +11,7 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed to create/update GitHub Releases
+      contents: write # needed to create/update GitHub Releases
 
     steps:
       # ── 1. Source ─────────────────────────────────────────────────────────────
@@ -22,8 +22,8 @@ jobs:
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -34,7 +34,7 @@ jobs:
           echo "google-services.json contents:"
           cat android/app/google-services.json
           echo "Package check:"
-          grep -o '"com.tumukuru.connect"' android/app/google-services.json && echo "✅ Package name OK" || echo "❌ Package name missing!"
+          if grep -q '"com.tumukuru.connect"' android/app/google-services.json; then echo "✅ Package name OK"; else echo "❌ Package name missing!"; fi
 
       # ── 4. Build web assets ───────────────────────────────────────────────────
       - name: Build web app (Vite)
@@ -44,8 +44,8 @@ jobs:
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: "temurin"
+          java-version: "21"
 
       # ── 6. App icons ──────────────────────────────────────────────────────────
       - name: Generate app icons from logo.png
@@ -144,9 +144,11 @@ jobs:
           mkdir -p release-artifacts
           cp android/app/build/outputs/apk/debug/app-debug.apk \
              release-artifacts/TumkuruConnect.apk
-          echo "APK_PATH=release-artifacts/TumkuruConnect.apk" >> $GITHUB_ENV
-          echo "BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_ENV
-          echo "COMMIT_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          {
+            echo "APK_PATH=release-artifacts/TumkuruConnect.apk"
+            echo "BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo "COMMIT_SHORT=$(git rev-parse --short HEAD)"
+          } >> "$GITHUB_ENV"
 
       # ── 11. Upload to GitHub Releases (tag: latest-apk) ──────────────────────
       - name: Delete old 'latest-apk' release (if exists)

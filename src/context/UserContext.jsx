@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged, signOut as firebaseSignOut, deleteUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { sendSecurityEmail } from '../utils/email';
 
 const UserContext = createContext(null);
 import { Geolocation } from '@capacitor/geolocation';
@@ -87,11 +88,17 @@ export function UserProvider({ children }) {
     showToast('Profile saved ✓');
   };
 
-  const signOut = async () => { await firebaseSignOut(auth); setUser(null); setProfile(null); };
+  const signOut = async () => { 
+    if (user?.email) sendSecurityEmail(user.email, 'signout');
+    await firebaseSignOut(auth); 
+    setUser(null); 
+    setProfile(null); 
+  };
   
   const deleteProfile = async () => {
     if (!user) return;
     try {
+      if (user.email) sendSecurityEmail(user.email, 'delete');
       await deleteDoc(doc(db, 'users', user.uid));
       await deleteUser(user);
       setUser(null);

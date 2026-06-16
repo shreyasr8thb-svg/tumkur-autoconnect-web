@@ -59,7 +59,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
     setGeneratedOtp(otp);
 
     try {
-      await fetch('/api/send-email', {
+      await fetch('https://tumkur-autoconnect-web.vercel.app/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -93,7 +93,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
         await updateProfile(cred.user, { displayName: form.fullName, photoURL: form.photoURL || '' });
         currentUid = cred.user.uid;
         try {
-          await fetch('/api/send-email', {
+          await fetch('https://tumkur-autoconnect-web.vercel.app/api/send-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -118,7 +118,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
               `
             })
           });
-          showToast('Profile created! Welcome email sent.');
+          showToast('Profile created successfully!');
         } catch(e) { console.error('Failed to send email', e); }
       } else {
         await updateProfile(user, { displayName: form.fullName, photoURL: form.photoURL || '' });
