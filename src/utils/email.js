@@ -37,7 +37,7 @@ export const sendSecurityEmail = async (email, type) => {
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <div style="text-align: center; margin-bottom: 20px;">
-              <img src="https://tumkur-autoconnect-web.vercel.app/assets/logo.png" alt="Tumkuru Connect" style="width: 80px; height: 80px; border-radius: 15px;" />
+              <img src="https://tumkur-autoconnect-web.vercel.app/logo.png" alt="Tumkuru Connect" style="width: 80px; height: 80px; border-radius: 15px;" />
             </div>
             <h2 style="color: #1e293b; text-align: center;">${subject.split(':')[0]}</h2>
             <p style="color: #475569; font-size: 16px;">Hello,</p>
