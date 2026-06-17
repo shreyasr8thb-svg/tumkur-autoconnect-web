@@ -21,6 +21,7 @@ import ProfileView from './ProfileView';
 import RideHailing from './RideHailing';
 import QRCode from 'react-qr-code';
 import logo from '../assets/logo.png';
+import LiveMap from './LiveMap';
 
 export default function WorkerDashboard({ onSOS }) {
   const { user, profile, signOut } = useUser();
@@ -512,6 +513,9 @@ function CompanyBusList() {
   return (
     <div className="flex-col gap-3">
       <h3 style={{ margin: 0 }}>Company Buses</h3>
+      <div style={{ marginBottom: 12 }}>
+        <LiveMap height="200px" showBuses={true} />
+      </div>
       {buses.length === 0 ? (
         <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>
           No company buses currently online.
