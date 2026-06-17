@@ -1,5 +1,5 @@
 {
-  "version": "1.0.13",
+  "version": "1.0.14",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Critical update: Fixed geolocation fetching and Private Driver dashboard."
+  "message": "Critical update: Fixed mobile APK download link."
 }

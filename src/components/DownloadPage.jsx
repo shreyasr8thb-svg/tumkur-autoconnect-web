@@ -9,7 +9,13 @@ export default function DownloadPage({ onBack }) {
 
   const handleDownload = () => {
     setStatus('loading');
-    window.location.href = APK_URL;
+    const a = document.createElement('a');
+    a.href = APK_URL;
+    a.target = '_blank';
+    a.download = 'TumkuruConnect.apk';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     setTimeout(() => setStatus('done'), 1500);
   };
 
