@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import { Geolocation } from '@capacitor/geolocation';
 
@@ -124,6 +125,17 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
       {/* Ripple CSS */}
       <style>{`@keyframes ripple{0%{transform:scale(1);opacity:0.8}100%{transform:scale(3);opacity:0}}`}</style>
       <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
+      <button 
+        onClick={(e) => {
+          e.preventDefault();
+          if (mapInstance.current) {
+            mapInstance.current.setView([userPos.lat, userPos.lng], 15, { animate: true });
+          }
+        }}
+        style={{ position: 'absolute', bottom: 100, right: 10, zIndex: 400, background: '#fff', color: '#3b82f6', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer' }}
+      >
+        <Navigation size={20} />
+      </button>
       {geoError && (
         <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', background: 'rgba(15,23,42,0.9)', color: 'var(--text-muted)', fontSize: '0.72rem', padding: '4px 12px', borderRadius: '9999px', zIndex: 20 }}>
           📍 Showing Tumkur, KA (location denied)

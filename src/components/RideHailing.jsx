@@ -106,7 +106,22 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
       map.fitBounds([[userPos.lat, userPos.lng], [dropoffPos.lat, dropoffPos.lng]], { padding: [60, 60] });
   }, [dropoffPos, userPos]);
 
-  return <div ref={mapRef} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+      <button 
+        onClick={(e) => {
+          e.preventDefault();
+          if (mapInstance.current) {
+            mapInstance.current.setView([userPos.lat, userPos.lng], 15, { animate: true });
+          }
+        }}
+        style={{ position: 'absolute', bottom: 100, right: 10, zIndex: 400, background: '#fff', color: '#3b82f6', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer' }}
+      >
+        <Navigation size={20} />
+      </button>
+    </div>
+  );
 }
 
 export default function RideHailing({ onBack }) {
