@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Briefcase, User, Filter, Car } from 'lucide-react';
+import { Search, MapPin, Briefcase, User, Filter, Car, Bus } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -7,6 +7,7 @@ import DashboardShell from './DashboardShell';
 import LiveMap from './LiveMap';
 import ProfileView from './ProfileView';
 import RideHailing from './RideHailing';
+import CompanyBus from './CompanyBus';
 
 export default function JobFinderDashboard({ onSOS }) {
   const { profile } = useUser();
@@ -17,6 +18,7 @@ export default function JobFinderDashboard({ onSOS }) {
     { id: 'map', label: 'Live Map', icon: <MapPin size={18} /> },
     { id: 'applications', label: 'My Applications', icon: <Briefcase size={18} /> },
     { id: 'bus', label: 'Book Ride', icon: <Car size={18} /> },
+    { id: 'companyBus', label: 'Company Bus', icon: <Bus size={18} /> },
     { id: 'profile', label: 'Profile', icon: <User size={18} /> },
   ];
 
@@ -28,6 +30,7 @@ export default function JobFinderDashboard({ onSOS }) {
       {tab === 'map' && <JobMap />}
       {tab === 'applications' && <Applications />}
       {tab === 'bus' && <RideHailing onBack={() => setTab('home')} />}
+      {tab === 'companyBus' && <CompanyBus />}
       {tab === 'profile' && <ProfileView onNavigate={setTab} />}
     </DashboardShell>
   );

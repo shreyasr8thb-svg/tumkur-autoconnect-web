@@ -1,5 +1,5 @@
 {
-  "version": "1.0.8",
+  "version": "1.0.9",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Critical update: Added Shared Bus and Company Bus features."
+  "message": "Critical update: Company Bus feature added for all user roles."
 }

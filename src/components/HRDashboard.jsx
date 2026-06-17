@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import {
   Users, UserCheck, UserX, Building2, Plus, Bell, CheckCircle2,
   XCircle, Clock, Briefcase, Activity, ChevronRight, Megaphone,
-  AlertTriangle, Car, PieChart, ClipboardList, HardHat, ShieldCheck, Search, Check, X
+  AlertTriangle, Car, PieChart, ClipboardList, HardHat, ShieldCheck, Search, Check, X, Bus
 } from 'lucide-react';
 import {
   collection, query, where, onSnapshot,
@@ -20,6 +20,7 @@ import { useUser } from '../context/UserContext';
 import DashboardShell from './DashboardShell';
 import ProfileView from './ProfileView';
 import RideHailing from './RideHailing';
+import CompanyBus from './CompanyBus';
 
 /* ── Main Component ── */
 export default function HRDashboard() {
@@ -56,6 +57,7 @@ export default function HRDashboard() {
     { id: 'workers',  label: 'Employees',   icon: <Users size={18} /> },
     { id: 'announce', label: 'Announcements', icon: <Megaphone size={18} /> },
     { id: 'bus',      label: 'Book Ride',   icon: <Car size={18} /> },
+    { id: 'companyBus', label: 'Company Bus', icon: <Bus size={18} /> },
     { id: 'profile',  label: 'Profile',     icon: <Building2 size={18} /> },
   ];
 
@@ -67,6 +69,7 @@ export default function HRDashboard() {
       {tab === 'workers'  && <EmployeeList company={company} />}
       {tab === 'announce' && <Announcements company={company} user={user} />}
       {tab === 'bus'      && <RideHailing onBack={() => setTab('home')} />}
+      {tab === 'companyBus' && <CompanyBus />}
       {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
     </DashboardShell>
   );
