@@ -128,6 +128,9 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
         employeeId: `TMR-${Math.floor(1000+Math.random()*9000)}`, canteenBalance: 500,
         profileComplete: true, createdAt: new Date().toISOString() };
       delete data.password; delete data.confirmPassword;
+      if (form.role === 'driver' && form.vehicleCategory === 'office_bus') {
+        data.hrApproval = 'pending';
+      }
       
       try { await setDoc(doc(db, 'users', currentUid), data, { merge: true }); } catch {}
       
@@ -237,6 +240,30 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
                     </select>
                   </div>
                   <Input label="Department" name="department" value={form.department} onChange={set} placeholder="CNC, Welding..." />
+                </>
+              )}
+              {form.role === 'driver' && (
+                <>
+                  <div className="input-group mb-0">
+                    <label className="input-label">Vehicle Category</label>
+                    <select name="vehicleCategory" className="input-field" value={form.vehicleCategory || ''} onChange={set}>
+                      <option value="">Select...</option>
+                      <option value="own_cabs">Own Cabs</option>
+                      <option value="own_bus">Own Bus</option>
+                      <option value="office_bus">Office Bus</option>
+                    </select>
+                  </div>
+                  {form.vehicleCategory === 'office_bus' && (
+                    <div className="input-group mb-0">
+                      <label className="input-label">Select Company</label>
+                      <select name="companyName" className="input-field" value={form.companyName || ''} onChange={set}>
+                        <option value="">Select...</option>
+                        <option>Sri Sai Auto Components</option>
+                        <option>Tumkur Machining Hub</option>
+                        <option>Precision Parts Pvt Ltd</option>
+                      </select>
+                    </div>
+                  )}
                 </>
               )}
               <Input label="Emergency Contact" name="emergencyContact" type="tel" value={form.emergencyContact} onChange={set} />

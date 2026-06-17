@@ -1,5 +1,5 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Critical update: Email verification implemented to replace phone verification."
+  "message": "Critical update: Added Shared Bus and Company Bus features."
 }

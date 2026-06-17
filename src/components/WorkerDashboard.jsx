@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import {
   ShieldCheck, Car, IndianRupee, CreditCard, AlertTriangle,
   Upload, Unlink, Building2, Search, CheckCircle2, Clock, X,
-  Home as HomeIcon, Award, User, MapPin, Megaphone, Info, FileText, Check
+  Home as HomeIcon, Award, User, MapPin, Megaphone, Info, FileText, Check, Bus
 } from 'lucide-react';
 import {
   collection, query, where, onSnapshot, doc, setDoc, deleteDoc,
@@ -33,6 +33,7 @@ export default function WorkerDashboard({ onSOS }) {
     { id: 'salary',   label: 'Earnings',     icon: <IndianRupee size={18} /> },
     { id: 'access',   label: 'Smart Access', icon: <CreditCard size={18} /> },
     { id: 'bus',      label: 'Book Ride',    icon: <Car size={18} /> },
+    { id: 'companyBus', label: 'Company Bus', icon: <Bus size={18} /> },
     { id: 'profile',  label: 'Profile',      icon: <User size={18} /> },
   ];
 
@@ -47,6 +48,7 @@ export default function WorkerDashboard({ onSOS }) {
           {tab === 'passport' && <SkillPassport />}
           {tab === 'salary'   && <Salary />}
           {tab === 'access'   && <SmartAccess />}
+          {tab === 'companyBus' && <CompanyBusList />}
           {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
         </DashboardShell>
       )}
@@ -487,6 +489,51 @@ function Row({ label, value }) {
     <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 }}>
       <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{label}</span>
       <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{value}</span>
+    </div>
+  );
+}
+
+/* ── Company Bus List ── */
+function CompanyBusList() {
+  const { profile } = useUser();
+  const [buses, setBuses] = useState([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(query(collection(db, 'users'), where('role', '==', 'driver'), where('vehicleCategory', '==', 'office_bus'), where('isOnline', '==', true)), snap => {
+      setBuses(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, []);
+
+  const bookBus = (bus) => {
+    alert(`Request sent to \${bus.fullName} for Company Bus!`);
+  }
+
+  return (
+    <div className="flex-col gap-3">
+      <h3 style={{ margin: 0 }}>Company Buses</h3>
+      {buses.length === 0 ? (
+        <div className="glass-card text-center" style={{ color: 'var(--text-muted)', padding: '2rem' }}>
+          No company buses currently online.
+        </div>
+      ) : (
+        buses.map(bus => (
+          <div key={bus.id} className="glass-card flex items-center justify-between" style={{ padding: '0.9rem' }}>
+            <div>
+              <div style={{ fontWeight: 700 }}>{bus.fullName}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{bus.vehicleNumber || 'Bus'} • {bus.companyName}</div>
+              {bus.pickupTimes && (
+                <div style={{ fontSize: '0.75rem', color: '#4ade80', marginTop: 4 }}>
+                  Login: {bus.pickupTimes.loginTime} | Logout: {bus.pickupTimes.logoutTime}
+                </div>
+              )}
+            </div>
+            <button onClick={() => bookBus(bus)} className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+              Book Seat
+            </button>
+          </div>
+        ))
+      )}
     </div>
   );
 }

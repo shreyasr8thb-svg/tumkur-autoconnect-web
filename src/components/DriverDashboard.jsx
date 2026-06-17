@@ -45,6 +45,7 @@ function DriveMode({ active, setActive, onMenu }) {
   const [otpInput, setOtpInput] = useState('');
   const [vehicleType, setVehicleType] = useState(profile?.vehicleType || 'Mini');
   const [vehicleNumber, setVehicleNumber] = useState(profile?.vehicleNumber || '');
+  const [pickupTimes, setPickupTimes] = useState({ loginTime: '', logoutTime: '' });
 
   useEffect(() => {
     if (!active) { setPendingRides([]); return; }
@@ -184,6 +185,23 @@ function DriveMode({ active, setActive, onMenu }) {
                 placeholder="e.g. KA 06 AB 1234"
                 style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none', letterSpacing: 1 }}
               />
+
+              {profile?.vehicleCategory === 'office_bus' && (
+                <>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>LOGIN PICKUP TIME</label>
+                  <input 
+                    type="time" 
+                    onChange={e => setPickupTimes(prev => ({ ...prev, loginTime: e.target.value }))}
+                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none' }}
+                  />
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>LOGOUT PICKUP TIME</label>
+                  <input 
+                    type="time" 
+                    onChange={e => setPickupTimes(prev => ({ ...prev, logoutTime: e.target.value }))}
+                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none' }}
+                  />
+                </>
+              )}
             </div>
 
             <button 
@@ -195,7 +213,9 @@ function DriveMode({ active, setActive, onMenu }) {
                 setActive(true);
                 await updateDoc(doc(db, 'users', user.uid), {
                   vehicleType: vehicleType,
-                  vehicleNumber: vehicleNumber
+                  vehicleNumber: vehicleNumber,
+                  isOnline: true,
+                  ...(profile?.vehicleCategory === 'office_bus' && { pickupTimes })
                 });
               }} 
               style={{ width: '100%', padding: '1rem', borderRadius: 14, background: 'linear-gradient(135deg,#16a34a,#22c55e)', color: '#fff', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(34,197,94,0.35)', marginTop: 8 }}

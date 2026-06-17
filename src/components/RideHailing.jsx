@@ -204,6 +204,7 @@ export default function RideHailing({ onBack }) {
   const vehicleOptions = [
     { id: 'Bike', name: 'Moto', price: `₹${Math.round(20 + selectedDist * 12)}`, eta: '1 min', seats: '1 seat', icon: <Bike size={28} color="#94a3b8" />, desc: 'Beat the traffic' },
     { id: 'Auto', name: 'Auto', price: `₹${Math.round(30 + selectedDist * 15)}`, eta: '3 min', seats: '3 seats', icon: <Users size={28} color="#f59e0b" />, desc: 'Everyday affordable rides' },
+    { id: 'SharedBus', name: 'Shared Bus', price: `₹${Math.round(15 + selectedDist * 5)}`, eta: '10 min', seats: '40 seats', icon: <Bus size={28} color="#fb923c" />, desc: 'Affordable shared commute' },
     { id: 'Mini', name: 'TC Mini', price: `₹${Math.round(50 + selectedDist * 22)}`, eta: '2 min', seats: '4 seats', icon: <Car size={28} color="#3b82f6" />, desc: 'Budget-friendly hatchback' },
     { id: 'Sedan', name: 'TC Sedan', price: `₹${Math.round(60 + selectedDist * 28)}`, eta: '4 min', seats: '4 seats', icon: <CarFront size={28} color="#e11d48" />, desc: 'Comfortable sedan ride' },
     { id: 'SUV', name: 'TC SUV', price: `₹${Math.round(80 + selectedDist * 35)}`, eta: '7 min', seats: '6 seats', icon: <Bus size={28} color="#10b981" />, desc: 'Premium spacious SUV' },
@@ -361,6 +362,7 @@ export default function RideHailing({ onBack }) {
                   { name: 'Trip', icon: <Car size={28} color="#fff" />, promo: '25%' },
                   { name: 'Auto', icon: <Users size={28} color="#fcd34d" /> },
                   { name: 'Bike Saver', icon: <Bike size={28} color="#cbd5e1" /> },
+                  { name: 'Shared Bus', icon: <Bus size={28} color="#fb923c" /> },
                   { name: 'Reserve', icon: <Clock size={28} color="#fff" />, promo: 'Promo' },
                   { name: 'Intercity', icon: <CarFront size={28} color="#fff" /> },
                   { name: 'Rentals', icon: <Clock size={28} color="#fff" /> },
