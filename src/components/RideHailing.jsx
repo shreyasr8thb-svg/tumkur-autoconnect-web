@@ -166,16 +166,19 @@ export default function RideHailing({ onBack }) {
       try {
         if (window.Capacitor?.isNativePlatform?.()) {
           const perm = await Geolocation.checkPermissions();
-          if (perm.location === 'granted') {
-             const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, maximumAge: 0 });
-             setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
+          if (perm.location !== 'granted') {
+            await Geolocation.requestPermissions();
           }
+          const p = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+          setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude });
         } else {
-           navigator.geolocation.getCurrentPosition(
-             (p) => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
-             () => {},
-             { enableHighAccuracy: true, maximumAge: 0 }
-           );
+           if (navigator.geolocation) {
+             navigator.geolocation.getCurrentPosition(
+               (p) => setUserPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
+               () => {},
+               { enableHighAccuracy: true, timeout: 10000 }
+             );
+           }
         }
       } catch (e) {}
     };

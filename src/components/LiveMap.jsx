@@ -30,9 +30,28 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
   useEffect(() => {
     const fetchLoc = async () => {
       try {
-        await Geolocation.requestPermissions();
-        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 8000 });
-        setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        if (window.Capacitor?.isNativePlatform?.()) {
+          const perm = await Geolocation.checkPermissions();
+          if (perm.location !== 'granted') {
+            await Geolocation.requestPermissions();
+          }
+          const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+          setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setGeoError(false);
+        } else {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                setGeoError(false);
+              },
+              () => setGeoError(true),
+              { enableHighAccuracy: true, timeout: 10000 }
+            );
+          } else {
+            setGeoError(true);
+          }
+        }
       } catch (e) {
         setGeoError(true);
       }

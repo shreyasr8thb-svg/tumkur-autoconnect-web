@@ -23,7 +23,7 @@ export default function DriverDashboard() {
   const tabs = [
     { id: 'drive',      label: 'Drive Mode', icon: <Car size={18} /> },
     { id: 'trips',      label: 'Trip Logs',  icon: <ClipboardList size={18} /> },
-    { id: 'companyBus', label: 'Company Bus', icon: <Bus size={18} /> },
+    ...(profile?.driverType === 'company_driver' ? [{ id: 'companyBus', label: 'Company Bus', icon: <Bus size={18} /> }] : []),
     { id: 'profile',   label: 'Profile',    icon: <User size={18} /> },
   ];
 
