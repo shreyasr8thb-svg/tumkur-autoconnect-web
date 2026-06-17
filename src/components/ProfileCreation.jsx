@@ -128,7 +128,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
         employeeId: `TMR-${Math.floor(1000+Math.random()*9000)}`, canteenBalance: 500,
         profileComplete: true, createdAt: new Date().toISOString() };
       delete data.password; delete data.confirmPassword;
-      if (form.role === 'driver' && form.vehicleCategory === 'office_bus') {
+      if (form.role === 'driver' && form.driverType === 'company_driver') {
         data.hrApproval = 'pending';
       }
       
@@ -245,22 +245,41 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
               {form.role === 'driver' && (
                 <>
                   <div className="input-group mb-0">
-                    <label className="input-label">Vehicle Category</label>
-                    <select name="vehicleCategory" className="input-field" value={form.vehicleCategory || ''} onChange={set}>
+                    <label className="input-label">Driver Type</label>
+                    <select name="driverType" className="input-field" value={form.driverType || ''} onChange={set}>
                       <option value="">Select...</option>
-                      <option value="own_cabs">Own Cabs</option>
-                      <option value="own_bus">Own Bus</option>
-                      <option value="office_bus">Office Bus</option>
+                      <option value="company_driver">Company Driver</option>
+                      <option value="private_driver">Private Driver</option>
                     </select>
                   </div>
-                  {form.vehicleCategory === 'office_bus' && (
+                  {form.driverType === 'company_driver' && (
+                    <>
+                      <div className="input-group mb-0">
+                        <label className="input-label">Select Company</label>
+                        <select name="companyName" className="input-field" value={form.companyName || ''} onChange={set}>
+                          <option value="">Select...</option>
+                          <option>Sri Sai Auto Components</option>
+                          <option>Tumkur Machining Hub</option>
+                          <option>Precision Parts Pvt Ltd</option>
+                        </select>
+                      </div>
+                      <div className="input-group mb-0">
+                        <label className="input-label">Vehicle Category</label>
+                        <select name="vehicleCategory" className="input-field" value={form.vehicleCategory || ''} onChange={set}>
+                          <option value="">Select...</option>
+                          <option value="office_bus">Office Bus</option>
+                          <option value="office_cab">Office Cab</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+                  {form.driverType === 'private_driver' && (
                     <div className="input-group mb-0">
-                      <label className="input-label">Select Company</label>
-                      <select name="companyName" className="input-field" value={form.companyName || ''} onChange={set}>
+                      <label className="input-label">Vehicle Category</label>
+                      <select name="vehicleCategory" className="input-field" value={form.vehicleCategory || ''} onChange={set}>
                         <option value="">Select...</option>
-                        <option>Sri Sai Auto Components</option>
-                        <option>Tumkur Machining Hub</option>
-                        <option>Precision Parts Pvt Ltd</option>
+                        <option value="own_cabs">Own Cabs</option>
+                        <option value="own_bus">Own Bus</option>
                       </select>
                     </div>
                   )}
