@@ -9,7 +9,7 @@ import { useUser } from '../context/UserContext';
 const ROLES = [
   { id: 'worker', label: 'Industry Worker', icon: <User size={20} />, desc: 'I work in the industrial ecosystem' },
   { id: 'jobfinder', label: 'Job Finder', icon: <Search size={20} />, desc: 'I\'m looking for industrial jobs' },
-  { id: 'driver', label: 'Bus Driver', icon: <Truck size={20} />, desc: 'I drive industrial shuttles' },
+  { id: 'driver', label: 'Driver', icon: <Truck size={20} />, desc: 'Company or private driver' },
   { id: 'hr', label: 'Business Owner / HR', icon: <Users size={20} />, desc: 'I manage a company' },
 ];
 
