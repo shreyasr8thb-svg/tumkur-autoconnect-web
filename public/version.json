@@ -1,5 +1,5 @@
 {
-  "version": "1.0.20",
+  "version": "1.0.21",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Update: Added microphone permissions for in-app calling."
+  "message": "Update: Added live tracking, reject buttons, and direct UPI payment."
 }

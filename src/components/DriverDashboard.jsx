@@ -15,6 +15,7 @@ import LiveMap from './LiveMap';
 import InAppCall from './InAppCall';
 import CompanyBus from './CompanyBus';
 import { Bus } from 'lucide-react';
+import { Geolocation } from '@capacitor/geolocation';
 
 export default function DriverDashboard() {
   const { profile, signOut } = useUser();
@@ -55,8 +56,38 @@ function DriveMode({ active, setActive, onMenu }) {
   useEffect(() => {
     if (!active) { setPendingRides([]); return; }
     const q = query(collection(db, 'rides'), where('status', '==', 'pending'));
-    return onSnapshot(q, snap => setPendingRides(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-  }, [active]);
+    return onSnapshot(q, snap => {
+      const rides = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Filter out rides the driver has already rejected
+      setPendingRides(rides.filter(r => !r.rejectedBy?.includes(user.uid)));
+    });
+  }, [active, user.uid]);
+
+  // Background Location Tracker
+  useEffect(() => {
+    let watchId;
+    if (active && user?.uid) {
+      const startTracking = async () => {
+        try {
+          if (window.Capacitor?.isNativePlatform?.()) {
+            await Geolocation.requestPermissions();
+          }
+          watchId = await Geolocation.watchPosition({ enableHighAccuracy: true }, (position, err) => {
+            if (position) {
+              updateDoc(doc(db, 'users', user.uid), {
+                location: { lat: position.coords.latitude, lng: position.coords.longitude },
+                updatedAt: Date.now()
+              }).catch(() => {}); // silent fail if offline
+            }
+          });
+        } catch (e) { console.error('Location tracking failed', e); }
+      };
+      startTracking();
+    }
+    return () => {
+      if (watchId != null) Geolocation.clearWatch({ id: watchId });
+    };
+  }, [active, user]);
 
   useEffect(() => {
     if (!user) return;
@@ -75,6 +106,14 @@ function DriveMode({ active, setActive, onMenu }) {
       driverPhoto: profile?.photoURL || null,
       vehicleType: vehicleType || 'Mini',
       vehicleNumber: vehicleNumber || 'KA-00-0000',
+    });
+  };
+
+  const rejectRide = async (ride) => {
+    import('firebase/firestore').then(({ arrayUnion }) => {
+      updateDoc(doc(db, 'rides', ride.id), {
+        rejectedBy: arrayUnion(user.uid)
+      });
     });
   };
 
@@ -131,9 +170,14 @@ function DriveMode({ active, setActive, onMenu }) {
                 <div style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12} /> {r.dropoff}</div>
                 <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>{r.vehicleType}</div>
               </div>
-              <button onClick={() => acceptRide(r)} style={{ background: '#3b82f6', border: 'none', borderRadius: 12, padding: '10px 18px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
-                Accept
-              </button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => rejectRide(r)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 12, padding: '10px 14px', color: '#f87171', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
+                  Reject
+                </button>
+                <button onClick={() => acceptRide(r)} style={{ background: '#3b82f6', border: 'none', borderRadius: 12, padding: '10px 18px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
+                  Accept
+                </button>
+              </div>
             </div>
           ))}
         </div>

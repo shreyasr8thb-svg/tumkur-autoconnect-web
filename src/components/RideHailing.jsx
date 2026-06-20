@@ -667,9 +667,17 @@ export default function RideHailing({ onBack }) {
                 <span style={{ fontWeight: 900, fontSize: '1.2rem', color: '#e11d48', letterSpacing: 3 }}>{ride?.otp}</span>
               </div>
 
-              <button onClick={cancelRide} style={{ padding: '0.75rem', borderRadius: 12, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
-                Cancel Ride
-              </button>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => {
+                  window.open(`upi://pay?pa=tumkuruconnect@ybl&pn=${encodeURIComponent(ride?.driverName || 'Driver')}&am=${ride?.price?.replace('₹', '') || 0}&cu=INR&tn=Ride%20Fare`);
+                }} style={{ flex: 1, padding: '0.85rem', borderRadius: 12, background: 'linear-gradient(135deg, #16a34a, #22c55e)', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
+                  Pay {ride?.price} with UPI
+                  <span style={{ background: '#fff', color: '#16a34a', fontSize: '0.6rem', padding: '2px 6px', borderRadius: 4, fontWeight: 900 }}>0% FEE</span>
+                </button>
+                <button onClick={cancelRide} style={{ width: 48, borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}>
+                  <X size={20} />
+                </button>
+              </div>
             </div>
           )}
 
