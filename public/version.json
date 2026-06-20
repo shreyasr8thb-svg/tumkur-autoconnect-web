@@ -1,5 +1,5 @@
 {
-  "version": "1.0.14",
+  "version": "1.0.15",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Critical update: Fixed mobile APK download link."
+  "message": "Update: Fixed height issue on taller phones and back button behavior."
 }

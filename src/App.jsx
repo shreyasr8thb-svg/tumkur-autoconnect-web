@@ -21,8 +21,23 @@ function AppContent() {
   const [showCreate, setShowCreate] = useState(false)
 
   useEffect(() => {
+    let backListener;
+    if (window.Capacitor?.isNativePlatform?.()) {
+      backListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+        if (showCreate) {
+          setShowCreate(false);
+          return;
+        }
+        if (canGoBack) {
+          window.history.back();
+        } else {
+          CapacitorApp.exitApp();
+        }
+      });
+    }
+
     // Intercept deep links from the native fallback
-    const listener = CapacitorApp.addListener('appUrlOpen', async data => {
+    const linkListener = CapacitorApp.addListener('appUrlOpen', async data => {
       if (data.url.includes('tumkuruconnect://login')) {
         const url = new URL(data.url);
         const idToken = url.searchParams.get('idToken');
@@ -36,15 +51,19 @@ function AppContent() {
         }
       }
     });
-    return () => { listener.then(l => l.remove()); }
-  }, []);
+
+    return () => { 
+      linkListener.then(l => l.remove());
+      if (backListener) backListener.then(l => l.remove());
+    };
+  }, [showCreate]);
 
   useEffect(() => {
     const checkUpdate = async () => {
       try {
         const res = await fetch('https://tumkur-autoconnect-web.vercel.app/version.json?t=' + Date.now());
         const data = await res.json();
-        const CURRENT_VERSION = '1.0.14'; // The hardcoded version of THIS build
+        const CURRENT_VERSION = '1.0.15'; // The hardcoded version of THIS build
         if (data.version && data.version !== CURRENT_VERSION) {
           try {
             await LocalNotifications.requestPermissions();
