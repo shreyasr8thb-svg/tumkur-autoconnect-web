@@ -152,9 +152,34 @@ export default function DashboardShell({
           </div>
         </div>
 
-        {/* Scrollable content */}
-        <div id="scroll-area" style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flex: 1, padding: '1.25rem', paddingBottom: 'max(5rem, calc(1.5rem + env(safe-area-inset-bottom)))', display: 'flex', flexDirection: 'column', gap: '1rem', animation: 'fadeIn 0.25s ease-out', maxWidth: 900, margin: '0 auto', width: '100%' }}>
+        {/* Scrollable content — fills all remaining flex space, scrolls vertically */}
+        <div
+          id="scroll-area"
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehaviorY: 'contain',
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+          }}
+        >
+          <div style={{
+            flex: 1,
+            padding: '1.25rem',
+            /* Bottom padding accounts for FAB button + home bar safe-area */
+            paddingBottom: 'max(5.5rem, calc(1.5rem + env(safe-area-inset-bottom)))',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            animation: 'fadeIn 0.25s ease-out',
+            /* Constrain max-width on large screens */
+            maxWidth: 900,
+            margin: '0 auto',
+            width: '100%',
+          }}>
             {isShell ? (
               <>
                 {shellTab === 'chat'     && <ChatBox onBack={() => setShellTab(null)} />}
@@ -190,8 +215,8 @@ export default function DashboardShell({
               style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '82%', maxWidth: 320, background: 'rgba(5,10,30,0.98)', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', animation: 'slideInLeft 0.22s ease-out' }}
               onClick={e => e.stopPropagation()}
             >
-              {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              {/* Header – top padding respects the status bar / notch */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem', paddingTop: 'calc(1.25rem + env(safe-area-inset-top, 0px))', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <img src={logo} alt="Tumkuru Connect Logo" style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'contain', background: '#fff', padding: '2px' }} />
                   <span style={{ fontWeight: 800, fontSize: '1.05rem' }}>Tumkuru Connect</span>
