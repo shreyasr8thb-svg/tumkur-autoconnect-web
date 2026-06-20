@@ -134,6 +134,34 @@ export default function RideHailing({ onBack }) {
   const [customDropoff, setCustomDropoff] = useState(null);
   const [selectedDestination, setSelectedDestination] = useState(null);
 
+  // Push a new step to browser history so the hardware back button navigates steps correctly
+  const goToStep = (nextStep) => {
+    window.history.pushState({ rideStep: nextStep }, '');
+    setStep(nextStep);
+  };
+
+  // Called by visual back buttons — same as pressing the hardware back button
+  const goBack = () => window.history.back();
+
+  // Handle hardware back button / browser back navigation inside RideHailing
+  useEffect(() => {
+    // Push the initial 'home' entry so there is always something to pop back from
+    window.history.pushState({ rideStep: 'home' }, '');
+
+    const onPop = () => {
+      setStep(prev => {
+        if (prev === 'options')  return 'input';
+        if (prev === 'input')    return 'home';
+        if (prev === 'pending')  return 'home';
+        // prev === 'home': hash reverts → useHashTab changes tab → component unmounts
+        return prev;
+      });
+    };
+
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -213,7 +241,7 @@ export default function RideHailing({ onBack }) {
   const handleSelectDestination = (s) => {
     setDropoff(s.name);
     setSelectedDestination(s);
-    setStep('options');
+    goToStep('options'); // push to history so back returns to 'input'
   };
 
   const selectedDist = selectedDestination ? parseFloat(selectedDestination.dist) : 5.0;
@@ -282,7 +310,7 @@ export default function RideHailing({ onBack }) {
       driverId: null, driverName: null, driverPhoto: null, otp,
       timestamp: Date.now(),
     });
-    setStep('pending');
+    goToStep('pending'); // push to history so back cancels gracefully
   };
 
   const cancelRide = () => deleteDoc(doc(db, 'rides', user.uid));
@@ -308,7 +336,7 @@ export default function RideHailing({ onBack }) {
       {!ride && (step === 'input' || step === 'home') && (
         <>
           <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20 }}>
-            <div onClick={() => step === 'home' ? (onBack && onBack()) : setStep('home')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
               <ArrowLeft size={22} color="#fff" />
             </div>
           </div>
@@ -339,7 +367,7 @@ export default function RideHailing({ onBack }) {
       {step === 'options' && (
         <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none' }}>
           <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 800, padding: '0 14px', pointerEvents: 'auto' }}>
-            <div onClick={() => setStep('input')} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
               <ArrowLeft size={22} color="#fff" />
             </div>
             <div style={{ flex: 1, background: '#121212', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
