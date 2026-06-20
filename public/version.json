@@ -1,5 +1,5 @@
 {
-  "version": "1.0.19",
+  "version": "1.0.20",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Update: Removed promo banners from login screen."
+  "message": "Update: Added microphone permissions for in-app calling."
 }
