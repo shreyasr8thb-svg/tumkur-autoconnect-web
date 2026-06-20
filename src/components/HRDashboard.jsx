@@ -6,6 +6,7 @@
  * - Community Feed + Chat via DashboardShell
  */
 import { useState, useEffect } from 'react';
+import { useHashTab } from '../hooks/useHashTab';
 import {
   Users, UserCheck, UserX, Building2, Plus, Bell, CheckCircle2,
   XCircle, Clock, Briefcase, Activity, ChevronRight, Megaphone,
@@ -25,7 +26,7 @@ import CompanyBus from './CompanyBus';
 /* ── Main Component ── */
 export default function HRDashboard() {
   const { user, profile } = useUser();
-  const [tab, setTab] = useState('home');
+  const [tab, setTab] = useHashTab('home');
   const [company, setCompany] = useState(null);
   const [loadingCompany, setLoadingCompany] = useState(true);
 

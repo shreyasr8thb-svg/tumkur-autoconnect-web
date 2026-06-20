@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useHashTab } from '../hooks/useHashTab';
 import { Search, MapPin, Briefcase, User, Filter, Car, Bus } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { db } from '../firebase';
@@ -11,7 +12,7 @@ import CompanyBus from './CompanyBus';
 
 export default function JobFinderDashboard({ onSOS }) {
   const { profile } = useUser();
-  const [tab, setTab] = useState('home');
+  const [tab, setTab] = useHashTab('home');
 
   const tabs = [
     { id: 'home', label: 'Explore Jobs', icon: <Search size={18} /> },

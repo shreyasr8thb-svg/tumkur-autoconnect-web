@@ -1,5 +1,5 @@
 {
-  "version": "1.0.15",
+  "version": "1.0.16",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Update: Fixed height issue on taller phones and back button behavior."
+  "message": "Update: Fixed back button to navigate previous tabs properly."
 }

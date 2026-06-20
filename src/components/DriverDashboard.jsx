@@ -4,6 +4,7 @@
  * - Trip logs, Community Feed, Chat via DashboardShell
  */
 import { useState, useEffect } from 'react';
+import { useHashTab } from '../hooks/useHashTab';
 import { Navigation, Users, User, AlertTriangle, Check, Scan, Car, MapPin, ClipboardList, Phone } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -17,7 +18,7 @@ import { Bus } from 'lucide-react';
 
 export default function DriverDashboard() {
   const { profile, signOut } = useUser();
-  const [tab, setTab] = useState('drive');
+  const [tab, setTab] = useHashTab('drive');
   const [active, setActive] = useState(false);
 
   const tabs = [

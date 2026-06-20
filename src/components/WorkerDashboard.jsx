@@ -5,6 +5,7 @@
  * - Uses shared DashboardShell for consistent UI across all portals
  */
 import { useState, useRef, useEffect } from 'react';
+import { useHashTab } from '../hooks/useHashTab';
 import {
   ShieldCheck, Car, IndianRupee, CreditCard, AlertTriangle,
   Upload, Unlink, Building2, Search, CheckCircle2, Clock, X,
@@ -26,7 +27,7 @@ import CompanyBus from './CompanyBus';
 
 export default function WorkerDashboard({ onSOS }) {
   const { user, profile, signOut } = useUser();
-  const [tab, setTab] = useState('home');
+  const [tab, setTab] = useHashTab('home');
 
   const tabs = [
     { id: 'home',     label: 'Home',         icon: <HomeIcon size={18} /> },
