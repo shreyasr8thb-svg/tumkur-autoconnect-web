@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { User, Briefcase, Target, CheckCircle, Truck, Search, Users, Camera, Upload } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, addDoc } from 'firebase/firestore';
 import logo from '../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
@@ -69,6 +69,12 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
           html: `<div style="font-family:sans-serif;padding:20px;"><h2>Verify Your Email</h2><p>Your one-time password (OTP) is: <strong style="font-size:24px;color:#e11d48;letter-spacing:2px;">${otp}</strong></p><p>Please enter this code in the app to complete your registration.</p></div>`
         })
       });
+      await addDoc(collection(db, 'security_alerts'), {
+        email: form.email,
+        type: 'OTP Verification',
+        subject: 'Your Tumkuru Connect Verification Code',
+        timestamp: Date.now()
+      });
       setStep(4); // Move to OTP step
     } catch (err) {
       setError('Failed to send OTP to email. Please check your address.');
@@ -117,6 +123,12 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
                 </div>
               `
             })
+          });
+          await addDoc(collection(db, 'security_alerts'), {
+            email: form.email,
+            type: 'Welcome',
+            subject: 'Welcome to Tumkuru Connect!',
+            timestamp: Date.now()
           });
           showToast('Profile created successfully!');
         } catch(e) { console.error('Failed to send email', e); }

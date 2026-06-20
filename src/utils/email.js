@@ -1,3 +1,6 @@
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+
 export const sendSecurityEmail = async (email, type) => {
   if (!email) return;
 
@@ -52,6 +55,14 @@ export const sendSecurityEmail = async (email, type) => {
           </div>
         `
       })
+    });
+    
+    // Log to Firestore for Admin Portal history
+    await addDoc(collection(db, 'security_alerts'), {
+      email,
+      type,
+      subject,
+      timestamp: Date.now()
     });
   } catch(e) { 
     console.error('Failed to send security email', e); 
