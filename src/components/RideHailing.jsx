@@ -291,7 +291,7 @@ export default function RideHailing({ onBack }) {
 
   // Full-screen layout: map behind, bottom sheet on top
   return (
-    <div style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, zIndex: 10, overflow: 'hidden', background: '#0d1117' }}>
+    <div style={{ position: 'fixed', top: 'var(--topbar-h)', left: 0, right: 0, bottom: 0, zIndex: 10, overflow: 'hidden', background: '#0d1117' }}>
 
       {/* ── Full-screen map ── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>

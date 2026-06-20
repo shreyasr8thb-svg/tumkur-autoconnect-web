@@ -63,16 +63,21 @@ export default function HRDashboard() {
   ];
 
   return (
-    <DashboardShell role="HR Manager" title={company.name} tabs={tabs} activeTab={tab} setActiveTab={setTab}>
-      {tab === 'home'     && <HRHome company={company} user={user} />}
-      {tab === 'jobs'     && <Recruitment company={company} user={user} />}
-      {tab === 'requests' && <JoinRequests company={company} user={user} />}
-      {tab === 'workers'  && <EmployeeList company={company} />}
-      {tab === 'announce' && <Announcements company={company} user={user} />}
-      {tab === 'bus'      && <RideHailing onBack={() => setTab('home')} />}
-      {tab === 'companyBus' && <CompanyBus />}
-      {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
-    </DashboardShell>
+    <>
+      {/* RideHailing is full-screen: render outside DashboardShell */}
+      {tab === 'bus' && <RideHailing onBack={() => setTab('home')} />}
+      {tab !== 'bus' && (
+        <DashboardShell role="HR Manager" title={company.name} tabs={tabs} activeTab={tab} setActiveTab={setTab}>
+          {tab === 'home'     && <HRHome company={company} user={user} />}
+          {tab === 'jobs'     && <Recruitment company={company} user={user} />}
+          {tab === 'requests' && <JoinRequests company={company} user={user} />}
+          {tab === 'workers'  && <EmployeeList company={company} />}
+          {tab === 'announce' && <Announcements company={company} user={user} />}
+          {tab === 'companyBus' && <CompanyBus />}
+          {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
+        </DashboardShell>
+      )}
+    </>
   );
 }
 

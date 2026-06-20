@@ -26,14 +26,19 @@ export default function JobFinderDashboard({ onSOS }) {
   const name = profile?.fullName || profile?.email?.split('@')[0] || 'User';
 
   return (
-    <DashboardShell role="Job Finder" title="Job Portal" tabs={tabs} activeTab={tab} setActiveTab={setTab}>
-      {tab === 'home' && <JobList />}
-      {tab === 'map' && <JobMap />}
-      {tab === 'applications' && <Applications />}
+    <>
+      {/* RideHailing is full-screen: render outside DashboardShell */}
       {tab === 'bus' && <RideHailing onBack={() => setTab('home')} />}
-      {tab === 'companyBus' && <CompanyBus />}
-      {tab === 'profile' && <ProfileView onNavigate={setTab} />}
-    </DashboardShell>
+      {tab !== 'bus' && (
+        <DashboardShell role="Job Finder" title="Job Portal" tabs={tabs} activeTab={tab} setActiveTab={setTab}>
+          {tab === 'home' && <JobList />}
+          {tab === 'map' && <JobMap />}
+          {tab === 'applications' && <Applications />}
+          {tab === 'companyBus' && <CompanyBus />}
+          {tab === 'profile' && <ProfileView onNavigate={setTab} />}
+        </DashboardShell>
+      )}
+    </>
   );
 }
 
