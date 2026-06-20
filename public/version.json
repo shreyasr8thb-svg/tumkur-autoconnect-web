@@ -1,5 +1,5 @@
 {
-  "version": "1.0.21",
+  "version": "1.0.22",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Update: Added live tracking, reject buttons, and direct UPI payment."
+  "message": "Update: Fixed map pin distance calculation bug."
 }

@@ -21,6 +21,11 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const userMarkerRef = useRef(null);
+  const onMapClickRef = useRef(onMapClick);
+
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -33,9 +38,9 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
         touchZoom: true,
       }).setView([userPos.lat, userPos.lng], 15);
 
-      if (onMapClick) {
-        map.on('click', (e) => onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng }));
-      }
+      map.on('click', (e) => {
+        if (onMapClickRef.current) onMapClickRef.current({ lat: e.latlng.lat, lng: e.latlng.lng });
+      });
       setTimeout(() => map.invalidateSize(), 500);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
