@@ -1,5 +1,5 @@
 {
-  "version": "1.0.18",
+  "version": "1.0.19",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Update: Fixed blank screen and all layout overlapping issues."
+  "message": "Update: Removed promo banners from login screen."
 }

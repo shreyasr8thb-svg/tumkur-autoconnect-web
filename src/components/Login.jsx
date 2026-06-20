@@ -9,7 +9,6 @@ import {
 import { Smartphone } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import logo from '../assets/logo.png';
-import DownloadPromo from './DownloadPromo';
 
 import { sendSecurityEmail } from '../utils/email';
 
@@ -162,7 +161,6 @@ export default function Login({ onCreateProfile }) {
   return (
     <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', padding: '1.25rem' }}>
 
-      <AppDownloadBanner compact />
 
       <div className="mb-4 text-center">
         <img src={logo} alt="Logo" style={{ width: '72px', height: '72px', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: '18px', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }} />
@@ -203,7 +201,6 @@ export default function Login({ onCreateProfile }) {
         </button>
       </form>
 
-      <AppDownloadBanner full />
 
     </div>
   );
