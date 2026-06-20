@@ -19,10 +19,11 @@ const BUSES = [
   { lat: 13.351, lng: 77.112, label: 'T-02', capacity: '35/40' },
 ];
 
-export default function LiveMap({ height = '300px', showBuses = false, showRoute = false, fullScreen = false }) {
+export default function LiveMap({ height = '300px', showBuses = false, showRoute = false, fullScreen = false, activeRide = null }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markerRef = useRef(null);
+  const routeLayerRef = useRef(null);
   const [userPos, setUserPos] = useState(TUMKUR);
   const [geoError, setGeoError] = useState(false);
 
@@ -137,7 +138,56 @@ export default function LiveMap({ height = '300px', showBuses = false, showRoute
     return () => {
       if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
     };
+  }, []);
+
+  // Update User Marker
+  useEffect(() => {
+    if (markerRef.current && mapInstance.current) {
+      markerRef.current.setLatLng([userPos.lat, userPos.lng]);
+    }
   }, [userPos]);
+
+  // Handle Active Ride UI (Pickup / Dropoff / Route)
+  useEffect(() => {
+    if (!mapInstance.current) return;
+    const map = mapInstance.current;
+    
+    if (routeLayerRef.current) {
+      routeLayerRef.current.clearLayers();
+    } else {
+      routeLayerRef.current = L.featureGroup().addTo(map);
+    }
+
+    if (activeRide && activeRide.pickupPos) {
+      const pickupIcon = L.divIcon({
+        html: `<div style="background:#3b82f6;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 10px #3b82f6;border:2px solid #fff;font-weight:bold;">P</div>`,
+        iconSize: [24, 24], className: '',
+      });
+      L.marker([activeRide.pickupPos.lat, activeRide.pickupPos.lng], { icon: pickupIcon })
+        .addTo(routeLayerRef.current).bindPopup('<b>Passenger Location</b>');
+      
+      const routePoints = [
+        [userPos.lat, userPos.lng],
+        [activeRide.pickupPos.lat, activeRide.pickupPos.lng]
+      ];
+
+      if (activeRide.dropoffPos) {
+        const dropoffIcon = L.divIcon({
+          html: `<div style="background:#e11d48;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 10px #e11d48;border:2px solid #fff;font-weight:bold;">D</div>`,
+          iconSize: [24, 24], className: '',
+        });
+        L.marker([activeRide.dropoffPos.lat, activeRide.dropoffPos.lng], { icon: dropoffIcon })
+          .addTo(routeLayerRef.current).bindPopup(`<b>Dropoff:</b> ${activeRide.dropoff}`);
+        
+        routePoints.push([activeRide.dropoffPos.lat, activeRide.dropoffPos.lng]);
+      }
+
+      L.polyline(routePoints, { color: '#3b82f6', weight: 4, opacity: 0.8 }).addTo(routeLayerRef.current);
+      
+      const bounds = L.latLngBounds(routePoints);
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 16 });
+    }
+  }, [activeRide, userPos]);
 
   return (
     <div style={{ position: 'relative', height, width: '100%', borderRadius: fullScreen ? 0 : 16, overflow: 'hidden', border: fullScreen ? 'none' : '1px solid rgba(255,255,255,0.08)' }}>

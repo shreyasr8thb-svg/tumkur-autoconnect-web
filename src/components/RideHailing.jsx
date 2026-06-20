@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bus, Car, Search, ArrowLeft, MapPin, Navigation, Phone, Star, X, Clock, Shield, Bike, CarFront, Users, Package } from 'lucide-react';
 import { Geolocation } from '@capacitor/geolocation';
-import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, deleteDoc, collection, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
 import InAppCall from './InAppCall';
@@ -17,10 +17,11 @@ const FACTORIES = [
   { lat: 13.332, lng: 77.135, name: 'KIADB Zone' },
 ];
 
-function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
+function MapView({ userPos, dropoffPos, rideStatus, activeDrivers = [], acceptedDriverId, onMapClick }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const userMarkerRef = useRef(null);
+  const driversLayerRef = useRef(null);
   const onMapClickRef = useRef(onMapClick);
 
   useEffect(() => {
@@ -67,14 +68,7 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
         L.marker([f.lat, f.lng], { icon: ic }).addTo(map).bindPopup(`<b>${f.name}</b><br>Industrial Zone`);
       });
 
-      // Simulated driver markers
-      const driverIcon = L.divIcon({
-        html: `<div style="background:#22c55e;color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 10px rgba(34,197,94,0.5);border:2px solid #fff">🚗</div>`,
-        iconSize: [32, 32], className: '',
-      });
-      [[13.340, 77.120], [13.345, 77.130]].forEach(([lat, lng]) => {
-        L.marker([lat, lng], { icon: driverIcon }).addTo(map).bindPopup('<b>Driver Online</b><br>TC Mini • 4.9★');
-      });
+      driversLayerRef.current = L.layerGroup().addTo(map);
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
       mapInstance.current = map;
@@ -91,6 +85,23 @@ function MapView({ userPos, dropoffPos, rideStatus, onMapClick }) {
       }
     }
   }, [userPos, dropoffPos]);
+
+  useEffect(() => {
+    if (!mapInstance.current || !driversLayerRef.current) return;
+    driversLayerRef.current.clearLayers();
+    
+    const driverIcon = L.divIcon({
+      html: `<div style="background:#22c55e;color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 10px rgba(34,197,94,0.5);border:2px solid #fff;transition:all 1s;">🚗</div>`,
+      iconSize: [32, 32], className: '',
+    });
+
+    activeDrivers.forEach(d => {
+       if (acceptedDriverId && d.id !== acceptedDriverId) return;
+       L.marker([d.lat, d.lng], { icon: driverIcon })
+         .addTo(driversLayerRef.current)
+         .bindPopup(`<b>${d.type || 'Driver'}</b><br>${d.number || 'TC Mini'}`);
+    });
+  }, [activeDrivers, acceptedDriverId]);
 
   useEffect(() => {
     if (!mapInstance.current || !dropoffPos) return;
@@ -138,6 +149,23 @@ export default function RideHailing({ onBack }) {
   const [userPos, setUserPos] = useState(TUMKUR);
   const [customDropoff, setCustomDropoff] = useState(null);
   const [selectedDestination, setSelectedDestination] = useState(null);
+  const [activeDrivers, setActiveDrivers] = useState([]);
+
+  // Fetch online drivers
+  useEffect(() => {
+    const q = query(collection(db, 'users'), where('isOnline', '==', true));
+    const unsub = onSnapshot(q, snap => {
+      const drivers = [];
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d.location?.lat && d.location?.lng) {
+           drivers.push({ id: doc.id, lat: d.location.lat, lng: d.location.lng, type: d.vehicleType, number: d.vehicleNumber });
+        }
+      });
+      setActiveDrivers(drivers);
+    });
+    return () => unsub();
+  }, []);
 
   // Push a new step to browser history so the hardware back button navigates steps correctly
   const goToStep = (nextStep) => {
@@ -308,7 +336,9 @@ export default function RideHailing({ onBack }) {
       workerId: user.uid,
       workerName: profile?.fullName || 'Worker',
       pickup: 'Current Location',
+      pickupPos: userPos,
       dropoff,
+      dropoffPos: dropoffPos,
       vehicleType: selectedVehicle,
       price: vehicleOptions.find(v => v.id === selectedVehicle)?.price || '₹150',
       status: 'pending',
@@ -328,7 +358,7 @@ export default function RideHailing({ onBack }) {
 
       {/* ── Full-screen map ── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <MapView userPos={userPos} dropoffPos={dropoffPos} rideStatus={ride?.status} onMapClick={(latlng) => {
+        <MapView userPos={userPos} dropoffPos={dropoffPos} rideStatus={ride?.status} activeDrivers={activeDrivers} acceptedDriverId={ride?.driverId} onMapClick={(latlng) => {
           if (!ride && (step === 'home' || step === 'input' || step === 'options')) {
             setCustomDropoff(latlng);
             setDropoff('Pinned Location');
@@ -672,17 +702,9 @@ export default function RideHailing({ onBack }) {
                 <span style={{ fontWeight: 900, fontSize: '1.2rem', color: '#e11d48', letterSpacing: 3 }}>{ride?.otp}</span>
               </div>
 
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => {
-                  window.open(`upi://pay?pa=tumkuruconnect@ybl&pn=${encodeURIComponent(ride?.driverName || 'Driver')}&am=${ride?.price?.replace('₹', '') || 0}&cu=INR&tn=Ride%20Fare`);
-                }} style={{ flex: 1, padding: '0.85rem', borderRadius: 12, background: 'linear-gradient(135deg, #16a34a, #22c55e)', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
-                  Pay {ride?.price} with UPI
-                  <span style={{ background: '#fff', color: '#16a34a', fontSize: '0.6rem', padding: '2px 6px', borderRadius: 4, fontWeight: 900 }}>0% FEE</span>
-                </button>
-                <button onClick={cancelRide} style={{ width: 48, borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}>
-                  <X size={20} />
-                </button>
-              </div>
+              <button onClick={cancelRide} style={{ padding: '0.75rem', borderRadius: 12, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
+                Cancel Ride
+              </button>
             </div>
           )}
 

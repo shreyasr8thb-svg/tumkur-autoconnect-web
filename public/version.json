@@ -1,5 +1,5 @@
 {
-  "version": "1.0.22",
+  "version": "1.0.23",
   "url": "https://tumkur-autoconnect-web.vercel.app/download",
-  "message": "Update: Fixed map pin distance calculation bug."
+  "message": "Update: Removed UPI, added real-time passenger/driver map tracking."
 }

@@ -146,7 +146,7 @@ function DriveMode({ active, setActive, onMenu }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 10, background: '#0d1117' }}>
       {/* Map */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-        <LiveMap height="100%" showRoute={!!activeRide} fullScreen />
+        <LiveMap height="100%" activeRide={activeRide} fullScreen />
       </div>
 
       {/* Top bar overlay */}
