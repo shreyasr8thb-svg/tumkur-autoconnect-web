@@ -9,7 +9,11 @@ export default function CompanyBus() {
   const [buses, setBuses] = useState([]);
 
   useEffect(() => {
-    const unsub = onSnapshot(query(collection(db, 'users'), where('role', '==', 'driver'), where('vehicleCategory', '==', 'office_bus'), where('isOnline', '==', true)), snap => {
+    let q = query(collection(db, 'users'), where('role', '==', 'driver'), where('vehicleCategory', '==', 'office_bus'));
+    if (profile?.companyName) {
+        q = query(collection(db, 'users'), where('role', '==', 'driver'), where('vehicleCategory', '==', 'office_bus'), where('companyName', '==', profile.companyName));
+    }
+    const unsub = onSnapshot(q, snap => {
       setBuses(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return () => unsub();

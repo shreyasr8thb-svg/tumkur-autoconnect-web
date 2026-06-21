@@ -25,7 +25,6 @@ export default function DriverDashboard() {
   const tabs = [
     { id: 'drive',      label: 'Drive Mode', icon: <Car size={18} /> },
     { id: 'trips',      label: 'Trip Logs',  icon: <ClipboardList size={18} /> },
-    ...(profile?.driverType === 'company_driver' ? [{ id: 'companyBus', label: 'Company Bus', icon: <Bus size={18} /> }] : []),
     { id: 'profile',   label: 'Profile',    icon: <User size={18} /> },
   ];
 
@@ -35,7 +34,6 @@ export default function DriverDashboard() {
       {tab !== 'drive' && (
         <DashboardShell role="Driver" title="Driver Portal" tabs={tabs} activeTab={tab} setActiveTab={setTab}>
           {tab === 'trips'   && <TripLogs />}
-          {tab === 'companyBus' && <CompanyBus />}
           {tab === 'profile' && <ProfileView onNavigate={setTab} />}
         </DashboardShell>
       )}
@@ -49,8 +47,9 @@ function DriveMode({ active, setActive, onMenu }) {
   const [pendingRides, setPendingRides] = useState([]);
   const [activeRide, setActiveRide] = useState(null);
   const [otpInput, setOtpInput] = useState('');
-  const [vehicleType, setVehicleType] = useState(profile?.vehicleType || 'Mini');
+  const [vehicleType, setVehicleType] = useState(profile?.vehicleType || (profile?.driverType === 'company_driver' ? 'Bus' : 'Mini'));
   const [vehicleNumber, setVehicleNumber] = useState(profile?.vehicleNumber || '');
+  const [vehicleCapacity, setVehicleCapacity] = useState(profile?.vehicleCapacity || '');
   const [pickupTimes, setPickupTimes] = useState({ loginTime: '', logoutTime: '' });
 
   useEffect(() => {
@@ -104,8 +103,9 @@ function DriveMode({ active, setActive, onMenu }) {
       driverId: user.uid,
       driverName: profile?.fullName || 'Driver',
       driverPhoto: profile?.photoURL || null,
-      vehicleType: vehicleType || 'Mini',
+      vehicleType: profile?.driverType === 'company_driver' ? 'Bus' : (vehicleType || 'Mini'),
       vehicleNumber: vehicleNumber || 'KA-00-0000',
+      ...(profile?.driverType === 'company_driver' && { vehicleCapacity })
     });
   };
 
@@ -213,27 +213,42 @@ function DriveMode({ active, setActive, onMenu }) {
             <h3 style={{ margin: 0, textAlign: 'center', color: '#f8fafc' }}>You're Offline</h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>VEHICLE TYPE</label>
-              <select 
-                value={vehicleType} 
-                onChange={e => setVehicleType(e.target.value)}
-                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
-              >
-                <option value="Bike">Moto (Bike)</option>
-                <option value="Auto">Auto</option>
-                <option value="Mini">TC Mini</option>
-                <option value="Sedan">TC Sedan</option>
-                <option value="SUV">TC SUV</option>
-              </select>
+              {profile?.driverType === 'company_driver' ? (
+                <>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>VEHICLE CAPACITY</label>
+                  <input 
+                    type="number" 
+                    value={vehicleCapacity}
+                    onChange={e => setVehicleCapacity(e.target.value)}
+                    placeholder="e.g. 40"
+                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none' }}
+                  />
+                </>
+              ) : (
+                <>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>VEHICLE TYPE</label>
+                  <select 
+                    value={vehicleType} 
+                    onChange={e => setVehicleType(e.target.value)}
+                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+                  >
+                    <option value="Bike">Moto (Bike)</option>
+                    <option value="Auto">Auto</option>
+                    <option value="Mini">TC Mini</option>
+                    <option value="Sedan">TC Sedan</option>
+                    <option value="SUV">TC SUV</option>
+                  </select>
 
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>VEHICLE NUMBER</label>
-              <input 
-                type="text" 
-                value={vehicleNumber}
-                onChange={e => setVehicleNumber(e.target.value.toUpperCase())}
-                placeholder="e.g. KA 06 AB 1234"
-                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none', letterSpacing: 1 }}
-              />
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>VEHICLE NUMBER</label>
+                  <input 
+                    type="text" 
+                    value={vehicleNumber}
+                    onChange={e => setVehicleNumber(e.target.value.toUpperCase())}
+                    placeholder="e.g. KA 06 AB 1234"
+                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none', letterSpacing: 1 }}
+                  />
+                </>
+              )}
 
               {profile?.vehicleCategory === 'office_bus' && (
                 <>
@@ -255,14 +270,19 @@ function DriveMode({ active, setActive, onMenu }) {
 
             <button 
               onClick={async () => {
-                if(!vehicleNumber) {
+                if(profile?.driverType !== 'company_driver' && !vehicleNumber) {
                   showToast?.('Please enter vehicle number');
+                  return;
+                }
+                if(profile?.driverType === 'company_driver' && !vehicleCapacity) {
+                  showToast?.('Please enter vehicle capacity');
                   return;
                 }
                 setActive(true);
                 await updateDoc(doc(db, 'users', user.uid), {
-                  vehicleType: vehicleType,
+                  vehicleType: profile?.driverType === 'company_driver' ? 'Bus' : vehicleType,
                   vehicleNumber: vehicleNumber,
+                  ...(profile?.driverType === 'company_driver' && { vehicleCapacity }),
                   isOnline: true,
                   ...(profile?.vehicleCategory === 'office_bus' && { pickupTimes })
                 });
@@ -276,8 +296,18 @@ function DriveMode({ active, setActive, onMenu }) {
 
         {active && !activeRide && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, paddingBottom: 8 }}>
-            <div style={{ width: 40, height: 40, border: '3px solid rgba(59,130,246,0.3)', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem' }}>Waiting for ride requests…</p>
+            {profile?.driverType === 'company_driver' ? (
+              <div style={{ width: '100%', background: 'rgba(59,130,246,0.1)', padding: '1rem', borderRadius: 12, border: '1px solid rgba(59,130,246,0.3)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.8rem', color: '#3b82f6', fontWeight: 700, marginBottom: 4 }}>PASSENGERS COMING & GOING</div>
+                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>0 / {profile?.vehicleCapacity || vehicleCapacity || '?'}</div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: 4 }}>Seats Booked</div>
+              </div>
+            ) : (
+              <>
+                <div style={{ width: 40, height: 40, border: '3px solid rgba(59,130,246,0.3)', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem' }}>Waiting for ride requests…</p>
+              </>
+            )}
             <button onClick={() => setActive(false)} style={{ width: '100%', padding: '0.85rem', borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', fontWeight: 700, cursor: 'pointer' }}>
               GO OFFLINE
             </button>

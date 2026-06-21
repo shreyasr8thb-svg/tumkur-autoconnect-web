@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { User, Briefcase, Target, CheckCircle, Truck, Search, Users, Camera, Upload } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc, collection, addDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, addDoc, getDocs } from 'firebase/firestore';
 import logo from '../assets/logo.png';
 import { useUser } from '../context/UserContext';
 
@@ -20,8 +20,21 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
   const [error, setError] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState(null);
   const [userOtp, setUserOtp] = useState('');
+  const [companies, setCompanies] = useState([]);
   const photoRef = useRef(null);
   const idRef = useRef(null);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'companies'));
+        setCompanies(snapshot.docs.map(doc => doc.data().name));
+      } catch (err) {
+        console.error('Failed to fetch companies', err);
+      }
+    };
+    fetchCompanies();
+  }, []);
 
   const [form, setForm] = useState({
     email: user?.email || '', password: '', confirmPassword: '', fullName: user?.displayName || '', dob: '', phone: '',
@@ -245,9 +258,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
                     <label className="input-label">Company / Unit</label>
                     <select name="factoryUnit" className="input-field" value={form.factoryUnit} onChange={set}>
                       <option value="">Select...</option>
-                      <option>Sri Sai Auto Components</option>
-                      <option>Tumkur Machining Hub</option>
-                      <option>Precision Parts Pvt Ltd</option>
+                      {companies.map(c => <option key={c} value={c}>{c}</option>)}
                       <option>Other</option>
                     </select>
                   </div>
@@ -270,9 +281,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
                         <label className="input-label">Select Company</label>
                         <select name="companyName" className="input-field" value={form.companyName || ''} onChange={set}>
                           <option value="">Select...</option>
-                          <option>Sri Sai Auto Components</option>
-                          <option>Tumkur Machining Hub</option>
-                          <option>Precision Parts Pvt Ltd</option>
+                          {companies.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                       </div>
                       <div className="input-group mb-0">
