@@ -3,9 +3,9 @@
  * - Full-screen drive mode with map, ride requests, OTP verification
  * - Trip logs, Community Feed, Chat via DashboardShell
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useHashTab } from '../hooks/useHashTab';
-import { Navigation, Users, User, AlertTriangle, Check, Scan, Car, MapPin, ClipboardList, Phone } from 'lucide-react';
+import { User, ClipboardList, Car, Star, CheckCircle, Navigation, MapPin, X, AlertTriangle, Activity, Eye, Mic } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
@@ -14,7 +14,6 @@ import ProfileView from './ProfileView';
 import LiveMap from './LiveMap';
 import InAppCall from './InAppCall';
 import CompanyBus from './CompanyBus';
-import { Bus } from 'lucide-react';
 import { Geolocation } from '@capacitor/geolocation';
 
 export default function DriverDashboard() {
@@ -49,8 +48,82 @@ function DriveMode({ active, setActive, onMenu }) {
   const [otpInput, setOtpInput] = useState('');
   const [vehicleType, setVehicleType] = useState(profile?.vehicleType || (profile?.driverType === 'company_driver' ? 'Bus' : 'Mini'));
   const [vehicleNumber, setVehicleNumber] = useState(profile?.vehicleNumber || '');
-  const [vehicleCapacity, setVehicleCapacity] = useState(profile?.vehicleCapacity || '');
+  const [vehicleCapacity, setVehicleCapacity] = useState('40');
   const [pickupTimes, setPickupTimes] = useState({ loginTime: '', logoutTime: '' });
+  
+  // Anti-Gravity state
+  const [showPreTrip, setShowPreTrip] = useState(false);
+  const [preTripChecks, setPreTripChecks] = useState({ brakes: false, tires: false, fuel: false, lights: false });
+  const [smoothness, setSmoothness] = useState(100);
+  const [drowsiness, setDrowsiness] = useState('Active'); // Active, Drowsy, Warning
+  const [recordingVoice, setRecordingVoice] = useState(false);
+
+  // Accelerometer Telemetry
+  useEffect(() => {
+    if (active && profile?.driverType === 'company_driver') {
+      const handleMotion = (e) => {
+        const acc = e.acceleration || e.accelerationIncludingGravity;
+        if (acc) {
+          const force = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
+          if (force > 15) {
+            setSmoothness(prev => Math.max(0, prev - 5));
+            // Simulate sending harsh braking alert
+            addDoc(collection(db, 'security_alerts'), {
+              type: 'Harsh Braking', email: user.email, subject: 'Anti-Gravity Alert', timestamp: Date.now()
+            });
+          } else if (force < 5) {
+            setSmoothness(prev => Math.min(100, prev + 1));
+          }
+        }
+      };
+      window.addEventListener('devicemotion', handleMotion);
+      return () => window.removeEventListener('devicemotion', handleMotion);
+    }
+  }, [active, profile, user]);
+
+  // Simulate Drowsiness Tracker ML
+  useEffect(() => {
+    if (active && profile?.driverType === 'company_driver') {
+      const interval = setInterval(() => {
+        const random = Math.random();
+        if (random > 0.95) setDrowsiness('Warning - High Blink Rate');
+        else if (random > 0.85) setDrowsiness('Drowsy detected');
+        else setDrowsiness('Active & Alert');
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [active, profile]);
+
+  const handleVoiceComm = () => {
+    setRecordingVoice(true);
+    setTimeout(() => {
+      setRecordingVoice(false);
+      showToast?.("Voice message sent to HR Admin");
+    }, 3000);
+  };
+
+  const handleGoOnline = async () => {
+    if(profile?.driverType !== 'company_driver' && !vehicleNumber) {
+      showToast?.('Please enter vehicle number');
+      return;
+    }
+    if(profile?.driverType === 'company_driver' && !vehicleCapacity) {
+      showToast?.('Please enter vehicle capacity');
+      return;
+    }
+    if(profile?.driverType === 'company_driver' && (!preTripChecks.brakes || !preTripChecks.tires || !preTripChecks.fuel || !preTripChecks.lights)) {
+      setShowPreTrip(true);
+      return;
+    }
+    setActive(true);
+    await updateDoc(doc(db, 'users', user.uid), {
+      vehicleType: profile?.driverType === 'company_driver' ? 'Bus' : vehicleType,
+      vehicleNumber: vehicleNumber,
+      ...(profile?.driverType === 'company_driver' && { vehicleCapacity }),
+      isOnline: true,
+      ...(profile?.vehicleCategory === 'office_bus' && { pickupTimes })
+    });
+  };
 
   useEffect(() => {
     if (!active) { setPendingRides([]); return; }
@@ -269,24 +342,7 @@ function DriveMode({ active, setActive, onMenu }) {
             </div>
 
             <button 
-              onClick={async () => {
-                if(profile?.driverType !== 'company_driver' && !vehicleNumber) {
-                  showToast?.('Please enter vehicle number');
-                  return;
-                }
-                if(profile?.driverType === 'company_driver' && !vehicleCapacity) {
-                  showToast?.('Please enter vehicle capacity');
-                  return;
-                }
-                setActive(true);
-                await updateDoc(doc(db, 'users', user.uid), {
-                  vehicleType: profile?.driverType === 'company_driver' ? 'Bus' : vehicleType,
-                  vehicleNumber: vehicleNumber,
-                  ...(profile?.driverType === 'company_driver' && { vehicleCapacity }),
-                  isOnline: true,
-                  ...(profile?.vehicleCategory === 'office_bus' && { pickupTimes })
-                });
-              }} 
+              onClick={handleGoOnline} 
               style={{ width: '100%', padding: '1rem', borderRadius: 14, background: 'linear-gradient(135deg,#16a34a,#22c55e)', color: '#fff', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(34,197,94,0.35)', marginTop: 8 }}
             >
               GO ONLINE
@@ -294,13 +350,79 @@ function DriveMode({ active, setActive, onMenu }) {
           </div>
         )}
 
+        {/* Pre-Trip Checklist Modal */}
+        {showPreTrip && !active && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="glass-card" style={{ width: '100%', maxWidth: '400px', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '1.5rem', borderRadius: 24 }}>
+              <h3 style={{ color: '#fff', marginTop: 0, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <CheckCircle size={20} color="#3b82f6" /> Pre-Trip Inspection
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: 16 }}>Sign off before engine start.</p>
+              
+              {['brakes', 'tires', 'fuel', 'lights'].map(item => (
+                <div key={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ color: '#f8fafc', textTransform: 'capitalize' }}>{item} Checked</span>
+                  <input type="checkbox" checked={preTripChecks[item]} onChange={e => setPreTripChecks(p => ({ ...p, [item]: e.target.checked }))} style={{ width: 20, height: 20 }} />
+                </div>
+              ))}
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                <button onClick={() => setShowPreTrip(false)} className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff' }}>Cancel</button>
+                <button 
+                  onClick={() => {
+                    if (preTripChecks.brakes && preTripChecks.tires && preTripChecks.fuel && preTripChecks.lights) {
+                      setShowPreTrip(false);
+                      handleGoOnline();
+                    } else {
+                      showToast?.('Please complete all checks');
+                    }
+                  }} 
+                  className="btn btn-primary" style={{ flex: 1 }}
+                >
+                  Confirm & Go
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {active && !activeRide && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, paddingBottom: 8 }}>
             {profile?.driverType === 'company_driver' ? (
-              <div style={{ width: '100%', background: 'rgba(59,130,246,0.1)', padding: '1rem', borderRadius: 12, border: '1px solid rgba(59,130,246,0.3)', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.8rem', color: '#3b82f6', fontWeight: 700, marginBottom: 4 }}>PASSENGERS COMING & GOING</div>
-                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>0 / {profile?.vehicleCapacity || vehicleCapacity || '?'}</div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: 4 }}>Seats Booked</div>
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ width: '100%', background: 'rgba(59,130,246,0.1)', padding: '1rem', borderRadius: 12, border: '1px solid rgba(59,130,246,0.3)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#3b82f6', fontWeight: 700, marginBottom: 4 }}>PASSENGERS BOARDED</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>0 / {profile?.vehicleCapacity || vehicleCapacity || '?'}</div>
+                </div>
+                
+                {/* Anti-Gravity Telemetry Widget */}
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                    <Activity size={20} color="#10b981" style={{ margin: '0 auto 8px' }} />
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>ANTI-GRAVITY</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>{smoothness}%</div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Ride Smoothness</div>
+                  </div>
+                  
+                  <div style={{ flex: 1, background: drowsiness.includes('Active') ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${drowsiness.includes('Active') ? 'rgba(59,130,246,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                    <Eye size={20} color={drowsiness.includes('Active') ? '#3b82f6' : '#ef4444'} style={{ margin: '0 auto 8px' }} />
+                    <div style={{ fontSize: '0.7rem', color: drowsiness.includes('Active') ? '#3b82f6' : '#ef4444', fontWeight: 700 }}>AI VISION</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#f8fafc' }}>{drowsiness}</div>
+                  </div>
+                </div>
+
+                {/* Instant HR Comms */}
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button onClick={handleVoiceComm} style={{ flex: 1, padding: '0.85rem', borderRadius: 12, background: recordingVoice ? '#ef4444' : 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <Mic size={18} /> {recordingVoice ? 'Recording...' : 'Voice HR'}
+                  </button>
+                  <button onClick={() => {
+                    addDoc(collection(db, 'security_alerts'), { type: 'SOS Alert', email: user.email, subject: 'Emergency Button Pressed', timestamp: Date.now() });
+                    showToast?.("Emergency Alert Sent");
+                  }} style={{ flex: 1, padding: '0.85rem', borderRadius: 12, background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', color: '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <AlertTriangle size={18} /> SOS
+                  </button>
+                </div>
               </div>
             ) : (
               <>

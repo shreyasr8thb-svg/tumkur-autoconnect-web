@@ -17,7 +17,7 @@ export default function ProfileView({ onNavigate }) {
       : s === 'emergency'
       ? { emName1: profile?.emName1||'', emPhone1: profile?.emPhone1||'', emName2: profile?.emName2||'', emPhone2: profile?.emPhone2||'' }
       : s === 'vehicle'
-      ? { vehicleType: profile?.vehicleType||'', vehicleNumber: profile?.vehicleNumber||'' }
+      ? { vehicleType: profile?.vehicleType||'', vehicleNumber: profile?.vehicleNumber||'', cdlExp: profile?.cdlExp||'', medExp: profile?.medExp||'' }
       : s === 'salary'
       ? { baseSalary: profile?.baseSalary||'', pfDeduction: profile?.pfDeduction||'', welfareBonus: profile?.welfareBonus||'' }
       : { factoryUnit: profile?.factoryUnit||'', department: profile?.department||'', supervisor: profile?.supervisor||'' };
@@ -200,12 +200,25 @@ export default function ProfileView({ onNavigate }) {
                     <option value="Shuttle">Shared Shuttle</option>
                   </select>
                 </div>
+                <MiniInput label="Type" name="vehicleType" value={form.vehicleType} onChange={e => setForm({...form, vehicleType: e.target.value})} />
                 <MiniInput label="Plate No" name="vehicleNumber" value={form.vehicleNumber} onChange={e => setForm({...form, vehicleNumber: e.target.value})} placeholder="e.g. KA-06-TC-1234" />
+                {profile?.driverType === 'company_driver' && (
+                  <>
+                    <MiniInput label="CDL Expiry Date" name="cdlExp" type="date" value={form.cdlExp} onChange={e => setForm({...form, cdlExp: e.target.value})} />
+                    <MiniInput label="Medical Clearance Expiry" name="medExp" type="date" value={form.medExp} onChange={e => setForm({...form, medExp: e.target.value})} />
+                  </>
+                )}
               </div>
             ) : (
               <div className="flex-col gap-1">
                 <Row label="Type" value={profile?.vehicleType} />
                 <Row label="Plate No" value={profile?.vehicleNumber} />
+                {profile?.driverType === 'company_driver' && (
+                  <>
+                    <Row label="CDL Expiry" value={profile?.cdlExp} />
+                    <Row label="Medical Clearance" value={profile?.medExp} />
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -222,6 +235,31 @@ export default function ProfileView({ onNavigate }) {
             )}
             <input ref={dlRef} type="file" accept="image/*" hidden onChange={handlePhoto('dlURL')} />
           </div>
+
+          {profile?.driverType === 'company_driver' && (
+            <>
+              {/* Performance & Anti-Gravity Score */}
+              <div className="glass-card flex-col gap-2" style={{ padding: '1rem' }}>
+                <h4 style={{ color: 'var(--text-muted)', margin: 0 }}>Performance Score</h4>
+                <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                  <div style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 700 }}>ANTI-GRAVITY SCORE</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc' }}>94%</div>
+                  </div>
+                  <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>ACCIDENT-FREE</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc' }}>4,250h</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shift & Payroll Sync */}
+              <NavLink icon={<CreditCard size={22} color="#10b981" />} label="Timesheets & Payroll Sync" onClick={() => alert("Redirecting to HR Payroll Portal...")} />
+              
+              {/* Health & Wellness */}
+              <NavLink icon={<ShieldCheck size={22} color="#8b5cf6" />} label="Fatigue & Wellness Logs" onClick={() => alert("Viewing Fatigue Logs...")} />
+            </>
+          )}
         </>
       )}
 

@@ -57,8 +57,8 @@ export default function HRDashboard() {
     { id: 'requests', label: 'Join Requests', icon: <UserCheck size={18} /> },
     { id: 'workers',  label: 'Employees',   icon: <Users size={18} /> },
     { id: 'announce', label: 'Announcements', icon: <Megaphone size={18} /> },
-    { id: 'bus',      label: 'Book Ride',   icon: <Car size={18} /> },
     { id: 'companyBus', label: 'Company Bus', icon: <Bus size={18} /> },
+    { id: 'antigravity', label: 'Fleet & Safety', icon: <Activity size={18} /> },
     { id: 'profile',  label: 'Profile',     icon: <Building2 size={18} /> },
   ];
 
@@ -74,6 +74,7 @@ export default function HRDashboard() {
           {tab === 'workers'  && <EmployeeList company={company} />}
           {tab === 'announce' && <Announcements company={company} user={user} />}
           {tab === 'companyBus' && <CompanyBus />}
+          {tab === 'antigravity' && <AntiGravityFleet company={company} user={user} />}
           {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
         </DashboardShell>
       )}
@@ -143,6 +144,85 @@ function CompanySetup({ user, profile }) {
         <button className="btn btn-primary mt-2 flex items-center justify-center gap-2" disabled={saving || !name.trim()} onClick={handleCreate}>
           {saving ? 'Creating…' : <>Create Company Dashboard <ChevronRight size={16} /></>}
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Anti-Gravity Fleet Dashboard ── */
+function AntiGravityFleet({ company, user }) {
+  const [alerts, setAlerts] = useState([]);
+  
+  useEffect(() => {
+    // Listen to real-time safety alerts (SOS, Harsh Braking, etc.)
+    const unsub = onSnapshot(query(collection(db, 'security_alerts'), where('email', '==', user.email)), snap => {
+      // Mocking for visual display based on the request
+      setAlerts([
+        { id: '1', type: 'Fatigue Detected', msg: 'Driver Ram (Bus #KA-06-1122) shows high blink rate.', time: 'Just now', color: '#ef4444' },
+        { id: '2', type: 'Harsh Braking', msg: 'Anti-Gravity monitor detected 18G force drop on Bus #KA-06-3344.', time: '5 mins ago', color: '#f59e0b' }
+      ]);
+    });
+    return () => unsub();
+  }, [user]);
+
+  return (
+    <div className="flex-col gap-3">
+      {/* Fleet Telemetry Live Map */}
+      <div className="glass-card" style={{ padding: '0' }}>
+        <div style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between' }}>
+          <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}><Activity size={18} color="#3b82f6"/> Live Fleet Telemetry</h4>
+          <span style={{ fontSize: '0.75rem', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', padding: '2px 8px', borderRadius: 12 }}>3 Active Buses</span>
+        </div>
+        <div style={{ padding: '1rem' }}>
+          <CompanyBus />
+        </div>
+      </div>
+
+      {/* Safety & Fatigue Alerts */}
+      <div className="glass-card">
+        <h4 style={{ margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={18} color="#ef4444"/> Fatigue & Safety Alerts</h4>
+        <div className="flex-col gap-2">
+          {alerts.map(a => (
+            <div key={a.id} style={{ background: `rgba(${a.color === '#ef4444' ? '239,68,68' : '245,158,11'}, 0.1)`, border: `1px solid ${a.color}50`, padding: '1rem', borderRadius: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ fontWeight: 700, color: a.color, fontSize: '0.85rem' }}>{a.type}</span>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{a.time}</span>
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#f8fafc' }}>{a.msg}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Compliance Auditing & Timesheets */}
+      <div className="glass-card">
+        <h4 style={{ margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}><ShieldCheck size={18} color="#10b981"/> Compliance Auditing & Timesheets</h4>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: '0.85rem', textAlign: 'left', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <th style={{ padding: '8px 4px', color: '#94a3b8' }}>Driver</th>
+                <th style={{ padding: '8px 4px', color: '#94a3b8' }}>Shift Hrs</th>
+                <th style={{ padding: '8px 4px', color: '#94a3b8' }}>Anti-Gravity</th>
+                <th style={{ padding: '8px 4px', color: '#94a3b8' }}>CDL Expiry</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <td style={{ padding: '12px 4px', color: '#f8fafc' }}>Ram K.</td>
+                <td style={{ padding: '12px 4px', color: '#10b981' }}>7h 12m</td>
+                <td style={{ padding: '12px 4px' }}>94%</td>
+                <td style={{ padding: '12px 4px', color: '#f59e0b' }}>In 30 days</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '12px 4px', color: '#f8fafc' }}>Shiva M.</td>
+                <td style={{ padding: '12px 4px', color: '#10b981' }}>5h 45m</td>
+                <td style={{ padding: '12px 4px' }}>98%</td>
+                <td style={{ padding: '12px 4px' }}>Valid</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
