@@ -28,7 +28,7 @@ export default function AppFooter() {
       >
         Visit Roaring Thunders Team
       </a>
-      <a href="mailto:tumkur.connect@gmail.com" style={{ color: '#475569', textDecoration: 'underline' }}>Help & Support</a>
+      <a href="mailto:tumkuru.connect@gmail.com" style={{ color: '#475569', textDecoration: 'underline' }}>Help & Support</a>
     </div>
   );
 }
