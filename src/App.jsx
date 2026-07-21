@@ -193,12 +193,16 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+import { ThemeProvider } from './context/ThemeContext'
+
 export default function App() {
   return (
     <ErrorBoundary>
-      <UserProvider>
-        <AppContent />
-      </UserProvider>
+      <ThemeProvider>
+        <UserProvider>
+          <AppContent />
+        </UserProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

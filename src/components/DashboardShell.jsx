@@ -14,6 +14,7 @@ import ChatBox from './ChatBox';
 import CommunityFeed from './CommunityFeed';
 import DownloadPage from './DownloadPage';
 import AppFooter from './AppFooter';
+import ThemeToggle from './ThemeToggle';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -102,6 +103,7 @@ export default function DashboardShell({
             <NavItem icon={<div style={{ position: 'relative', display: 'flex' }}><Bell size={18} />{unreadCount > 0 && <span style={{ position: 'absolute', top: -4, right: -5, background: 'var(--primary)', borderRadius: '50%', width: 10, height: 10, fontSize: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800 }}>{unreadCount > 9 ? '9+' : unreadCount}</span>}</div>} label="Notifications" onClick={() => setShowNotifs(true)} />
             <NavItem icon={<Download size={18} />} label="Download App" active={shellTab === 'download'} onClick={() => go('download')} />
             <NavItem icon={<Settings size={18} />} label="Settings" onClick={() => go('profile')} />
+            <ThemeToggle />
           </NavGroup>
         </div>
 
@@ -135,6 +137,7 @@ export default function DashboardShell({
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle compact />
             <button onClick={() => { 
               setShellTab(null); 
               setActiveTab(tabs[0].id);
@@ -168,12 +171,12 @@ export default function DashboardShell({
         >
           <div style={{
             flex: 1,
-            padding: '1.25rem',
+            padding: 'clamp(0.75rem, 3vw, 1.25rem)',
             /* Bottom padding accounts for FAB button + home bar safe-area */
             paddingBottom: 'max(5.5rem, calc(1.5rem + env(safe-area-inset-bottom)))',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
+            gap: 'clamp(0.65rem, 2.5vw, 1rem)',
             animation: 'fadeIn 0.25s ease-out',
             /* Constrain max-width on large screens */
             maxWidth: 900,
@@ -207,12 +210,12 @@ export default function DashboardShell({
         {/* Mobile Drawer Menu */}
         {showMenu && (
           <div
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 500, backdropFilter: 'blur(4px)' }}
+            style={{ position: 'fixed', inset: 0, background: 'var(--bg-overlay)', zIndex: 500, backdropFilter: 'blur(4px)' }}
             onClick={() => setShowMenu(false)}
             className="mobile-only"
           >
             <div
-              style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '82%', maxWidth: 320, background: 'rgba(5,10,30,0.98)', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', animation: 'slideInLeft 0.22s ease-out' }}
+              style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '82%', maxWidth: 320, background: 'var(--bg-glass-heavy)', backdropFilter: 'blur(24px) saturate(1.8)', WebkitBackdropFilter: 'blur(24px) saturate(1.8)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', animation: 'slideInLeft 0.22s ease-out' }}
               onClick={e => e.stopPropagation()}
             >
               {/* Header – top padding respects the status bar / notch */}
@@ -269,6 +272,7 @@ export default function DashboardShell({
                 <NavGroup label="APP">
                   <NavItem icon={<Download size={18} />} label="Download App" active={shellTab === 'download'} onClick={() => go('download')} />
                   <NavItem icon={<Settings size={18} />} label="Settings"                                            onClick={() => go('profile')} />
+                  <ThemeToggle />
                 </NavGroup>
               </div>
 
