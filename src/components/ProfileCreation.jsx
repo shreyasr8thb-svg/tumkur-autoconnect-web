@@ -326,8 +326,8 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(225,29,72,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', color: '#e11d48' }}>
                 <CheckCircle size={28} />
               </div>
-              <h3 style={{ margin: 0 }}>Verify Email</h3>
-              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 16px' }}>We sent a 6-digit OTP to <strong>{form.email}</strong></p>
+              <h3 style={{ margin: 0, color: 'var(--text-main)' }}>Verify Email</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 16px' }}>We sent a 6-digit OTP to <strong>{form.email}</strong></p>
               
               <input 
                 type="text" 
@@ -335,7 +335,7 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
                 value={userOtp}
                 onChange={e => setUserOtp(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
-                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '1rem', fontSize: '1.5rem', letterSpacing: 8, fontWeight: 800, textAlign: 'center', width: '200px', outline: 'none' }}
+                style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-main)', padding: '1rem', fontSize: '1.5rem', letterSpacing: 8, fontWeight: 800, textAlign: 'center', width: '200px', outline: 'none' }}
               />
               <button type="button" onClick={triggerOtp} disabled={loading} style={{ background: 'transparent', border: 'none', color: '#3b82f6', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: 8 }}>
                 Resend OTP

@@ -240,45 +240,129 @@ p { color: var(--text-muted); }
   .top-bar { padding: 0.75rem 2rem; }
 }
 
-/* ─── Bottom Nav ─── */
-/* Hidden on mobile - desktop only */
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; height: 72px;
-  background: rgba(5,10,30,0.97); backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  display: none; /* hidden on mobile */
-  justify-content: space-around;
-  padding: 8px 4px 16px 4px; z-index: 40;
-}
-/* On desktop: bottom-nav still not needed (sidebar is used) */
-@media (min-width: 900px) { .bottom-nav { display: none !important; } }
-
-/* ─── Mobile FAB Menu Button ─── */
-.mobile-fab {
-  position: fixed;
-  /* Always stay above the device home-indicator */
-  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  right: calc(1.25rem + env(safe-area-inset-right, 0px));
-  width: 52px; height: 52px;
-  background: var(--primary);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+/* ─── iOS-style Bottom Tab Bar ─── */
+.ios-bottom-tabs {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; justify-content: space-around; align-items: flex-start;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)) 4px;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border-top: 1px solid var(--border-glass);
   z-index: 45;
-  box-shadow: 0 4px 20px rgba(239,68,68,0.45);
-  border: none; cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  -webkit-tap-highlight-color: transparent;
+  transition: background 0.35s ease;
 }
-.mobile-fab:active { transform: scale(0.93); }
-@media (min-width: 900px) { .mobile-fab { display: none !important; } }
+@media (min-width: 900px) { .ios-bottom-tabs { display: none !important; } }
 
+.ios-tab-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 0 2px; background: none; border: none;
+  color: var(--text-dim); font-size: 0.6rem; font-weight: 600;
+  cursor: pointer; transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-main);
+}
+.ios-tab-item.active { color: var(--primary); }
+.ios-tab-item .ios-tab-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 8px;
+  transition: background 0.2s ease;
+}
+.ios-tab-item.active .ios-tab-icon {
+  background: var(--primary-glow);
+}
+.ios-tab-item .ios-tab-label {
+  max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Old bottom-nav hidden — replaced by ios-bottom-tabs */
+.bottom-nav { display: none !important; }
+/* Old FAB hidden — replaced by bottom tabs */
+.mobile-fab { display: none !important; }
+
+/* ─── Top Bar Icon Buttons ─── */
+.topbar-icon-btn {
+  background: var(--bg-glass); border: 1px solid var(--border);
+  border-radius: 10px; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s, border-color 0.2s;
+}
+.topbar-icon-btn:hover { background: var(--bg-glass-heavy); }
+.topbar-notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  min-width: 8px; height: 8px;
+  background: var(--primary); border-radius: 50%;
+}
+
+/* ─── Sidebar/Drawer Profile Card ─── */
+.sidebar-profile-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0.85rem; background: var(--bg-glass);
+  border: 1px solid var(--border); border-radius: 16px;
+  cursor: pointer; transition: background 0.2s;
+}
+.sidebar-profile-card:hover { background: var(--bg-glass-heavy); }
+
+/* ─── Sidebar Sign Out ─── */
+.sidebar-signout-btn {
+  display: flex; align-items: center; gap: 12px;
+  background: none; border: none; padding: 0.75rem;
+  cursor: pointer; color: var(--text-muted); fontWeight: 600;
+  font-size: 0.9rem; transition: color 0.2s; font-family: var(--font-main);
+}
+.sidebar-signout-btn:hover { color: #f87171; }
+
+/* ─── Drawer Overlay & Panel ─── */
+.drawer-overlay {
+  position: fixed; inset: 0; background: var(--bg-overlay);
+  z-index: 500; backdrop-filter: blur(4px);
+}
+.drawer-panel {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 82%; max-width: 320px;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  animation: slideInLeft 0.22s ease-out;
+}
+.drawer-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem; padding-top: calc(1.25rem + env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid var(--border);
+}
+.drawer-signout-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center;
+  gap: 10; background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.18); border-radius: 14px;
+  padding: 0.85rem; cursor: pointer; color: #f87171;
+  font-weight: 700; font-size: 0.9rem; font-family: var(--font-main);
+}
+
+/* ─── Shell Nav Items (used in sidebar & drawer) ─── */
+.shell-nav-item {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 0.75rem 1rem;
+  background: transparent; border: none; border-radius: 12px;
+  color: var(--text-muted); font-weight: 600; font-size: 0.92rem;
+  cursor: pointer; text-align: left; transition: all 0.2s;
+  font-family: var(--font-main);
+}
+.shell-nav-item:hover { background: var(--bg-glass); color: var(--text-main); }
+.shell-nav-item.active {
+  background: var(--primary); color: #fff; font-weight: 700;
+  box-shadow: 0 4px 14px rgba(239,68,68,0.3);
+}
+
+/* ─── Old nav-tab (kept for compat) ─── */
 .nav-tab {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
   padding: 0.5rem 0; color: var(--text-dim);
   font-size: 0.68rem; font-weight: 600; cursor: pointer;
   transition: all 0.2s ease; border-radius: 12px; margin: 0 2px;
 }
-.nav-tab:hover { color: var(--text-muted); background: rgba(255,255,255,0.04); }
+.nav-tab:hover { color: var(--text-muted); background: var(--bg-glass); }
 .nav-tab.active { color: var(--primary); }
 
 /* Desktop Sidebar Nav Items */

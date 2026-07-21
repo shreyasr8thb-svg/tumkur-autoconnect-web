@@ -164,7 +164,7 @@ export default function Login({ onCreateProfile }) {
 
       <div className="mb-4 text-center">
         <img src={logo} alt="Logo" style={{ width: '72px', height: '72px', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: '18px', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }} />
-        <h2 className="text-white">Welcome Back</h2>
+        <h2 style={{ color: 'var(--text-main)' }}>Welcome Back</h2>
         <p>Login to your Tumkuru Connect account</p>
       </div>
 

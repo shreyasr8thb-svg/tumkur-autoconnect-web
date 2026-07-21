@@ -86,25 +86,25 @@ function Home({ onSOS, go }) {
   return (
     <div className="flex-col gap-3">
       {/* Welcome banner */}
-      <div className="glass-card" style={{ background: 'linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.95))', borderColor: 'rgba(239,68,68,0.2)' }}>
+      <div className="glass-card" style={{ borderColor: 'rgba(239,68,68,0.2)' }}>
         <div className="flex justify-between items-start">
           <div>
-            <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '0.08em' }}>WELCOME BACK</div>
-            <h2 style={{ margin: '4px 0 2px', fontSize: '1.2rem' }}>Hello, {name}!</h2>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.08em' }}>WELCOME BACK</div>
+            <h2 style={{ margin: '4px 0 2px', fontSize: '1.2rem', color: 'var(--text-main)' }}>Hello, {name}!</h2>
             {company
               ? <p style={{ margin: 0, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12} /> {company.companyName}</p>
               : <p style={{ margin: 0, fontSize: '0.75rem', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={12} /> Not joined any company yet</p>
             }
           </div>
           {profile?.photoURL
-            ? <img src={profile.photoURL} alt="" style={{ width: 48, height: 48, borderRadius: '12px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.12)' }} />
-            : <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem', color: '#fff' }}>{name.charAt(0)}</div>
+            ? <img src={profile.photoURL} alt="" style={{ width: 48, height: 48, borderRadius: '12px', objectFit: 'cover', border: '2px solid var(--border)' }} />
+            : <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'var(--bg-glass)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-main)' }}>{name.charAt(0)}</div>
           }
         </div>
         {profile?.employeeId && (
-          <div style={{ marginTop: 10, padding: '6px 10px', background: 'rgba(255,255,255,0.06)', borderRadius: 8, display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)' }}>Employee ID</span>
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, fontFamily: 'monospace' }}>{profile.employeeId}</span>
+          <div style={{ marginTop: 10, padding: '6px 10px', background: 'var(--bg-glass)', borderRadius: 8, display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>Employee ID</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, fontFamily: 'monospace', color: 'var(--text-main)' }}>{profile.employeeId}</span>
           </div>
         )}
       </div>

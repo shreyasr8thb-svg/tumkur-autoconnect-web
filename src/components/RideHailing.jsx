@@ -132,7 +132,7 @@ function MapView({ userPos, dropoffPos, rideStatus, activeDrivers = [], accepted
             mapInstance.current.setView([userPos.lat, userPos.lng], 15, { animate: true });
           }
         }}
-        style={{ position: 'absolute', bottom: 100, right: 10, zIndex: 400, background: '#fff', color: '#3b82f6', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer' }}
+        style={{ position: 'absolute', bottom: 100, right: 10, zIndex: 400, background: 'var(--bg-glass)', color: '#3b82f6', border: '1px solid var(--border)', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer' }}
       >
         <Navigation size={20} />
       </button>
@@ -354,7 +354,7 @@ export default function RideHailing({ onBack }) {
 
   // Full-screen layout: map behind, bottom sheet on top
   return (
-    <div style={{ position: 'fixed', top: 'var(--topbar-h)', left: 0, right: 0, bottom: 0, zIndex: 10, overflow: 'hidden', background: '#0d1117' }}>
+    <div style={{ position: 'fixed', top: 'var(--topbar-h)', left: 0, right: 0, bottom: 0, zIndex: 10, overflow: 'hidden', background: 'var(--bg-dark)' }}>
 
       {/* ── Full-screen map ── */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
@@ -371,13 +371,13 @@ export default function RideHailing({ onBack }) {
       {!ride && (step === 'input' || step === 'home') && (
         <>
           <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20 }}>
-            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
-              <ArrowLeft size={22} color="#fff" />
+            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+              <ArrowLeft size={22} color="var(--text-main)" />
             </div>
           </div>
-          <div onClick={fetchLoc} style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20, cursor: 'pointer' }}>
+          <div onClick={fetchLoc} style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'var(--bg-glass)', backdropFilter: 'blur(12px)', border: '1px solid var(--border)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20, cursor: 'pointer' }}>
             <Navigation size={14} color="#3b82f6" />
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1' }}>📍 Locate Me</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-main)' }}>📍 Locate Me</span>
           </div>
         </>
       )}
@@ -386,12 +386,12 @@ export default function RideHailing({ onBack }) {
       {!ride && step === 'home' && (
         <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none' }}>
           <div style={{ width: '100%', maxWidth: 800, padding: '0 14px 0 64px', pointerEvents: 'auto' }}>
-            <div onClick={() => setStep('input')} style={{ background: 'rgba(30,41,59,0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '10px 16px', gap: '12px', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-              <Search size={22} color="#f8fafc" />
-              <span style={{ flex: 1, fontSize: '1rem', fontWeight: 600, color: '#f8fafc' }}>Where to? (or tap map)</span>
-              <div style={{ background: '#0f172a', borderRadius: '100px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={14} color="#f8fafc" />
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f8fafc' }}>Now</span>
+            <div onClick={() => setStep('input')} style={{ background: 'var(--bg-glass-heavy)', backdropFilter: 'blur(12px)', border: '1px solid var(--border)', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '10px 16px', gap: '12px', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+              <Search size={22} color="var(--text-main)" />
+              <span style={{ flex: 1, fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)' }}>Where to? (or tap map)</span>
+              <div style={{ background: 'var(--bg-glass)', borderRadius: '100px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Clock size={14} color="var(--text-main)" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-main)' }}>Now</span>
               </div>
             </div>
           </div>
@@ -402,12 +402,12 @@ export default function RideHailing({ onBack }) {
       {step === 'options' && (
         <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none' }}>
           <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 800, padding: '0 14px', pointerEvents: 'auto' }}>
-            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: '#121212', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
-              <ArrowLeft size={22} color="#fff" />
+            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+              <ArrowLeft size={22} color="var(--text-main)" />
             </div>
-            <div style={{ flex: 1, background: '#121212', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
-              <div style={{ fontSize: '0.65rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Home</div>
-              <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{dropoff}</div>
+            <div style={{ flex: 1, background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Home</div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{dropoff}</div>
               <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, marginTop: '2px' }}>{selectedDist} km • {Math.round(selectedDist * 3)} mins away</div>
             </div>
           </div>
@@ -417,12 +417,12 @@ export default function RideHailing({ onBack }) {
       {/* ── Bottom Sheet ── */}
       <div style={{
         position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 800, zIndex: 30,
-        background: 'rgba(15, 23, 42, 0.85)',
+        background: 'var(--bg-glass-heavy)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         borderTopLeftRadius: 32, borderTopRightRadius: 32,
-        boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 -10px 40px rgba(0,0,0,0.2)',
+        border: '1px solid var(--border)',
         borderBottom: 'none',
         maxHeight: step === 'home' ? '45%' : '75%',
         overflow: 'hidden',
@@ -437,20 +437,20 @@ export default function RideHailing({ onBack }) {
           {/* ── STEP: Home Sheet Content ── */}
           {!ride && step === 'home' && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem', marginTop: 0 }}>For you</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '1rem', marginTop: 0 }}>For you</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
                 {[
-                  { name: 'Trip', icon: <Car size={28} color="#fff" />, promo: '25%' },
+                  { name: 'Trip', icon: <Car size={28} color="var(--text-main)" />, promo: '25%' },
                   { name: 'Auto', icon: <Users size={28} color="#fcd34d" /> },
-                  { name: 'Bike Saver', icon: <Bike size={28} color="#cbd5e1" /> },
+                  { name: 'Bike Saver', icon: <Bike size={28} color="var(--text-main)" /> },
                   { name: 'Shared Bus', icon: <Bus size={28} color="#fb923c" /> },
-                  { name: 'Reserve', icon: <Clock size={28} color="#fff" />, promo: 'Promo' },
-                  { name: 'Intercity', icon: <CarFront size={28} color="#fff" /> },
-                  { name: 'Rentals', icon: <Clock size={28} color="#fff" /> },
+                  { name: 'Reserve', icon: <Clock size={28} color="var(--text-main)" />, promo: 'Promo' },
+                  { name: 'Intercity', icon: <CarFront size={28} color="var(--text-main)" /> },
+                  { name: 'Rentals', icon: <Clock size={28} color="var(--text-main)" /> },
                   { name: 'Bus tickets', icon: <Bus size={28} color="#60a5fa" />, promo: 'Promo' },
                 ].map((item) => (
                   <div key={item.name} onClick={() => setStep('input')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                       {item.promo && (
                         <div style={{ position: 'absolute', top: -6, background: '#ef4444', color: '#fff', fontSize: '0.65rem', fontWeight: 800, padding: '2px 6px', borderRadius: '10px', whiteSpace: 'nowrap', zIndex: 2 }}>
                           {item.promo}
@@ -458,34 +458,34 @@ export default function RideHailing({ onBack }) {
                       )}
                       {item.icon}
                     </div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', textAlign: 'center' }}>{item.name}</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-main)', textAlign: 'center' }}>{item.name}</span>
                   </div>
                 ))}
               </div>
               
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8', marginBottom: '0.5rem' }}>Recent Places</div>
-              <div style={{ background: '#1c1c1e', borderRadius: '16px', padding: '0.5rem', marginBottom: '2rem' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Recent Places</div>
+              <div style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: '16px', padding: '0.5rem', marginBottom: '2rem' }}>
                 {SUGGESTIONS.slice(0, 2).map((s, i) => (
-                  <div key={s.name} onClick={() => handleSelectDestination({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) })} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', borderBottom: i === 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' }}>
+                  <div key={s.name} onClick={() => handleSelectDestination({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) })} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', borderBottom: i === 0 ? '1px solid var(--border)' : 'none', cursor: 'pointer' }}>
                     <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <MapPin size={20} color="#f87171" />
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc' }}>{s.name}</div>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{s.name}, Tumkur District</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-main)' }}>{s.name}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{s.name}, Tumkur District</div>
                       <div style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '4px', fontWeight: 600 }}>15% off select trips</div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem' }}>TC Black has arrived</h3>
-              <div style={{ background: '#27272a', borderRadius: '16px', overflow: 'hidden', height: 180, position: 'relative', cursor: 'pointer' }} onClick={() => setStep('input')}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '1rem' }}>TC Black has arrived</h3>
+              <div style={{ background: 'var(--bg-dark)', borderRadius: '16px', overflow: 'hidden', height: 180, position: 'relative', cursor: 'pointer' }} onClick={() => setStep('input')}>
                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8))', zIndex: 1 }} />
                  <img src={tcBlackImg} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="TC Black Cab" />
                  <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', zIndex: 2 }}>
                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>Try Black</div>
-                   <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Premium business class rides</div>
+                   <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>Premium business class rides</div>
                  </div>
               </div>
             </div>
@@ -494,34 +494,34 @@ export default function RideHailing({ onBack }) {
           {/* ── STEP: Input ── */}
           {!ride && step === 'input' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>Where to?</h3>
+              <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)' }}>Where to?</h3>
 
               {/* Destination input */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '14px 18px' }}>
-                <Search size={20} color="#64748b" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 14, padding: '14px 18px' }}>
+                <Search size={20} color="var(--text-muted)" />
                 <input
                   value={dropoff}
                   onChange={e => setDropoff(e.target.value)}
                   placeholder="Search destination..."
-                  style={{ background: 'transparent', border: 'none', color: '#f8fafc', outline: 'none', flex: 1, fontSize: '1rem', fontWeight: 500 }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', outline: 'none', flex: 1, fontSize: '1rem', fontWeight: 500 }}
                 />
-                {dropoff && <X size={16} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => setDropoff('')} />}
+                {dropoff && <X size={16} color="var(--text-muted)" style={{ cursor: 'pointer' }} onClick={() => setDropoff('')} />}
               </div>
 
               {/* Quick suggestions */}
               {!dropoff && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#475569', letterSpacing: '0.06em', marginBottom: 4 }}>POPULAR DESTINATIONS</div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.06em', marginBottom: 4 }}>POPULAR DESTINATIONS</div>
                   {SUGGESTIONS.map(s => (
                     <div key={s.name} onClick={() => handleSelectDestination({ ...s, dist: getDistance(userPos.lat, userPos.lng, s.lat, s.lng) })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-glass)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <MapPin size={14} color="#94a3b8" />
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <MapPin size={14} color="var(--text-muted)" />
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>{s.name}</div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{getDistance(userPos.lat, userPos.lng, s.lat, s.lng)} km away</div>
+                        <div style={{ fontSize: '0.88rem', color: 'var(--text-main)' }}>{s.name}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{getDistance(userPos.lat, userPos.lng, s.lat, s.lng)} km away</div>
                       </div>
                     </div>
                   ))}
@@ -533,14 +533,14 @@ export default function RideHailing({ onBack }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 200, overflowY: 'auto' }}>
                   {searchResults.map(s => (
                     <div key={s.fullName} onClick={() => handleSelectDestination(s)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-glass)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <MapPin size={14} color="#3b82f6" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.fullName} • {s.dist} km away</div>
+                        <div style={{ fontSize: '0.88rem', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.fullName} • {s.dist} km away</div>
                       </div>
                     </div>
                   ))}
@@ -557,8 +557,8 @@ export default function RideHailing({ onBack }) {
 
           {/* ── STEP: Vehicle Options ── */}
           {!ride && step === 'options' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, margin: '-1rem -1.25rem -2rem', background: '#121212' }}>
-              <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', padding: '1.25rem 0 0.5rem', margin: 0 }}>Choose a trip</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, margin: '-1rem -1.25rem -2rem', background: 'var(--bg-dark)' }}>
+              <h3 style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)', padding: '1.25rem 0 0.5rem', margin: 0 }}>Choose a trip</h3>
               
               <div style={{ display: 'flex', flexDirection: 'column', padding: '0.5rem 1rem 1rem' }}>
                 {vehicleOptions.map(v => {
@@ -573,25 +573,25 @@ export default function RideHailing({ onBack }) {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                       <div style={{ position: 'relative', width: 60, height: 60 }}>
-                        <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#27272a', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }} />
+                        <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }} />
                         <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>{v.icon}</div>
                       </div>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                           <span style={{ fontWeight: 600, fontSize: '1rem', color: '#f8fafc' }}>{v.name}</span>
-                           <Users size={12} color="#f8fafc" /> <span style={{ fontSize: '0.8rem', color: '#f8fafc' }}>{v.seats.charAt(0)}</span>
+                           <span style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-main)' }}>{v.name}</span>
+                           <Users size={12} color="var(--text-main)" /> <span style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>{v.seats.charAt(0)}</span>
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 2 }}>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
                            {new Date(Date.now() + parseInt(v.eta)*60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true}).toLowerCase()} · {v.eta}
                         </div>
                         {v.id === 'Bike' && (
-                           <div style={{ background: '#1e3a8a', color: '#60a5fa', fontSize: '0.65rem', padding: '2px 6px', borderRadius: 4, display: 'inline-block', marginTop: 4, fontWeight: 600 }}>Cheaper</div>
+                           <div style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.3)', fontSize: '0.65rem', padding: '2px 6px', borderRadius: 4, display: 'inline-block', marginTop: 4, fontWeight: 600 }}>Cheaper</div>
                         )}
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      {v.id === 'Bike' && <div style={{ fontSize: '0.7rem', textDecoration: 'line-through', color: '#94a3b8' }}>{`₹${parseInt(v.price.replace('₹','')) + 15}.93`}</div>}
-                      <div style={{ fontWeight: 600, fontSize: '1.05rem', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                      {v.id === 'Bike' && <div style={{ fontSize: '0.7rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>{`₹${parseInt(v.price.replace('₹','')) + 15}.93`}</div>}
+                      <div style={{ fontWeight: 600, fontSize: '1.05rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
                          {v.id === 'Bike' && <span style={{ width: 14, height: 14, background: '#f87171', transform: 'rotate(45deg)', display: 'inline-block', borderRadius: 2 }} />}
                          {v.price}
                       </div>
@@ -601,16 +601,16 @@ export default function RideHailing({ onBack }) {
               </div>
 
               {/* Payment Bar */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderTop: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ background: '#bef264', borderRadius: 6, padding: '4px 6px' }}>
                     <div style={{ width: 18, height: 12, border: '2px solid #166534', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                        <div style={{ width: 4, height: 4, background: '#166534', borderRadius: '50%' }} />
                     </div>
                   </div>
-                  <span style={{ fontSize: '0.9rem', color: '#f8fafc', fontWeight: 600 }}>Cash</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 600 }}>Cash</span>
                 </div>
-                <ArrowLeft size={16} color="#f8fafc" style={{ transform: 'rotate(180deg)' }} />
+                <ArrowLeft size={16} color="var(--text-main)" style={{ transform: 'rotate(180deg)' }} />
               </div>
 
               {/* Action Bar */}
@@ -620,8 +620,8 @@ export default function RideHailing({ onBack }) {
                 }}>
                   Choose {vehicleOptions.find(v => v.id === selectedVehicle)?.name}
                 </button>
-                <div style={{ width: 54, height: 54, borderRadius: 12, background: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Clock size={24} color="#f8fafc" />
+                <div style={{ width: 54, height: 54, borderRadius: 12, background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Clock size={24} color="var(--text-main)" />
                 </div>
               </div>
             </div>
@@ -632,12 +632,12 @@ export default function RideHailing({ onBack }) {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '1rem 0' }}>
               <div style={{ width: 56, height: 56, borderRadius: '50%', border: '3px solid rgba(225,29,72,0.2)', borderTopColor: '#e11d48', animation: 'spin 0.9s linear infinite' }} />
               <div style={{ textAlign: 'center' }}>
-                <h3 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 800 }}>Finding your driver...</h3>
-                <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>Matching with nearest {ride?.vehicleType || selectedVehicle}</p>
+                <h3 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)' }}>Finding your driver...</h3>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>Matching with nearest {ride?.vehicleType || selectedVehicle}</p>
               </div>
               <div style={{ display: 'flex', gap: 16 }}>
-                <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '10px 16px' }}>
-                  <div style={{ fontSize: '1rem', fontWeight: 800 }}>OTP</div>
+                <div style={{ textAlign: 'center', background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 16px' }}>
+                  <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>OTP</div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#e11d48', letterSpacing: 4 }}>{ride?.otp || '----'}</div>
                 </div>
               </div>
@@ -655,16 +655,16 @@ export default function RideHailing({ onBack }) {
                   {ride?.driverPhoto ? (
                     <img src={ride.driverPhoto} alt="Driver" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #3b82f6' }} />
                   ) : (
-                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <User size={20} color="#f8fafc" />
+                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <User size={20} color="var(--text-main)" />
                     </div>
                   )}
                   <div>
                     <div style={{ fontSize: '0.65rem', color: ride?.status === 'in-progress' ? '#4ade80' : '#fbbf24', fontWeight: 700, letterSpacing: '0.06em' }}>
                       {ride?.status === 'in-progress' ? '🟢 TRIP IN PROGRESS' : '🟡 DRIVER EN ROUTE'}
                     </div>
-                    <h3 style={{ margin: '2px 0 0', fontSize: '1.1rem', fontWeight: 800 }}>{ride?.driverName || 'Your Driver'}</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: '#94a3b8' }}>
+                    <h3 style={{ margin: '2px 0 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)' }}>{ride?.driverName || 'Your Driver'}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                       <Star size={12} color="#fbbf24" fill="#fbbf24" /> 4.9 · {ride?.vehicleNumber || 'KA-00'} · {ride?.vehicleType || selectedVehicle}
                     </div>
                   </div>
@@ -683,26 +683,26 @@ export default function RideHailing({ onBack }) {
                 </button>
               </div>
 
-              <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: '12px 14px' }}>
+              <div style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6' }} />
-                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Current Location</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Current Location</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#e11d48' }} />
-                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{ride?.dropoff}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{ride?.dropoff}</span>
                 </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(225,29,72,0.08)', border: '1px solid rgba(225,29,72,0.2)', borderRadius: 10, padding: '10px 14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Shield size={14} color="#e11d48" />
-                  <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Share OTP with driver</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Share OTP with driver</span>
                 </div>
                 <span style={{ fontWeight: 900, fontSize: '1.2rem', color: '#e11d48', letterSpacing: 3 }}>{ride?.otp}</span>
               </div>
 
-              <button onClick={cancelRide} style={{ padding: '0.75rem', borderRadius: 12, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
+              <button onClick={cancelRide} style={{ padding: '0.75rem', borderRadius: 12, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-muted)', fontWeight: 600, cursor: 'pointer', fontSize: '0.82rem' }}>
                 Cancel Ride
               </button>
             </div>

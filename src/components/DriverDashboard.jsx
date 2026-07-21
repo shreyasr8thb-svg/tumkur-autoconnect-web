@@ -216,19 +216,19 @@ function DriveMode({ active, setActive, onMenu }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 10, background: '#0d1117' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 10, background: 'var(--bg-dark)' }}>
       {/* Map */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         <LiveMap height="100%" activeRide={activeRide} fullScreen />
       </div>
 
       {/* Top bar overlay */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 9999, background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 9999, background: 'linear-gradient(to bottom, var(--bg-dark), transparent)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: active ? '#22c55e' : '#64748b', boxShadow: active ? '0 0 8px #22c55e' : 'none' }} />
-          <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#f8fafc' }}>{active ? (activeRide ? 'ON TRIP' : 'ONLINE') : 'OFFLINE'}</span>
+          <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-main)' }}>{active ? (activeRide ? 'ON TRIP' : 'ONLINE') : 'OFFLINE'}</span>
         </div>
-        <button onClick={onMenu} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#f8fafc', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={onMenu} style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--text-main)', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
           <ClipboardList size={14} /> Trips
         </button>
       </div>
@@ -237,11 +237,11 @@ function DriveMode({ active, setActive, onMenu }) {
       {active && !activeRide && pendingRides.length > 0 && (
         <div style={{ position: 'absolute', top: 70, left: 12, right: 12, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {pendingRides.slice(0, 3).map(r => (
-            <div key={r.id} style={{ background: 'rgba(10,20,40,0.95)', border: '2px solid #3b82f6', borderRadius: 16, padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(59,130,246,0.3)' }}>
+            <div key={r.id} className="glass-card" style={{ border: '2px solid #3b82f6', borderRadius: 16, padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(59,130,246,0.3)' }}>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '1rem', color: '#f8fafc' }}>{r.workerName}</div>
-                <div style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12} /> {r.dropoff}</div>
-                <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2 }}>{r.vehicleType}</div>
+                <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-main)' }}>{r.workerName}</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12} /> {r.dropoff}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: 2 }}>{r.vehicleType}</div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => rejectRide(r)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 12, padding: '10px 14px', color: '#f87171', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
@@ -257,53 +257,53 @@ function DriveMode({ active, setActive, onMenu }) {
       )}
 
       {/* Bottom Sheet */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999, background: '#0f172a', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: '1.25rem', boxShadow: '0 -6px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.07)', borderBottom: 'none' }}>
-        <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 2, margin: '0 auto 16px' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999, background: 'var(--bg-glass-heavy)', backdropFilter: 'blur(20px)', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: '1.25rem', boxShadow: '0 -6px 30px rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderBottom: 'none' }}>
+        <div style={{ width: 40, height: 4, background: 'var(--border)', borderRadius: 2, margin: '0 auto 16px' }} />
 
         {!active && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 8 }}>
             
             {/* Quick Stats */}
-            <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: '1rem', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem' }}>
                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>₹{profile?.totalEarnings || 0}</div>
-                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>EARNINGS</div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)' }}>₹{profile?.totalEarnings || 0}</div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>EARNINGS</div>
                </div>
-               <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
+               <div style={{ width: 1, background: 'var(--border)' }} />
                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc' }}>{profile?.totalTrips || 0}</div>
-                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>TRIPS</div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)' }}>{profile?.totalTrips || 0}</div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>TRIPS</div>
                </div>
-               <div style={{ width: 1, background: 'rgba(255,255,255,0.08)' }} />
-               <div style={{ textAlign: 'center' }} onClick={onMenu}>
+               <div style={{ width: 1, background: 'var(--border)' }} />
+               <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={onMenu}>
                   <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}>
                     <User size={18} />
                   </div>
-                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>PROFILE</div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>PROFILE</div>
                </div>
             </div>
 
-            <h3 style={{ margin: 0, textAlign: 'center', color: '#f8fafc' }}>You're Offline</h3>
+            <h3 style={{ margin: 0, textAlign: 'center', color: 'var(--text-main)' }}>You're Offline</h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {profile?.driverType === 'company_driver' ? (
                 <>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>VEHICLE CAPACITY</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>VEHICLE CAPACITY</label>
                   <input 
                     type="number" 
                     value={vehicleCapacity}
                     onChange={e => setVehicleCapacity(e.target.value)}
                     placeholder="e.g. 40"
-                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none' }}
+                    style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-main)', padding: '12px', fontSize: '1rem', outline: 'none' }}
                   />
                 </>
               ) : (
                 <>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>VEHICLE TYPE</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>VEHICLE TYPE</label>
                   <select 
                     value={vehicleType} 
                     onChange={e => setVehicleType(e.target.value)}
-                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+                    style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-main)', padding: '12px', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
                   >
                     <option value="Bike">Moto (Bike)</option>
                     <option value="Auto">Auto</option>
@@ -312,30 +312,30 @@ function DriveMode({ active, setActive, onMenu }) {
                     <option value="SUV">TC SUV</option>
                   </select>
 
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>VEHICLE NUMBER</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginTop: 4 }}>VEHICLE NUMBER</label>
                   <input 
                     type="text" 
                     value={vehicleNumber}
                     onChange={e => setVehicleNumber(e.target.value.toUpperCase())}
                     placeholder="e.g. KA 06 AB 1234"
-                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none', letterSpacing: 1 }}
+                    style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-main)', padding: '12px', fontSize: '1rem', outline: 'none', letterSpacing: 1 }}
                   />
                 </>
               )}
 
               {profile?.vehicleCategory === 'office_bus' && (
                 <>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>LOGIN PICKUP TIME</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginTop: 4 }}>LOGIN PICKUP TIME</label>
                   <input 
                     type="time" 
                     onChange={e => setPickupTimes(prev => ({ ...prev, loginTime: e.target.value }))}
-                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none' }}
+                    style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-main)', padding: '12px', fontSize: '1rem', outline: 'none' }}
                   />
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginTop: 4 }}>LOGOUT PICKUP TIME</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginTop: 4 }}>LOGOUT PICKUP TIME</label>
                   <input 
                     type="time" 
                     onChange={e => setPickupTimes(prev => ({ ...prev, logoutTime: e.target.value }))}
-                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '12px', fontSize: '1rem', outline: 'none' }}
+                    style={{ background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-main)', padding: '12px', fontSize: '1rem', outline: 'none' }}
                   />
                 </>
               )}
@@ -352,22 +352,22 @@ function DriveMode({ active, setActive, onMenu }) {
 
         {/* Pre-Trip Checklist Modal */}
         {showPreTrip && !active && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-            <div className="glass-card" style={{ width: '100%', maxWidth: '400px', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '1.5rem', borderRadius: 24 }}>
-              <h3 style={{ color: '#fff', marginTop: 0, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'var(--bg-overlay)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '1.5rem', borderRadius: 24 }}>
+              <h3 style={{ color: 'var(--text-main)', marginTop: 0, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <CheckCircle size={20} color="#3b82f6" /> Pre-Trip Inspection
               </h3>
-              <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: 16 }}>Sign off before engine start.</p>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 16 }}>Sign off before engine start.</p>
               
               {['brakes', 'tires', 'fuel', 'lights'].map(item => (
-                <div key={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ color: '#f8fafc', textTransform: 'capitalize' }}>{item} Checked</span>
+                <div key={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ color: 'var(--text-main)', textTransform: 'capitalize' }}>{item} Checked</span>
                   <input type="checkbox" checked={preTripChecks[item]} onChange={e => setPreTripChecks(p => ({ ...p, [item]: e.target.checked }))} style={{ width: 20, height: 20 }} />
                 </div>
               ))}
 
               <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-                <button onClick={() => setShowPreTrip(false)} className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff' }}>Cancel</button>
+                <button onClick={() => setShowPreTrip(false)} className="btn" style={{ flex: 1, background: 'var(--bg-glass)', border: '1px solid var(--border)', color: 'var(--text-main)' }}>Cancel</button>
                 <button 
                   onClick={() => {
                     if (preTripChecks.brakes && preTripChecks.tires && preTripChecks.fuel && preTripChecks.lights) {
@@ -400,20 +400,20 @@ function DriveMode({ active, setActive, onMenu }) {
                   <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
                     <Activity size={20} color="#10b981" style={{ margin: '0 auto 8px' }} />
                     <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>ANTI-GRAVITY</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>{smoothness}%</div>
-                    <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Ride Smoothness</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>{smoothness}%</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Ride Smoothness</div>
                   </div>
                   
                   <div style={{ flex: 1, background: drowsiness.includes('Active') ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${drowsiness.includes('Active') ? 'rgba(59,130,246,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
                     <Eye size={20} color={drowsiness.includes('Active') ? '#3b82f6' : '#ef4444'} style={{ margin: '0 auto 8px' }} />
                     <div style={{ fontSize: '0.7rem', color: drowsiness.includes('Active') ? '#3b82f6' : '#ef4444', fontWeight: 700 }}>AI VISION</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#f8fafc' }}>{drowsiness}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)' }}>{drowsiness}</div>
                   </div>
                 </div>
 
                 {/* Instant HR Comms */}
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={handleVoiceComm} style={{ flex: 1, padding: '0.85rem', borderRadius: 12, background: recordingVoice ? '#ef4444' : 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <button onClick={handleVoiceComm} style={{ flex: 1, padding: '0.85rem', borderRadius: 12, background: recordingVoice ? '#ef4444' : 'var(--bg-glass)', border: '1px solid var(--border)', color: 'var(--text-main)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     <Mic size={18} /> {recordingVoice ? 'Recording...' : 'Voice HR'}
                   </button>
                   <button onClick={() => {
@@ -427,7 +427,7 @@ function DriveMode({ active, setActive, onMenu }) {
             ) : (
               <>
                 <div style={{ width: 40, height: 40, border: '3px solid rgba(59,130,246,0.3)', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem' }}>Waiting for ride requests…</p>
+                <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>Waiting for ride requests…</p>
               </>
             )}
             <button onClick={() => setActive(false)} style={{ width: '100%', padding: '0.85rem', borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', fontWeight: 700, cursor: 'pointer' }}>
@@ -441,8 +441,8 @@ function DriveMode({ active, setActive, onMenu }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: '0.65rem', color: '#22c55e', fontWeight: 700, letterSpacing: '0.06em' }}>ACTIVE TRIP</div>
-                <h3 style={{ margin: '2px 0' }}>Passenger: {activeRide.workerName}</h3>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>Drop-off: {activeRide.dropoff}</p>
+                <h3 style={{ margin: '2px 0', color: 'var(--text-main)' }}>Passenger: {activeRide.workerName}</h3>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Drop-off: {activeRide.dropoff}</p>
               </div>
               <button onClick={() => {
                 import('firebase/firestore').then(({ setDoc, doc }) => {
@@ -463,7 +463,7 @@ function DriveMode({ active, setActive, onMenu }) {
                   type="text" maxLength={4} value={otpInput}
                   onChange={e => setOtpInput(e.target.value)}
                   placeholder="Enter OTP"
-                  style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', padding: '0.75rem', fontSize: '1.2rem', letterSpacing: 4, fontWeight: 700, textAlign: 'center' }}
+                  style={{ flex: 1, background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-main)', padding: '0.75rem', fontSize: '1.2rem', letterSpacing: 4, fontWeight: 700, textAlign: 'center' }}
                 />
                 <button onClick={startTrip} style={{ padding: '0 1.5rem', background: '#3b82f6', border: 'none', borderRadius: 12, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
                   Start Trip
