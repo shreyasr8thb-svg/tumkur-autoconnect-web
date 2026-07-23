@@ -125,16 +125,16 @@ export default function DashboardShell({
           <div className="flex items-center gap-3">
             {(activeTab !== tabs[0].id || isShell) ? (
               <button onClick={() => { setShellTab(null); setActiveTab(tabs[0].id); }} style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
-                <ArrowLeft size={24} />
+                <ArrowLeft size={22} />
               </button>
             ) : null}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => go('profile')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 2vw, 12px)', cursor: 'pointer', minWidth: 0 }} onClick={() => go('profile')}>
               {profile?.photoURL
                 ? <img src={profile.photoURL} alt="" className="avatar-sm" style={{ objectFit: 'cover' }} />
                 : <div className="avatar-sm">{name.charAt(0).toUpperCase()}</div>}
-              <div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{role}</div>
-                <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-main)' }}>{name}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 'clamp(0.58rem, 1.8vw, 0.68rem)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{role}</div>
+                <div style={{ fontWeight: 700, fontSize: 'clamp(0.78rem, 2.3vw, 0.88rem)', color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 'clamp(90px, 30vw, 200px)' }}>{name}</div>
               </div>
             </div>
           </div>
@@ -167,12 +167,12 @@ export default function DashboardShell({
         >
           <div style={{
             flex: 1,
-            padding: 'clamp(0.75rem, 3vw, 1.25rem)',
-            /* Bottom padding accounts for bottom tabs + home bar safe-area */
-            paddingBottom: 'max(6rem, calc(5rem + env(safe-area-inset-bottom)))',
+            padding: 'clamp(0.5rem, 2.5vw, 1.25rem)',
+            /* Bottom padding: use var for bottom tabs height + buffer */
+            paddingBottom: 'calc(var(--bottom-tabs-h, 56px) + clamp(1rem, 3vw, 2rem))',
             display: 'flex',
             flexDirection: 'column',
-            gap: 'clamp(0.65rem, 2.5vw, 1rem)',
+            gap: 'clamp(0.5rem, 2vw, 1rem)',
             animation: 'fadeIn 0.2s ease-out',
             /* Constrain max-width on large screens */
             maxWidth: 900,

@@ -89,16 +89,16 @@ function Home({ onSOS, go }) {
       <div className="glass-card" style={{ borderColor: 'rgba(239,68,68,0.2)' }}>
         <div className="flex justify-between items-start">
           <div>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.08em' }}>WELCOME BACK</div>
-            <h2 style={{ margin: '4px 0 2px', fontSize: '1.2rem', color: 'var(--text-main)' }}>Hello, {name}!</h2>
+            <div style={{ fontSize: 'clamp(0.55rem, 1.8vw, 0.65rem)', color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.08em' }}>WELCOME BACK</div>
+            <h2 style={{ margin: '4px 0 2px', fontSize: 'clamp(1rem, 3.5vw, 1.2rem)', color: 'var(--text-main)' }}>Hello, {name}!</h2>
             {company
               ? <p style={{ margin: 0, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={12} /> {company.companyName}</p>
               : <p style={{ margin: 0, fontSize: '0.75rem', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={12} /> Not joined any company yet</p>
             }
           </div>
           {profile?.photoURL
-            ? <img src={profile.photoURL} alt="" style={{ width: 48, height: 48, borderRadius: '12px', objectFit: 'cover', border: '2px solid var(--border)' }} />
-            : <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'var(--bg-glass)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-main)' }}>{name.charAt(0)}</div>
+            ? <img src={profile.photoURL} alt="" style={{ width: 'clamp(38px, 12vw, 48px)', height: 'clamp(38px, 12vw, 48px)', borderRadius: '12px', objectFit: 'cover', border: '2px solid var(--border)' }} />
+            : <div style={{ width: 'clamp(38px, 12vw, 48px)', height: 'clamp(38px, 12vw, 48px)', borderRadius: '12px', background: 'var(--bg-glass)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 'clamp(1rem, 3vw, 1.2rem)', color: 'var(--text-main)' }}>{name.charAt(0)}</div>
           }
         </div>
         {profile?.employeeId && (
@@ -234,7 +234,7 @@ function CompanySection({ user, profile }) {
               <span className="badge-green">Active Employee</span>
             </div>
           </div>
-          <div className="flex-col gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 12 }}>
+          <div className="flex-col gap-2" style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
             <Row label="Joined" value={membership.joinedAt?.toDate ? membership.joinedAt.toDate().toLocaleDateString('en-IN') : 'Recently'} />
             <Row label="Status" value={<span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>Active <CheckCircle2 size={14} color="#4ade80" /></span>} />
           </div>
@@ -398,7 +398,7 @@ function Salary() {
 }
 function SRow({ l, v, c }) {
   return (
-    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 }}>
+    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid var(--border)', marginBottom: 6 }}>
       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{l}</span>
       <span style={{ fontSize: '0.82rem', fontWeight: 700, color: c || '#f8fafc' }}>{v}</span>
     </div>
@@ -489,7 +489,7 @@ function SmartAccess() {
 /* ── Helpers ── */
 function Row({ label, value }) {
   return (
-    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 }}>
+    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid var(--border)', marginBottom: 6 }}>
       <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{label}</span>
       <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{value}</span>
     </div>

@@ -169,7 +169,7 @@ function AntiGravityFleet({ company, user }) {
     <div className="flex-col gap-3">
       {/* Fleet Telemetry Live Map */}
       <div className="glass-card" style={{ padding: '0' }}>
-        <div style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
           <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}><Activity size={18} color="#3b82f6"/> Live Fleet Telemetry</h4>
           <span style={{ fontSize: '0.75rem', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', padding: '2px 8px', borderRadius: 12 }}>3 Active Buses</span>
         </div>
@@ -200,7 +200,7 @@ function AntiGravityFleet({ company, user }) {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', fontSize: '0.85rem', textAlign: 'left', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
                 <th style={{ padding: '8px 4px', color: '#94a3b8' }}>Driver</th>
                 <th style={{ padding: '8px 4px', color: '#94a3b8' }}>Shift Hrs</th>
                 <th style={{ padding: '8px 4px', color: '#94a3b8' }}>Anti-Gravity</th>
@@ -208,7 +208,7 @@ function AntiGravityFleet({ company, user }) {
               </tr>
             </thead>
             <tbody>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
                 <td style={{ padding: '12px 4px', color: '#f8fafc' }}>Ram K.</td>
                 <td style={{ padding: '12px 4px', color: '#10b981' }}>7h 12m</td>
                 <td style={{ padding: '12px 4px' }}>94%</td>
@@ -366,7 +366,7 @@ function JoinRequests({ company, user }) {
 
 function RequestRow({ req, compact, onAccept, onReject, showActions }) {
   return (
-    <div className="glass-card flex items-center justify-between" style={{ padding: compact ? '0.6rem 0' : '0.85rem', border: 'none', borderBottom: compact ? '1px solid rgba(255,255,255,0.05)' : 'none', borderRadius: compact ? 0 : 12, background: compact ? 'transparent' : 'var(--glass)' }}>
+    <div className="glass-card flex items-center justify-between" style={{ padding: compact ? '0.6rem 0' : '0.85rem', border: 'none', borderBottom: compact ? '1px solid var(--border)' : 'none', borderRadius: compact ? 0 : 12, background: compact ? 'transparent' : 'var(--bg-glass)' }}>
       <div>
         <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{req.workerName}</div>
         <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
@@ -518,7 +518,7 @@ function Announcements({ company, user }) {
 /* ── Helpers ── */
 function Row({ label, value }) {
   return (
-    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 }}>
+    <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid var(--border)', marginBottom: 6 }}>
       <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{label}</span>
       <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{value}</span>
     </div>

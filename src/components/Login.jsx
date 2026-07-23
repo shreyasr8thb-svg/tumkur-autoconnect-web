@@ -159,13 +159,13 @@ export default function Login({ onCreateProfile }) {
 
   /* ── Render ─────────────────────────────────────────────────────────────── */
   return (
-    <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', padding: '1.25rem' }}>
+    <div className="screen flex-col" style={{ overflowY: 'auto', justifyContent: 'flex-start', padding: 'clamp(0.75rem, 3vw, 1.25rem)' }}>
 
 
       <div className="mb-4 text-center">
-        <img src={logo} alt="Logo" style={{ width: '72px', height: '72px', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: '18px', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }} />
-        <h2 style={{ color: 'var(--text-main)' }}>Welcome Back</h2>
-        <p>Login to your Tumkuru Connect account</p>
+        <img src={logo} alt="Logo" style={{ width: 'clamp(56px, 16vw, 72px)', height: 'clamp(56px, 16vw, 72px)', marginBottom: '0.75rem', objectFit: 'contain', borderRadius: 'clamp(14px, 4vw, 18px)', boxShadow: '0 4px 20px rgba(239,68,68,0.3)' }} />
+        <h2 style={{ color: 'var(--text-main)', fontSize: 'clamp(1.1rem, 4.5vw, 1.5rem)' }}>Welcome Back</h2>
+        <p style={{ fontSize: 'clamp(0.8rem, 2.5vw, 0.95rem)' }}>Login to your Tumkuru Connect account</p>
       </div>
 
       <form onSubmit={handleEmailSignIn} className="flex-col gap-3">

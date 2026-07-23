@@ -223,7 +223,8 @@ function DriveMode({ active, setActive, onMenu }) {
       </div>
 
       {/* Top bar overlay */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 9999, background: 'linear-gradient(to bottom, var(--bg-dark), transparent)' }}>
+      {/* Top bar overlay */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: 'clamp(0.5rem, 2vw, 0.75rem) clamp(0.65rem, 2.5vw, 1rem)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 9999, background: 'linear-gradient(to bottom, var(--bg-dark), transparent)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 10, height: 10, borderRadius: '50%', background: active ? '#22c55e' : '#64748b', boxShadow: active ? '0 0 8px #22c55e' : 'none' }} />
           <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-main)' }}>{active ? (activeRide ? 'ON TRIP' : 'ONLINE') : 'OFFLINE'}</span>
@@ -257,22 +258,22 @@ function DriveMode({ active, setActive, onMenu }) {
       )}
 
       {/* Bottom Sheet */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999, background: 'var(--bg-glass-heavy)', backdropFilter: 'blur(20px)', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: '1.25rem', boxShadow: '0 -6px 30px rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderBottom: 'none' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999, background: 'var(--bg-glass-heavy)', backdropFilter: 'blur(20px)', borderTopLeftRadius: 'clamp(20px, 5vw, 28px)', borderTopRightRadius: 'clamp(20px, 5vw, 28px)', padding: 'clamp(0.85rem, 3vw, 1.25rem)', boxShadow: '0 -6px 30px rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderBottom: 'none', maxHeight: '65vh', overflowY: 'auto' }}>
         <div style={{ width: 40, height: 4, background: 'var(--border)', borderRadius: 2, margin: '0 auto 16px' }} />
 
         {!active && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 2.5vw, 12px)', paddingBottom: 8 }}>
             
             {/* Quick Stats */}
-            <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: '1rem', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: 'clamp(0.6rem, 2vw, 1rem)', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem' }}>
                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)' }}>₹{profile?.totalEarnings || 0}</div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>EARNINGS</div>
+                  <div style={{ fontSize: 'clamp(1rem, 3.5vw, 1.3rem)', fontWeight: 800, color: 'var(--text-main)' }}>₹{profile?.totalEarnings || 0}</div>
+                  <div style={{ fontSize: 'clamp(0.55rem, 1.8vw, 0.65rem)', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>EARNINGS</div>
                </div>
                <div style={{ width: 1, background: 'var(--border)' }} />
                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)' }}>{profile?.totalTrips || 0}</div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>TRIPS</div>
+                  <div style={{ fontSize: 'clamp(1rem, 3.5vw, 1.3rem)', fontWeight: 800, color: 'var(--text-main)' }}>{profile?.totalTrips || 0}</div>
+                  <div style={{ fontSize: 'clamp(0.55rem, 1.8vw, 0.65rem)', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>TRIPS</div>
                </div>
                <div style={{ width: 1, background: 'var(--border)' }} />
                <div style={{ textAlign: 'center', cursor: 'pointer' }} onClick={onMenu}>

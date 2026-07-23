@@ -420,11 +420,11 @@ export default function RideHailing({ onBack }) {
         background: 'var(--bg-glass-heavy)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderTopLeftRadius: 32, borderTopRightRadius: 32,
+        borderTopLeftRadius: 'clamp(20px, 5vw, 32px)', borderTopRightRadius: 'clamp(20px, 5vw, 32px)',
         boxShadow: '0 -10px 40px rgba(0,0,0,0.2)',
         border: '1px solid var(--border)',
         borderBottom: 'none',
-        maxHeight: step === 'home' ? '45%' : '75%',
+        maxHeight: step === 'home' ? 'clamp(40%, 45vh, 50%)' : 'clamp(55%, 70vh, 80%)',
         overflow: 'hidden',
         display: 'flex', flexDirection: 'column',
         transition: 'max-height 0.3s ease-in-out'
@@ -432,13 +432,13 @@ export default function RideHailing({ onBack }) {
         {/* Handle */}
         <div style={{ width: 48, height: 5, background: 'rgba(255,255,255,0.2)', borderRadius: 4, margin: '14px auto 0', flexShrink: 0 }} />
 
-        <div style={{ padding: '1rem 1.25rem 2rem', overflowY: 'auto', flex: 1 }}>
+        <div style={{ padding: 'clamp(0.75rem, 2.5vw, 1rem) clamp(0.85rem, 3vw, 1.25rem) clamp(1rem, 3vw, 2rem)', overflowY: 'auto', flex: 1 }}>
 
           {/* ── STEP: Home Sheet Content ── */}
           {!ride && step === 'home' && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '1rem', marginTop: 0 }}>For you</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: 'clamp(1rem, 3vw, 1.2rem)', fontWeight: 800, color: 'var(--text-main)', marginBottom: 'clamp(0.5rem, 2vw, 1rem)', marginTop: 0 }}>For you</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(60px, 18vw, 80px), 1fr))', gap: 'clamp(0.5rem, 2vw, 1rem)', marginBottom: 'clamp(1rem, 3vw, 2rem)' }}>
                 {[
                   { name: 'Trip', icon: <Car size={28} color="var(--text-main)" />, promo: '25%' },
                   { name: 'Auto', icon: <Users size={28} color="#fcd34d" /> },
@@ -449,8 +449,8 @@ export default function RideHailing({ onBack }) {
                   { name: 'Rentals', icon: <Clock size={28} color="var(--text-main)" /> },
                   { name: 'Bus tickets', icon: <Bus size={28} color="#60a5fa" />, promo: 'Promo' },
                 ].map((item) => (
-                  <div key={item.name} onClick={() => setStep('input')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                  <div key={item.name} onClick={() => setStep('input')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px, 1.5vw, 8px)', cursor: 'pointer' }}>
+                    <div style={{ width: 'clamp(44px, 14vw, 60px)', height: 'clamp(44px, 14vw, 60px)', borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                       {item.promo && (
                         <div style={{ position: 'absolute', top: -6, background: '#ef4444', color: '#fff', fontSize: '0.65rem', fontWeight: 800, padding: '2px 6px', borderRadius: '10px', whiteSpace: 'nowrap', zIndex: 2 }}>
                           {item.promo}
@@ -458,7 +458,7 @@ export default function RideHailing({ onBack }) {
                       )}
                       {item.icon}
                     </div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-main)', textAlign: 'center' }}>{item.name}</span>
+                    <span style={{ fontSize: 'clamp(0.6rem, 2vw, 0.75rem)', fontWeight: 600, color: 'var(--text-main)', textAlign: 'center', lineHeight: 1.2 }}>{item.name}</span>
                   </div>
                 ))}
               </div>
@@ -566,19 +566,19 @@ export default function RideHailing({ onBack }) {
                    return (
                   <div key={v.id} onClick={() => setSelectedVehicle(v.id)} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 14px', borderRadius: 16, marginBottom: '0.5rem',
+                    padding: 'clamp(8px, 2.5vw, 12px) clamp(10px, 3vw, 14px)', borderRadius: 'clamp(12px, 3vw, 16px)', marginBottom: 'clamp(0.3rem, 1vw, 0.5rem)',
                     border: `2px solid ${isSelected ? '#ef4444' : 'transparent'}`,
                     background: isSelected ? 'rgba(239,68,68,0.1)' : 'transparent',
                     cursor: 'pointer', transition: 'all 0.2s',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                      <div style={{ position: 'relative', width: 60, height: 60 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2.5vw, 14px)' }}>
+                      <div style={{ position: 'relative', width: 'clamp(40px, 12vw, 60px)', height: 'clamp(40px, 12vw, 60px)' }}>
                         <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }} />
                         <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>{v.icon}</div>
                       </div>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                           <span style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-main)' }}>{v.name}</span>
+                           <span style={{ fontWeight: 600, fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', color: 'var(--text-main)' }}>{v.name}</span>
                            <Users size={12} color="var(--text-main)" /> <span style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>{v.seats.charAt(0)}</span>
                         </div>
                         <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>

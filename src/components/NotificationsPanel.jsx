@@ -111,10 +111,10 @@ export default function NotificationsPanel({ onClose }) {
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', justifyContent: 'flex-end', animation: 'fadeIn 0.2s' }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '390px', height: '100%', background: 'rgba(8,16,36,0.99)', borderLeft: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', animation: 'slideInRight 0.3s forwards', backdropFilter: 'blur(20px)' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '390px', height: '100%', background: 'var(--bg-panel)', borderLeft: '1px solid var(--border)', display: 'flex', flexDirection: 'column', animation: 'slideInRight 0.3s forwards', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem 0.75rem', borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <BellRing size={20} color="var(--primary)" />
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Notifications</h3>
@@ -129,7 +129,7 @@ export default function NotificationsPanel({ onClose }) {
 
         {/* Actions bar */}
         {notifs.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1.25rem', background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1.25rem', background: 'var(--bg-glass)', borderBottom: '1px solid var(--border-light)' }}>
             <button onClick={markAllRead} style={{ background: 'none', border: 'none', color: '#60a5fa', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, padding: '4px 0' }}>
               ✓ Mark all read
             </button>
@@ -155,8 +155,8 @@ export default function NotificationsPanel({ onClose }) {
                   style={{
                     display: 'flex', alignItems: 'flex-start', gap: '10px',
                     padding: '0.85rem', borderRadius: '12px',
-                    background: n.read ? 'rgba(255,255,255,0.02)' : 'rgba(59,130,246,0.08)',
-                    border: `1px solid ${n.read ? 'rgba(255,255,255,0.04)' : 'rgba(59,130,246,0.2)'}`,
+                    background: n.read ? 'transparent' : 'rgba(59,130,246,0.08)',
+                    border: `1px solid ${n.read ? 'var(--border)' : 'rgba(59,130,246,0.2)'}`,
                     cursor: n.read ? 'default' : 'pointer', position: 'relative',
                     transition: 'all 0.15s'
                   }}

@@ -98,7 +98,7 @@ export default function CommunityFeed({ onBack }) {
       {/* Create Post Overlay */}
       {showCreate && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'flex-end' }}>
-          <div className="flex-col gap-3" style={{ background: 'var(--bg-panel)', borderRadius: '24px 24px 0 0', padding: '1.5rem', width: '100%', maxWidth: '480px', margin: '0 auto', border: '1px solid rgba(255,255,255,0.07)', animation: 'fadeIn 0.25s' }}>
+          <div className="flex-col gap-3" style={{ background: 'var(--bg-panel)', borderRadius: '24px 24px 0 0', padding: '1.5rem', width: '100%', maxWidth: '480px', margin: '0 auto', border: '1px solid var(--border)', animation: 'fadeIn 0.25s' }}>
             <div className="flex justify-between items-center">
               <h3 style={{ margin: 0, fontSize: '1.05rem' }}>Create a Post</h3>
               <X size={22} color="var(--text-dim)" onClick={() => setShowCreate(false)} style={{ cursor: 'pointer' }} />
@@ -115,7 +115,7 @@ export default function CommunityFeed({ onBack }) {
               onChange={e => setNewPost(e.target.value)}
               placeholder="Share an update, job opportunity, or announcement..."
               rows={4}
-              style={{ width: '100%', background: 'var(--bg-dark)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '0.875rem', color: 'var(--text-main)', fontSize: '0.9rem', outline: 'none', resize: 'none', lineHeight: 1.6, fontFamily: 'inherit' }}
+              style={{ width: '100%', background: 'var(--bg-dark)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.875rem', color: 'var(--text-main)', fontSize: '0.9rem', outline: 'none', resize: 'none', lineHeight: 1.6, fontFamily: 'inherit' }}
             />
             {postImage && (
               <div style={{ position: 'relative', width: '100%', borderRadius: '12px', overflow: 'hidden', marginTop: '0.5rem' }}>
@@ -127,7 +127,7 @@ export default function CommunityFeed({ onBack }) {
             )}
             <div className="flex items-center gap-3">
               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
-              <button onClick={() => fileInputRef.current?.click()} className="btn flex items-center justify-center gap-2" style={{ background: 'var(--border)', color: 'var(--text-main)', padding: '0.85rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', flex: 1 }}>
+              <button onClick={() => fileInputRef.current?.click()} className="btn flex items-center justify-center gap-2" style={{ background: 'var(--border)', color: 'var(--text-main)', padding: '0.85rem', borderRadius: '12px', border: '1px solid var(--border)', flex: 1 }}>
                 <ImageIcon size={18} />
                 Photo
               </button>
@@ -193,7 +193,7 @@ function PostCard({ post, userId, onLike, onComment, showComment, roleColor, rol
   };
 
   return (
-    <div style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '18px', overflow: 'hidden' }}>
+    <div style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: '18px', overflow: 'hidden' }}>
       {/* Author */}
       <div className="flex items-center gap-3" style={{ padding: '1rem 1rem 0.5rem' }}>
         <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#fff', fontSize: '0.85rem', flexShrink: 0 }}>
@@ -219,7 +219,7 @@ function PostCard({ post, userId, onLike, onComment, showComment, roleColor, rol
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-4" style={{ padding: '0.75rem 1rem', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="flex items-center gap-4" style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--border)' }}>
         <button onClick={onLike} style={{ background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: liked ? 'var(--primary)' : 'var(--text-dim)', fontSize: '0.82rem', fontWeight: 600 }}>
           <Heart size={16} fill={liked ? 'var(--primary)' : 'none'} />
           {post.likes?.length || 0}
@@ -232,12 +232,12 @@ function PostCard({ post, userId, onLike, onComment, showComment, roleColor, rol
 
       {/* Comments */}
       {showComment && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)' }}>
+        <div style={{ borderTop: '1px solid var(--border)', padding: '0.75rem 1rem', background: 'var(--bg-glass)' }}>
           <div className="flex-col gap-2" style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '0.75rem' }}>
             {comments.map(c => (
               <div key={c.id} className="flex items-start gap-2">
                 <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, color: '#fff', flexShrink: 0 }}>{(c.authorName || 'U').charAt(0)}</div>
-                <div style={{ background: 'var(--bg-dark)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '0.5rem 0.75rem', flex: 1 }}>
+                <div style={{ background: 'var(--bg-dark)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.5rem 0.75rem', flex: 1 }}>
                   <div style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)' }}>{c.authorName}</div>
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-main)' }}>{c.text}</div>
                 </div>
@@ -245,7 +245,7 @@ function PostCard({ post, userId, onLike, onComment, showComment, roleColor, rol
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendComment()} placeholder="Add a comment..." style={{ flex: 1, background: 'var(--bg-dark)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '0.5rem 0.75rem', color: 'var(--text-main)', fontSize: '0.82rem', outline: 'none' }} />
+            <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendComment()} placeholder="Add a comment..." style={{ flex: 1, background: 'var(--bg-dark)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.5rem 0.75rem', color: 'var(--text-main)', fontSize: '0.82rem', outline: 'none' }} />
             <button onClick={sendComment} style={{ width: 34, height: 34, background: 'var(--primary)', border: 'none', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
               <Send size={14} color="#fff" />
             </button>

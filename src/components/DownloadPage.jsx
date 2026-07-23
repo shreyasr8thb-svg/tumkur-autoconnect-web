@@ -28,19 +28,19 @@ export default function DownloadPage({ onBack }) {
   };
 
   return (
-    <div style={{ background: '#09090b', minHeight: '100%', color: '#fff', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
+    <div style={{ background: 'var(--bg-dark)', minHeight: '100%', color: 'var(--text-main)', fontFamily: 'Inter, sans-serif', overflowX: 'hidden' }}>
       {/* Background glow effects */}
       <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '40%', height: '50%', background: 'radial-gradient(circle, rgba(225,29,72,0.15) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', top: '20%', right: '-10%', width: '50%', height: '60%', background: 'radial-gradient(circle, rgba(225,29,72,0.1) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
       {/* Navigation */}
       <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 10 }}>
-        <button onClick={handleBack} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+        <button onClick={handleBack} style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-light)', borderRadius: '12px', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-main)', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-glass-heavy)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-glass)'}>
           <ChevronLeft size={24} />
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(0,0,0,0.5)', padding: '6px 16px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
           <div style={{ width: 28, height: 28, background: '#e11d48', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem' }}>TC</div>
-          <span style={{ fontWeight: 600, fontSize: '0.95rem', letterSpacing: '0.02em' }}>Tumkuru Connect</span>
+          <span style={{ fontWeight: 600, fontSize: '0.95rem', letterSpacing: '0.02em', color: '#fff' }}>Tumkuru Connect</span>
         </div>
       </div>
 
@@ -111,8 +111,8 @@ export default function DownloadPage({ onBack }) {
               <div style={{ width: 48, height: 48, borderRadius: '14px', background: 'rgba(225,29,72,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', border: '1px solid rgba(225,29,72,0.2)' }}>
                 {feature.icon}
               </div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.75rem', color: '#fff' }}>{feature.title}</h3>
-              <p style={{ color: '#a1a1aa', lineHeight: 1.6, margin: 0, fontSize: '0.95rem' }}>{feature.desc}</p>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.75rem', color: 'var(--text-main)' }}>{feature.title}</h3>
+              <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, margin: 0, fontSize: '0.95rem' }}>{feature.desc}</p>
             </div>
           ))}
         </div>
@@ -132,8 +132,8 @@ export default function DownloadPage({ onBack }) {
                   {item.step}
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700, margin: '0 0 0.25rem', color: '#fff' }}>{item.title}</h4>
-                  <p style={{ color: '#71717a', fontSize: '0.85rem', lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700, margin: '0 0 0.25rem', color: 'var(--text-main)' }}>{item.title}</h4>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
                 </div>
               </div>
             ))}

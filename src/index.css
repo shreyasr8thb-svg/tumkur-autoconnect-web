@@ -25,7 +25,9 @@
   --radius-full: 9999px;
   --font-main: 'Plus Jakarta Sans', sans-serif;
   --sidebar-w: 260px;
-  --topbar-h: clamp(56px, 8vh, 64px);
+  --topbar-h: clamp(48px, 7vh, 64px);
+  /* Bottom tabs height including safe-area for content padding */
+  --bottom-tabs-h: calc(56px + env(safe-area-inset-bottom, 0px));
   color-scheme: dark;
 }
 
@@ -54,7 +56,8 @@
   --radius-full: 9999px;
   --font-main: 'Plus Jakarta Sans', sans-serif;
   --sidebar-w: 260px;
-  --topbar-h: clamp(56px, 8vh, 64px);
+  --topbar-h: clamp(48px, 7vh, 64px);
+  --bottom-tabs-h: calc(56px + env(safe-area-inset-bottom, 0px));
   color-scheme: light;
 }
 
@@ -151,7 +154,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: clamp(0.75rem, 3vw, 1.25rem);
+  padding: clamp(0.6rem, 2.5vw, 1.25rem);
   padding-bottom: max(1.5rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
   overflow-y: auto;
   overflow-x: hidden;
@@ -659,23 +662,117 @@ p { color: var(--text-muted); }
 .theme-toggle-thumb.dark { left: 2px; background: #6366f1; }
 .theme-toggle-thumb.light { left: 20px; background: #f59e0b; }
 
-/* ─── Responsive: Small Phones (< 380px width) ─── */
-@media (max-width: 380px) {
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE: Full phone-size compatibility system
+   Targets: 320px, 360px, 380px, 414px, 480px
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Ultra-Small Phones (≤ 320px — iPhone SE 1st gen, Galaxy A01) ─── */
+@media (max-width: 320px) {
+  :root, [data-theme="dark"], [data-theme="light"] {
+    --topbar-h: 46px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+  }
+  .grid-2 { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+  .glass-card { padding: clamp(0.5rem, 2vw, 0.75rem); border-radius: 14px; }
+  .btn { padding: 0.6rem 0.75rem; font-size: 0.82rem; border-radius: 10px; }
+  .avatar-sm { width: 30px; height: 30px; font-size: 0.75rem; }
+  .avatar-md { width: 42px; height: 42px; font-size: 1rem; }
+  h2 { font-size: clamp(0.95rem, 4.5vw, 1.15rem); }
+  h3 { font-size: clamp(0.85rem, 4vw, 1rem); }
+  h4 { font-size: clamp(0.8rem, 3.5vw, 0.95rem); }
+  .top-bar { padding: 0.4rem 0.75rem; min-height: 46px; }
+  .screen { padding: 0.5rem; }
+  .role-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .role-card { padding: 0.65rem; }
+  .role-card strong { font-size: 0.78rem; }
+  .role-card span { font-size: 0.62rem; }
+  .steps-bar { gap: 0; }
+  .step span { font-size: 0.55rem; }
+  .step-num { width: 22px; height: 22px; font-size: 0.65rem; }
+  .input-field { padding: 0.65rem 0.75rem; font-size: 0.85rem; }
+  .input-label { font-size: 0.72rem; }
+  .tab-btn { font-size: 0.72rem; padding: 0.4rem; }
+  .badge-outline { font-size: 0.68rem; padding: 3px 8px; }
+  .ios-tab-item { font-size: 0.52rem; }
+  .ios-tab-item .ios-tab-icon { width: 24px; height: 24px; }
+  .ios-bottom-tabs { padding: 4px 2px calc(4px + env(safe-area-inset-bottom, 0px)) 2px; }
+  .topbar-icon-btn { width: 32px; height: 32px; border-radius: 8px; }
+  .digital-id-card { padding: 0.85rem; }
+  .search-bar { padding: 0.6rem 0.75rem !important; }
+  .info-box { font-size: 0.72rem; padding: 0.6rem; }
+  .error-box, .error-banner { font-size: 0.78rem; padding: 0.6rem; }
+}
+
+/* ─── Small Phones (321px – 360px — Galaxy S series, Pixel 4a) ─── */
+@media (min-width: 321px) and (max-width: 360px) {
+  :root, [data-theme="dark"], [data-theme="light"] {
+    --topbar-h: 48px;
+  }
+  .grid-2 { gap: 0.45rem; }
+  .glass-card { padding: clamp(0.6rem, 2.5vw, 0.85rem); border-radius: 16px; }
+  .btn { padding: 0.65rem 0.85rem; font-size: 0.85rem; }
+  .avatar-sm { width: 34px; height: 34px; }
+  .avatar-md { width: 46px; height: 46px; font-size: 1.1rem; }
+  h2 { font-size: clamp(1rem, 4.5vw, 1.2rem); }
+  h3 { font-size: clamp(0.88rem, 4vw, 1.05rem); }
+  .top-bar { padding: 0.5rem 0.85rem; min-height: 48px; }
+  .screen { padding: 0.55rem; }
+  .ios-tab-item { font-size: 0.55rem; }
+  .ios-tab-item .ios-tab-icon { width: 26px; height: 26px; }
+  .input-field { padding: 0.7rem 0.85rem; font-size: 0.88rem; }
+}
+
+/* ─── Medium-Small Phones (361px – 380px — iPhone SE 2/3, Pixel 5) ─── */
+@media (min-width: 361px) and (max-width: 380px) {
   .grid-2 { gap: 0.5rem; }
   .glass-card { padding: clamp(0.65rem, 2.5vw, 0.9rem); border-radius: 16px; }
   .btn { padding: 0.7rem 1rem; font-size: 0.88rem; }
-  .avatar-sm { width: 34px; height: 34px; }
+  .avatar-sm { width: 36px; height: 36px; }
   .avatar-md { width: 48px; height: 48px; font-size: 1.2rem; }
   h2 { font-size: clamp(1rem, 4.5vw, 1.25rem); }
   h3 { font-size: clamp(0.9rem, 4vw, 1.1rem); }
 }
 
+/* ─── Standard Phones (381px – 414px — iPhone 13/14, Galaxy S21) ─── */
+@media (min-width: 381px) and (max-width: 414px) {
+  .grid-2 { gap: 0.6rem; }
+  .glass-card { padding: clamp(0.75rem, 3vw, 1rem); }
+}
+
+/* ─── Large Phones / Phablets (415px – 480px — iPhone 14 Plus/Pro Max) ─── */
+@media (min-width: 415px) and (max-width: 480px) {
+  .grid-2 { gap: 0.7rem; }
+}
+
 /* ─── Responsive: Tall/Narrow Phones ─── */
 @media (max-height: 700px) and (max-width: 500px) {
-  .screen { padding: 0.65rem; }
-  .glass-card { padding: 0.75rem; }
-  .top-bar { padding: 0.5rem 1rem; min-height: 52px; }
-  .mobile-fab { width: 46px; height: 46px; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
+  .screen { padding: 0.5rem; }
+  .glass-card { padding: 0.65rem; }
+  .top-bar { padding: 0.4rem 0.85rem; min-height: 48px; }
+  .mobile-fab { width: 44px; height: 44px; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
+  .ios-bottom-tabs { padding: 4px 2px calc(4px + env(safe-area-inset-bottom, 0px)) 2px; }
+}
+
+/* ─── Very short screens (landscape or foldables) ─── */
+@media (max-height: 600px) {
+  :root, [data-theme="dark"], [data-theme="light"] {
+    --topbar-h: 42px;
+  }
+  .top-bar { min-height: 42px; padding: 0.35rem 0.75rem; }
+  .ios-bottom-tabs { padding: 3px 2px calc(3px + env(safe-area-inset-bottom, 0px)) 2px; }
+  .ios-tab-item { padding: 4px 0 1px; gap: 1px; }
+  .ios-tab-item .ios-tab-icon { width: 24px; height: 24px; }
+  .ios-tab-item { font-size: 0.5rem; }
+}
+
+/* ─── Ensure all text wraps instead of overflowing ─── */
+@media (max-width: 500px) {
+  h1, h2, h3, h4, p, span, div {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
 }
 
 /* ─── Performance: reduce motion for accessibility ─── */
