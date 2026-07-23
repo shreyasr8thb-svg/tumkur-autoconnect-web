@@ -382,7 +382,7 @@ function Salary() {
       <h3 style={{ margin: 0 }}>Earnings</h3>
       <div className="glass-card" style={{ borderTop: '3px solid #ef4444' }}>
         <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 4 }}>MONTHLY TAKE HOME</div>
-        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc', marginBottom: 12 }}>₹{takeHome.toLocaleString('en-IN')}</div>
+        <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 12 }}>₹{takeHome.toLocaleString('en-IN')}</div>
         <SRow l="Base Salary" v={`₹${base.toLocaleString('en-IN')}`} />
         <SRow l="PF Deduction" v={`-₹${pf.toLocaleString('en-IN')}`} c="#f87171" />
         <SRow l="Welfare Bonus" v={`+₹${bonus.toLocaleString('en-IN')}`} c="#4ade80" />
@@ -400,7 +400,7 @@ function SRow({ l, v, c }) {
   return (
     <div className="flex justify-between" style={{ paddingBottom: 6, borderBottom: '1px solid var(--border)', marginBottom: 6 }}>
       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{l}</span>
-      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: c || '#f8fafc' }}>{v}</span>
+      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: c || 'var(--text-main)' }}>{v}</span>
     </div>
   );
 }

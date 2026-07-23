@@ -244,11 +244,11 @@ export default function ProfileView({ onNavigate }) {
                 <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
                   <div style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
                     <div style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 700 }}>ANTI-GRAVITY SCORE</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc' }}>94%</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)' }}>94%</div>
                   </div>
                   <div style={{ flex: 1, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
                     <div style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>ACCIDENT-FREE</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc' }}>4,250h</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)' }}>4,250h</div>
                   </div>
                 </div>
               </div>

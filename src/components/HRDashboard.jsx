@@ -188,7 +188,7 @@ function AntiGravityFleet({ company, user }) {
                 <span style={{ fontWeight: 700, color: a.color, fontSize: '0.85rem' }}>{a.type}</span>
                 <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{a.time}</span>
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#f8fafc' }}>{a.msg}</div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>{a.msg}</div>
             </div>
           ))}
         </div>
@@ -209,13 +209,13 @@ function AntiGravityFleet({ company, user }) {
             </thead>
             <tbody>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '12px 4px', color: '#f8fafc' }}>Ram K.</td>
+                <td style={{ padding: '12px 4px', color: 'var(--text-main)' }}>Ram K.</td>
                 <td style={{ padding: '12px 4px', color: '#10b981' }}>7h 12m</td>
                 <td style={{ padding: '12px 4px' }}>94%</td>
                 <td style={{ padding: '12px 4px', color: '#f59e0b' }}>In 30 days</td>
               </tr>
               <tr>
-                <td style={{ padding: '12px 4px', color: '#f8fafc' }}>Shiva M.</td>
+                <td style={{ padding: '12px 4px', color: 'var(--text-main)' }}>Shiva M.</td>
                 <td style={{ padding: '12px 4px', color: '#10b981' }}>5h 45m</td>
                 <td style={{ padding: '12px 4px' }}>98%</td>
                 <td style={{ padding: '12px 4px' }}>Valid</td>
@@ -529,7 +529,7 @@ function StatCard({ label, value, icon, highlight }) {
   return (
     <div className="glass-card flex-col items-center justify-center gap-1" style={{ padding: '1.25rem', borderColor: highlight ? 'rgba(251,191,36,0.4)' : undefined, background: highlight ? 'rgba(251,191,36,0.05)' : undefined }}>
       <div style={{ marginBottom: 4 }}>{icon}</div>
-      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: highlight ? '#fbbf24' : '#f8fafc', lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: highlight ? '#fbbf24' : 'var(--text-main)', lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.05em', textAlign: 'center' }}>{label.toUpperCase()}</div>
     </div>
   );

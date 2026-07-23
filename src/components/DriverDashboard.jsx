@@ -393,7 +393,7 @@ function DriveMode({ active, setActive, onMenu }) {
               <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ width: '100%', background: 'rgba(59,130,246,0.1)', padding: '1rem', borderRadius: 12, border: '1px solid rgba(59,130,246,0.3)', textAlign: 'center' }}>
                   <div style={{ fontSize: '0.8rem', color: '#3b82f6', fontWeight: 700, marginBottom: 4 }}>PASSENGERS BOARDED</div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>0 / {profile?.vehicleCapacity || vehicleCapacity || '?'}</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)' }}>0 / {profile?.vehicleCapacity || vehicleCapacity || '?'}</div>
                 </div>
                 
                 {/* Anti-Gravity Telemetry Widget */}
