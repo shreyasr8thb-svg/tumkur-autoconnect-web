@@ -268,7 +268,7 @@ function ChatRoom({ room, onBack }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'sticky', top: 0, background: 'var(--bg-dark)', zIndex: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, background: 'var(--bg-dark)', zIndex: 10 }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, display: 'flex' }}>
           <ArrowLeft size={22} />
         </button>
@@ -282,11 +282,11 @@ function ChatRoom({ room, onBack }) {
       </div>
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '80px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: 'calc(70px + env(safe-area-inset-bottom, 0px))' }}>
         {messages.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginTop: '3rem', color: '#334155', textAlign: 'center' }}>
             <MessageSquare size={36} />
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>No messages yet. Start the conversation!</p>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>No messages yet. Start the conversation!</p>
           </div>
         )}
         {messages.map(msg => {
@@ -325,18 +325,18 @@ function ChatRoom({ room, onBack }) {
       </div>
 
       {/* Input */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.75rem', position: 'absolute', bottom: 80, left: 0, right: 0, background: 'rgba(5,10,30,0.95)', backdropFilter: 'blur(12px)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: 'clamp(0.5rem, 2vw, 0.75rem)', position: 'sticky', bottom: 0, left: 0, right: 0, background: 'var(--bg-glass-heavy)', backdropFilter: 'blur(12px)', borderTop: '1px solid var(--border)', paddingBottom: 'max(0.75rem, calc(0.5rem + env(safe-area-inset-bottom, 0px)))' }}>
         <input
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={handleKey}
           placeholder="Type a message..."
-          style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '0.7rem 1rem', color: 'var(--text-main)', fontSize: '0.875rem', outline: 'none' }}
+          style={{ flex: 1, background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: '12px', padding: 'clamp(0.55rem, 2vw, 0.7rem) 1rem', color: 'var(--text-main)', fontSize: '0.875rem', outline: 'none', minHeight: '44px' }}
         />
         <button
           onClick={sendMessage}
           disabled={!text.trim() || sending}
-          style={{ width: 42, height: 42, borderRadius: '12px', background: text.trim() ? 'var(--primary)' : 'rgba(255,255,255,0.06)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: text.trim() ? 'pointer' : 'default', flexShrink: 0, transition: 'all 0.2s' }}
+          style={{ width: 42, height: 42, borderRadius: '12px', background: text.trim() ? 'var(--primary)' : 'var(--bg-glass)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: text.trim() ? 'pointer' : 'default', flexShrink: 0, transition: 'all 0.2s' }}
         >
           <Send size={18} color={text.trim() ? '#fff' : '#334155'} />
         </button>

@@ -111,7 +111,7 @@ export default function NotificationsPanel({ onClose }) {
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', justifyContent: 'flex-end', animation: 'fadeIn 0.2s' }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '390px', height: '100%', background: 'var(--bg-panel)', borderLeft: '1px solid var(--border)', display: 'flex', flexDirection: 'column', animation: 'slideInRight 0.3s forwards', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: 'min(100%, 390px)', height: '100%', background: 'var(--bg-panel)', borderLeft: '1px solid var(--border)', display: 'flex', flexDirection: 'column', animation: 'slideInRight 0.3s forwards', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem 0.75rem', borderBottom: '1px solid var(--border)' }}>
@@ -142,9 +142,9 @@ export default function NotificationsPanel({ onClose }) {
         {/* List */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem' }}>
           {notifs.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '12px', color: '#334155', marginTop: '4rem' }}>
-              <BellRing size={52} color="#1e293b" />
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569' }}>All caught up! No notifications.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '12px', color: 'var(--text-dim)', marginTop: '4rem' }}>
+              <BellRing size={52} color="var(--text-dim)" />
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>All caught up! No notifications.</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -177,7 +177,7 @@ export default function NotificationsPanel({ onClose }) {
                       {n.timestamp?.toDate ? n.timestamp.toDate().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) : 'Just now'}
                     </div>
                   </div>
-                  <button onClick={(e) => { e.stopPropagation(); del(n.id); }} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', cursor: 'pointer', color: '#334155', padding: 2 }}>
+                  <button onClick={(e) => { e.stopPropagation(); del(n.id); }} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dim)', padding: 2 }}>
                     <Trash2 size={14} />
                   </button>
                 </div>

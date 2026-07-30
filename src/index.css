@@ -663,12 +663,76 @@ p { color: var(--text-muted); }
 .theme-toggle-thumb.light { left: 20px; background: #f59e0b; }
 
 /* ═══════════════════════════════════════════════════════
-   RESPONSIVE: Full phone-size compatibility system
-   Targets: 320px, 360px, 380px, 414px, 480px
+   RESPONSIVE: Universal device-size compatibility
+   Covers: 280px → 899px, landscape, foldable, tablets
    ═══════════════════════════════════════════════════════ */
 
-/* ─── Ultra-Small Phones (≤ 320px — iPhone SE 1st gen, Galaxy A01) ─── */
-@media (max-width: 320px) {
+/* ─── Global fluid rules for all mobile (≤ 899px) ─── */
+@media (max-width: 899px) {
+  h1, h2, h3, h4, p, span, div, td, th, label, button {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  /* Fluid font sizes for all headings */
+  h1 { font-size: clamp(1.1rem, 5vw, 1.65rem); }
+  h2 { font-size: clamp(1rem, 4.5vw, 1.35rem); }
+  h3 { font-size: clamp(0.88rem, 4vw, 1.15rem); }
+  h4 { font-size: clamp(0.82rem, 3.5vw, 1.05rem); }
+
+  /* Tables must scroll horizontally, never overflow the viewport */
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; max-width: 100%; }
+  thead, tbody, tfoot { display: table; width: 100%; }
+  th, td { white-space: nowrap; font-size: clamp(0.72rem, 2.5vw, 0.85rem); padding: clamp(6px, 2vw, 12px) clamp(4px, 1.5vw, 8px); }
+
+  /* Prevent any child from bursting out of the viewport */
+  .glass-card, .digital-id-card, .tab-bar, .info-box, .error-box, .error-banner {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Fluid padding for cards */
+  .glass-card { padding: clamp(0.55rem, 2.5vw, 1.1rem); }
+
+  /* Notification panel fills the screen on mobile */
+  .notif-panel-mobile { width: 100% !important; max-width: 100% !important; }
+}
+
+/* ─── Micro Phones (≤ 280px — Galaxy Fold outer) ─── */
+@media (max-width: 280px) {
+  :root, [data-theme="dark"], [data-theme="light"] {
+    --topbar-h: 42px;
+    --radius-lg: 12px;
+    --radius-md: 8px;
+  }
+  .grid-2 { grid-template-columns: 1fr !important; gap: 0.35rem; }
+  .glass-card { padding: 0.4rem; border-radius: 10px; }
+  .btn { padding: 0.5rem 0.6rem; font-size: 0.78rem; border-radius: 8px; }
+  .avatar-sm { width: 26px; height: 26px; font-size: 0.65rem; }
+  .avatar-md { width: 36px; height: 36px; font-size: 0.85rem; }
+  .top-bar { padding: 0.35rem 0.5rem; min-height: 42px; }
+  .screen { padding: 0.35rem; }
+  .ios-tab-item { font-size: 0.48rem; }
+  .ios-tab-item .ios-tab-icon { width: 20px; height: 20px; }
+  .ios-bottom-tabs { padding: 3px 1px calc(3px + env(safe-area-inset-bottom, 0px)) 1px; }
+  .topbar-icon-btn { width: 28px; height: 28px; border-radius: 6px; }
+  .input-field { padding: 0.55rem 0.6rem; font-size: 0.8rem; }
+  .input-label { font-size: 0.68rem; }
+  .tab-btn { font-size: 0.68rem; padding: 0.3rem; }
+  .badge-outline { font-size: 0.62rem; padding: 2px 6px; }
+  .digital-id-card { padding: 0.6rem; }
+  .search-bar { padding: 0.5rem 0.6rem !important; }
+  .info-box { font-size: 0.68rem; padding: 0.4rem; }
+  .error-box, .error-banner { font-size: 0.72rem; padding: 0.4rem; }
+  .profile-photo-wrap { width: 60px; height: 60px; }
+  .role-grid { grid-template-columns: 1fr; gap: 0.35rem; }
+  .role-card { padding: 0.5rem; }
+  .role-card strong { font-size: 0.72rem; }
+  .role-card span { font-size: 0.58rem; }
+  .drawer-panel { width: 92%; max-width: none; }
+}
+
+/* ─── Ultra-Small Phones (281px – 320px — iPhone SE 1st gen, Galaxy A01) ─── */
+@media (min-width: 281px) and (max-width: 320px) {
   :root, [data-theme="dark"], [data-theme="light"] {
     --topbar-h: 46px;
     --radius-lg: 16px;
@@ -679,9 +743,6 @@ p { color: var(--text-muted); }
   .btn { padding: 0.6rem 0.75rem; font-size: 0.82rem; border-radius: 10px; }
   .avatar-sm { width: 30px; height: 30px; font-size: 0.75rem; }
   .avatar-md { width: 42px; height: 42px; font-size: 1rem; }
-  h2 { font-size: clamp(0.95rem, 4.5vw, 1.15rem); }
-  h3 { font-size: clamp(0.85rem, 4vw, 1rem); }
-  h4 { font-size: clamp(0.8rem, 3.5vw, 0.95rem); }
   .top-bar { padding: 0.4rem 0.75rem; min-height: 46px; }
   .screen { padding: 0.5rem; }
   .role-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
@@ -703,6 +764,8 @@ p { color: var(--text-muted); }
   .search-bar { padding: 0.6rem 0.75rem !important; }
   .info-box { font-size: 0.72rem; padding: 0.6rem; }
   .error-box, .error-banner { font-size: 0.78rem; padding: 0.6rem; }
+  .profile-photo-wrap { width: 65px; height: 65px; }
+  .drawer-panel { width: 88%; }
 }
 
 /* ─── Small Phones (321px – 360px — Galaxy S series, Pixel 4a) ─── */
@@ -715,8 +778,6 @@ p { color: var(--text-muted); }
   .btn { padding: 0.65rem 0.85rem; font-size: 0.85rem; }
   .avatar-sm { width: 34px; height: 34px; }
   .avatar-md { width: 46px; height: 46px; font-size: 1.1rem; }
-  h2 { font-size: clamp(1rem, 4.5vw, 1.2rem); }
-  h3 { font-size: clamp(0.88rem, 4vw, 1.05rem); }
   .top-bar { padding: 0.5rem 0.85rem; min-height: 48px; }
   .screen { padding: 0.55rem; }
   .ios-tab-item { font-size: 0.55rem; }
@@ -731,8 +792,6 @@ p { color: var(--text-muted); }
   .btn { padding: 0.7rem 1rem; font-size: 0.88rem; }
   .avatar-sm { width: 36px; height: 36px; }
   .avatar-md { width: 48px; height: 48px; font-size: 1.2rem; }
-  h2 { font-size: clamp(1rem, 4.5vw, 1.25rem); }
-  h3 { font-size: clamp(0.9rem, 4vw, 1.1rem); }
 }
 
 /* ─── Standard Phones (381px – 414px — iPhone 13/14, Galaxy S21) ─── */
@@ -744,6 +803,23 @@ p { color: var(--text-muted); }
 /* ─── Large Phones / Phablets (415px – 480px — iPhone 14 Plus/Pro Max) ─── */
 @media (min-width: 415px) and (max-width: 480px) {
   .grid-2 { gap: 0.7rem; }
+}
+
+/* ─── Small Tablets (481px – 600px) ─── */
+@media (min-width: 481px) and (max-width: 600px) {
+  .grid-2 { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .glass-card { padding: clamp(0.8rem, 3vw, 1.1rem); }
+  .role-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ─── Medium Tablets (601px – 899px) ─── */
+@media (min-width: 601px) and (max-width: 899px) {
+  .grid-2 { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
+  .glass-card { padding: clamp(0.85rem, 2.5vw, 1.2rem); }
+  .role-grid { grid-template-columns: repeat(4, 1fr); }
+  .screen { padding: clamp(0.75rem, 3vw, 1.5rem); }
+  /* Give the drawer panel some desktop flair */
+  .drawer-panel { max-width: 380px; }
 }
 
 /* ─── Responsive: Tall/Narrow Phones ─── */
@@ -767,12 +843,45 @@ p { color: var(--text-muted); }
   .ios-tab-item { font-size: 0.5rem; }
 }
 
-/* ─── Ensure all text wraps instead of overflowing ─── */
-@media (max-width: 500px) {
-  h1, h2, h3, h4, p, span, div {
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+/* ─── Landscape Phones (short + wide) ─── */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root, [data-theme="dark"], [data-theme="light"] {
+    --topbar-h: 38px;
+    --bottom-tabs-h: calc(44px + env(safe-area-inset-bottom, 0px));
   }
+  .top-bar { min-height: 38px; padding: 0.25rem 0.75rem; }
+  .ios-bottom-tabs { padding: 2px 2px calc(2px + env(safe-area-inset-bottom, 0px)) 2px; }
+  .ios-tab-item { font-size: 0; /* hide labels in landscape */ }
+  .ios-tab-item .ios-tab-icon { width: 22px; height: 22px; }
+  .ios-tab-item .ios-tab-label { display: none; }
+  .screen { padding: 0.35rem 0.75rem; }
+  .glass-card { padding: 0.5rem; }
+  /* Grid should use more columns when landscape */
+  .grid-2 { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.4rem; }
+  /* Drawer should not be too wide */
+  .drawer-panel { width: 50%; max-width: 280px; }
+  /* Notifications panel should be narrower */
+  .ride-hailing-sheet { max-height: 55vh !important; }
+}
+
+/* ─── Dynamic Island / Status Bar padding for notched devices ─── */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .top-bar {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+  }
+  .drawer-header {
+    padding-top: max(1.25rem, calc(0.5rem + env(safe-area-inset-top, 0px)));
+  }
+}
+
+/* ─── Touch target accessibility (all mobile) ─── */
+@media (pointer: coarse) {
+  .btn { min-height: 44px; }
+  .topbar-icon-btn { min-width: 36px; min-height: 36px; }
+  .shell-nav-item { min-height: 44px; }
+  .ios-tab-item { min-height: 44px; }
+  .tab-btn { min-height: 38px; }
+  .input-field { min-height: 44px; }
 }
 
 /* ─── Performance: reduce motion for accessibility ─── */
