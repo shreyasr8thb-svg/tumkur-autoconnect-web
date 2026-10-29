@@ -1,6 +1,10 @@
 // app/layout.tsx
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
+
+export const viewport: Viewport = {
+  themeColor: '#000000',
+};
 
 export const metadata: Metadata = {
   title: 'Tumkur AutoConnect — ERP & Marketplace',
@@ -8,7 +12,6 @@ export const metadata: Metadata = {
     'Enterprise platform bridging factories, workers, training institutes, transport, and contractors in the Tumkur auto-component industrial sector.',
   keywords: ['Tumkur', 'auto components', 'ERP', 'workers', 'factory', 'jobs'],
   authors: [{ name: 'Roaring Thunders' }],
-  themeColor: '#000000',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
