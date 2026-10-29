@@ -1,0 +1,137 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  INDUSTRY_HR
+  INSTITUTE
+  WORKER
+  DRIVER
+  CONTRACTOR
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  FILLED
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  firebaseId String  @unique
+  role      Role
+  name      String
+  phone     String   @unique
+  email     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Role-specific relations
+  factoryProfile FactoryProfile?
+  workerProfile  WorkerProfile?
+  vehicleProfile VehicleProfile[]
+  payrolls       Payroll[]
+  documents      Document[]
+}
+
+model FactoryProfile {
+  id             String       @id @default(uuid())
+  userId         String       @unique
+  user           User         @relation(fields: [userId], references: [id])
+  companyName    String
+  latitude       Float
+  longitude      Float
+  geofenceRadius Float        @default(50.0) // In meters
+  jobs           JobPosting[]
+}
+
+model WorkerProfile {
+  id          String        @id @default(uuid())
+  userId      String        @unique
+  user        User          @relation(fields: [userId], references: [id])
+  skills      String[]
+  experience  Int           // In months
+  latitude    Float?
+  longitude   Float?
+  applications Application[]
+  attendances Attendance[]
+}
+
+model JobPosting {
+  id             String        @id @default(uuid())
+  factoryId      String
+  factory        FactoryProfile @relation(fields: [factoryId], references: [id])
+  title          String
+  requiredSkills String[]
+  salary         Float
+  status         JobStatus      @default(OPEN)
+  applications   Application[]
+  createdAt      DateTime       @default(now())
+}
+
+model Application {
+  id         String            @id @default(uuid())
+  workerId   String
+  worker     WorkerProfile     @relation(fields: [workerId], references: [id])
+  jobId      String
+  job        JobPosting        @relation(fields: [jobId], references: [id])
+  matchScore Float?            // AI-generated score
+  status     ApplicationStatus @default(PENDING)
+  createdAt  DateTime          @default(now())
+
+  @@unique([workerId, jobId])
+}
+
+model Attendance {
+  id        String        @id @default(uuid())
+  workerId  String
+  worker    WorkerProfile @relation(fields: [workerId], references: [id])
+  checkIn   DateTime      @default(now())
+  checkOut  DateTime?
+  lat       Float
+  lng       Float
+  isValid   Boolean       // Validated against factory geofence
+}
+
+model VehicleProfile {
+  id          String   @id @default(uuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  licensePlate String  @unique
+  capacity    Int
+  routeStart  String
+  routeEnd    String
+}
+
+model Payroll {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Float
+  period    DateTime
+  isPaid    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  docType   String   // e.g., "RESUME", "GOV_ID"
+  fileUrl   String   // S3 Encrypted URL
+  createdAt DateTime @default(now())
+}
