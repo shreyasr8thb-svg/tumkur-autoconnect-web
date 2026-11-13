@@ -1,5 +1,4 @@
 {
-  "name": "tumkur-autoconnect-web",
   "rewrites": [
     {
       "source": "/(.*)",
