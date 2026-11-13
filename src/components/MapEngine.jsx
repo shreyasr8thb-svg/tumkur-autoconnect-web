@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState, useCallback, memo, useMemo } from 'react';
 import { Navigation, Locate } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import 'leaflet/dist/leaflet.css';
 
 // ── Tile layer URLs (free, no API key) ──
 const TILES_DARK = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
@@ -23,7 +24,7 @@ const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM<
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-// ── SVG marker icons (crisp at any DPI, no DOM nodes for Canvas renderer) ──
+// ── SVG marker icons (crisp vector graphics, GPU canvas compatible) ──
 const MARKER_SVGS = {
   user: (color = '#3b82f6') => `
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
@@ -50,19 +51,23 @@ const MARKER_SVGS = {
       </g>
     </svg>`,
   factory: () => `
-    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
-      <rect x="2" y="2" width="24" height="24" rx="6" fill="#e11d48" fill-opacity="0.9"/>
-      <text x="14" y="19" text-anchor="middle" font-size="14" fill="#fff">🏭</text>
+    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+      <rect x="2" y="2" width="26" height="26" rx="6" fill="#e11d48"/>
+      <path d="M7 21V12l4 3V12l4 3V8h6v13H7z" fill="#fff"/>
     </svg>`,
   bus: () => `
-    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
-      <rect x="2" y="2" width="24" height="24" rx="6" fill="#f59e0b" fill-opacity="0.9"/>
-      <text x="14" y="19" text-anchor="middle" font-size="14" fill="#fff">🚌</text>
+    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+      <rect x="2" y="2" width="26" height="26" rx="6" fill="#f59e0b"/>
+      <rect x="6" y="7" width="18" height="13" rx="2" fill="#fff"/>
+      <rect x="8" y="9" width="6" height="4" rx="0.5" fill="#f59e0b"/>
+      <rect x="16" y="9" width="6" height="4" rx="0.5" fill="#f59e0b"/>
+      <circle cx="9.5" cy="16.5" r="1.5" fill="#f59e0b"/>
+      <circle cx="20.5" cy="16.5" r="1.5" fill="#f59e0b"/>
     </svg>`,
 };
 
 function svgToDataUrl(svgString) {
-  return `data:image/svg+xml;base64,${btoa(svgString.trim())}`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString.trim())}`;
 }
 
 // ── Skeleton component ──
@@ -164,8 +169,6 @@ const MapEngine = memo(function MapEngine({
 
     import('leaflet').then((L) => {
       if (cancelled || !containerRef.current) return;
-      // Also load the CSS
-      import('leaflet/dist/leaflet.css');
 
       leafletRef.current = L.default || L;
       const Lf = leafletRef.current;
@@ -190,6 +193,7 @@ const MapEngine = memo(function MapEngine({
       const tileUrl = isDark ? TILES_DARK : TILES_LIGHT;
       const tileLayer = Lf.tileLayer(tileUrl, {
         maxZoom: 19,
+        subdomains: 'abcd',
         attribution: TILE_ATTR,
         // Retina support: requests @2x tiles on high-DPI screens
         detectRetina: true,
@@ -221,16 +225,15 @@ const MapEngine = memo(function MapEngine({
       routeLayerRef.current = Lf.featureGroup().addTo(map);
       factoryLayerRef.current = Lf.layerGroup().addTo(map);
 
-      // ResizeObserver instead of setTimeout
+      // ResizeObserver + layout stabilization
       if (typeof ResizeObserver !== 'undefined') {
         resizeObserverRef.current = new ResizeObserver(() => {
           map.invalidateSize({ animate: false });
         });
         resizeObserverRef.current.observe(containerRef.current);
-      } else {
-        // Fallback for older browsers
-        setTimeout(() => map.invalidateSize(), 300);
       }
+      setTimeout(() => map.invalidateSize(), 150);
+      setTimeout(() => map.invalidateSize(), 600);
 
       mapRef.current = map;
       setLoaded(true);
