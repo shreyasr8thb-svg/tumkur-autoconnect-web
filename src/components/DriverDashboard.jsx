@@ -135,7 +135,10 @@ function DriveMode({ active, setActive, onMenu }) {
     });
   }, [active, user.uid]);
 
-  // Background Location Tracker
+  // Background Location Tracker (throttled to max 1 update / 3s or > 10m movement)
+  const lastLocationUpdateRef = useRef(0);
+  const lastCoordsRef = useRef(null);
+
   useEffect(() => {
     let watchId;
     if (active && user?.uid) {
@@ -146,10 +149,23 @@ function DriveMode({ active, setActive, onMenu }) {
           }
           watchId = await Geolocation.watchPosition({ enableHighAccuracy: true }, (position, err) => {
             if (position) {
-              updateDoc(doc(db, 'users', user.uid), {
-                location: { lat: position.coords.latitude, lng: position.coords.longitude },
-                updatedAt: Date.now()
-              }).catch(() => {}); // silent fail if offline
+              const now = Date.now();
+              const coords = position.coords;
+              const prev = lastCoordsRef.current;
+
+              // Check if 3s has passed or distance > ~10m (0.0001 deg is ~11m)
+              const timePassed = now - lastLocationUpdateRef.current >= 3000;
+              const movedEnough = !prev || (Math.abs(coords.latitude - prev.lat) + Math.abs(coords.longitude - prev.lng) > 0.0001);
+
+              if (timePassed && movedEnough) {
+                lastLocationUpdateRef.current = now;
+                lastCoordsRef.current = { lat: coords.latitude, lng: coords.longitude };
+
+                updateDoc(doc(db, 'users', user.uid), {
+                  location: { lat: coords.latitude, lng: coords.longitude },
+                  updatedAt: now
+                }).catch(() => {}); // silent fail if offline
+              }
             }
           });
         } catch (e) { console.error('Location tracking failed', e); }
