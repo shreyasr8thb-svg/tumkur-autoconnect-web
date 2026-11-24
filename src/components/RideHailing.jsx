@@ -150,6 +150,19 @@ export default function RideHailing({ onBack }) {
   const [customDropoff, setCustomDropoff] = useState(null);
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [activeDrivers, setActiveDrivers] = useState([]);
+  const [showCallModal, setShowCallModal] = useState(false);
+
+  const initiateCall = () => {
+    setShowCallModal(false);
+    import('firebase/firestore').then(({ setDoc, doc }) => {
+      setDoc(doc(db, 'rides', user.uid), {
+        call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
+      }, { merge: true }).catch(e => {
+        console.error("Call signaling error:", e);
+        alert("Network error: Could not connect call. " + e.message);
+      });
+    });
+  };
 
   // Fetch online drivers
   useEffect(() => {
@@ -169,31 +182,49 @@ export default function RideHailing({ onBack }) {
 
   // Push a new step to browser history so the hardware back button navigates steps correctly
   const goToStep = (nextStep) => {
-    window.history.pushState({ rideStep: nextStep }, '');
+    try {
+      window.history.pushState({ rideStep: nextStep }, '');
+    } catch (e) {}
     setStep(nextStep);
   };
 
-  // Called by visual back buttons — same as pressing the hardware back button
-  const goBack = () => window.history.back();
+  // Called by visual back buttons and hardware back
+  const goBack = () => {
+    if (step === 'options') {
+      setStep('input');
+    } else if (step === 'input') {
+      setStep('home');
+    } else if (step === 'pending') {
+      cancelRide();
+      setStep('home');
+    } else {
+      // At root of RideHailing — return to parent dashboard!
+      if (onBack) onBack();
+      else window.history.back();
+    }
+  };
 
   // Handle hardware back button / browser back navigation inside RideHailing
   useEffect(() => {
-    // Push the initial 'home' entry so there is always something to pop back from
-    window.history.pushState({ rideStep: 'home' }, '');
-
     const onPop = () => {
       setStep(prev => {
         if (prev === 'options')  return 'input';
         if (prev === 'input')    return 'home';
-        if (prev === 'pending')  return 'home';
-        // prev === 'home': hash reverts → useHashTab changes tab → component unmounts
+        if (prev === 'pending') {
+          cancelRide();
+          return 'home';
+        }
+        if (prev === 'home') {
+          if (onBack) onBack();
+          return 'home';
+        }
         return prev;
       });
     };
 
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, []);
+  }, [onBack]);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -335,6 +366,7 @@ export default function RideHailing({ onBack }) {
     await setDoc(doc(db, 'rides', user.uid), {
       workerId: user.uid,
       workerName: profile?.fullName || 'Worker',
+      workerPhone: profile?.phone || '',
       pickup: 'Current Location',
       pickupPos: userPos,
       dropoff,
@@ -342,7 +374,7 @@ export default function RideHailing({ onBack }) {
       vehicleType: selectedVehicle,
       price: vehicleOptions.find(v => v.id === selectedVehicle)?.price || '₹150',
       status: 'pending',
-      driverId: null, driverName: null, driverPhoto: null, otp,
+      driverId: null, driverName: null, driverPhone: null, driverPhoto: null, otp,
       timestamp: Date.now(),
     });
     goToStep('pending'); // push to history so back cancels gracefully
@@ -371,11 +403,11 @@ export default function RideHailing({ onBack }) {
       {!ride && (step === 'input' || step === 'home') && (
         <>
           <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20 }}>
-            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)', flexShrink: 0, transition: 'all 0.2s' }} title="Go Back">
               <ArrowLeft size={22} color="var(--text-main)" />
             </div>
           </div>
-          <div onClick={fetchLoc} style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'var(--bg-glass)', backdropFilter: 'blur(12px)', border: '1px solid var(--border)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20, cursor: 'pointer' }}>
+          <div onClick={fetchLoc} style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 100, padding: '8px 18px', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15)' }}>
             <Navigation size={14} color="#3b82f6" />
             <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-main)' }}>📍 Locate Me</span>
           </div>
@@ -386,10 +418,10 @@ export default function RideHailing({ onBack }) {
       {!ride && step === 'home' && (
         <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none' }}>
           <div style={{ width: '100%', maxWidth: 800, padding: '0 14px 0 64px', pointerEvents: 'auto' }}>
-            <div onClick={() => setStep('input')} style={{ background: 'var(--bg-glass-heavy)', backdropFilter: 'blur(12px)', border: '1px solid var(--border)', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '10px 16px', gap: '12px', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+            <div onClick={() => setStep('input')} style={{ background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(24px) saturate(1.8)', WebkitBackdropFilter: 'blur(24px) saturate(1.8)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '100px', display: 'flex', alignItems: 'center', padding: '10px 16px', gap: '12px', cursor: 'pointer', boxShadow: '0 12px 36px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.15)' }}>
               <Search size={22} color="var(--text-main)" />
               <span style={{ flex: 1, fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)' }}>Where to? (or tap map)</span>
-              <div style={{ background: 'var(--bg-glass)', borderRadius: '100px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '100px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Clock size={14} color="var(--text-main)" />
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-main)' }}>Now</span>
               </div>
@@ -402,11 +434,11 @@ export default function RideHailing({ onBack }) {
       {step === 'options' && (
         <div style={{ position: 'absolute', top: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 20, pointerEvents: 'none' }}>
           <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 800, padding: '0 14px', pointerEvents: 'auto' }}>
-            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--bg-glass)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', flexShrink: 0 }}>
+            <div onClick={goBack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)', flexShrink: 0 }} title="Go Back">
               <ArrowLeft size={22} color="var(--text-main)" />
             </div>
-            <div style={{ flex: 1, background: 'var(--bg-glass)', border: '1px solid var(--border)', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
-              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Home</div>
+            <div style={{ flex: 1, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(24px) saturate(1.8)', WebkitBackdropFilter: 'blur(24px) saturate(1.8)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '6px 16px', boxShadow: '0 12px 36px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)' }}>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={10} /> Destination</div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{dropoff}</div>
               <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, marginTop: '2px' }}>{selectedDist} km • {Math.round(selectedDist * 3)} mins away</div>
             </div>
@@ -417,17 +449,17 @@ export default function RideHailing({ onBack }) {
       {/* ── Bottom Sheet ── */}
       <div style={{
         position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 800, zIndex: 30,
-        background: 'var(--bg-glass-heavy)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        background: 'rgba(10, 16, 32, 0.82)',
+        backdropFilter: 'blur(32px) saturate(2)',
+        WebkitBackdropFilter: 'blur(32px) saturate(2)',
         borderTopLeftRadius: 'clamp(20px, 5vw, 32px)', borderTopRightRadius: 'clamp(20px, 5vw, 32px)',
-        boxShadow: '0 -10px 40px rgba(0,0,0,0.2)',
-        border: '1px solid var(--border)',
+        boxShadow: '0 -12px 48px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.15)',
+        border: '1px solid rgba(255,255,255,0.14)',
         borderBottom: 'none',
         maxHeight: step === 'home' ? 'clamp(40%, 45vh, 50%)' : 'clamp(55%, 70vh, 80%)',
         overflow: 'hidden',
         display: 'flex', flexDirection: 'column',
-        transition: 'max-height 0.3s ease-in-out'
+        transition: 'max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
         {/* Handle */}
         <div style={{ width: 48, height: 5, background: 'rgba(255,255,255,0.2)', borderRadius: 4, margin: '14px auto 0', flexShrink: 0 }} />
@@ -670,15 +702,12 @@ export default function RideHailing({ onBack }) {
                   </div>
                 </div>
                 <button onClick={() => {
-                  import('firebase/firestore').then(({ setDoc, doc }) => {
-                    setDoc(doc(db, 'rides', user.uid), {
-                      call: { caller: user.uid, status: 'calling', callerCandidates: [], receiverCandidates: [] }
-                    }, { merge: true }).catch(e => {
-                      console.error("Call signaling error:", e);
-                      alert("Network error: Could not connect call. " + e.message);
-                    });
-                  });
-                }} style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  if (ride?.driverPhone) {
+                    setShowCallModal(true);
+                  } else {
+                    initiateCall();
+                  }
+                }} style={{ width: 46, height: 46, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.15) 100%)', border: '1px solid rgba(34,197,94,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 14px rgba(34,197,94,0.25)', transition: 'all 0.2s' }} title="Call Driver">
                   <Phone size={18} color="#4ade80" />
                 </button>
               </div>
@@ -708,11 +737,30 @@ export default function RideHailing({ onBack }) {
             </div>
           )}
 
+          {showCallModal && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(2,6,23,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.25rem' }}>
+              <div style={{ width: '100%', maxWidth: 360, background: 'rgba(15,23,42,0.9)', backdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20, padding: '1.5rem', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Contact Driver</h3>
+                  <button onClick={() => setShowCallModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={18} /></button>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>How would you like to call {ride?.driverName || 'the driver'}?</p>
+                <button onClick={initiateCall} style={{ padding: '0.85rem 1rem', borderRadius: 14, background: 'linear-gradient(135deg, rgba(59,130,246,0.25) 0%, rgba(59,130,246,0.1) 100%)', border: '1px solid rgba(59,130,246,0.4)', color: '#60a5fa', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <Phone size={16} /> In-App Voice Call (Free)
+                </button>
+                <a href={`tel:${ride?.driverPhone}`} onClick={() => setShowCallModal(false)} style={{ padding: '0.85rem 1rem', borderRadius: 14, background: 'linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(34,197,94,0.1) 100%)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <Phone size={16} /> Cellular Call ({ride?.driverPhone})
+                </a>
+              </div>
+            </div>
+          )}
+
           {ride?.call && (
             <InAppCall 
               rideId={user.uid}
               isCaller={ride.call.caller === user.uid}
               peerName={ride?.driverName || 'Driver'} 
+              peerPhone={ride?.driverPhone}
               peerPhoto={ride?.driverPhoto} 
             />
           )}

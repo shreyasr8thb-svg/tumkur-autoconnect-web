@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';
+import { ArrowLeft } from 'lucide-react';
 import LiveMap from './LiveMap';
 
-export default function CompanyBus() {
+export default function CompanyBus({ onBack }) {
   const { profile } = useUser();
   const [buses, setBuses] = useState([]);
 
@@ -25,7 +26,25 @@ export default function CompanyBus() {
 
   return (
     <div className="flex-col gap-3">
-      <h3 style={{ margin: 0 }}>Company Buses</h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {onBack && (
+          <button 
+            onClick={onBack}
+            style={{
+              width: 38, height: 38, borderRadius: '12px',
+              background: 'var(--bg-glass)', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--text-main)',
+              backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+              transition: 'all 0.2s'
+            }}
+            title="Back"
+          >
+            <ArrowLeft size={18} />
+          </button>
+        )}
+        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Company Buses</h3>
+      </div>
       <div style={{ marginBottom: 12 }}>
         <LiveMap height="200px" showBuses={true} />
       </div>

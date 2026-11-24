@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useUser } from '../context/UserContext';
-import { Edit3, Save, X, LogOut, Camera, Upload, ShieldCheck, CreditCard, Phone, ChevronRight } from 'lucide-react';
+import { Edit3, Save, X, LogOut, Camera, Upload, ShieldCheck, CreditCard, Phone, ChevronRight, ArrowLeft } from 'lucide-react';
 
 export default function ProfileView({ onNavigate }) {
   const { profile, updateProfile, signOut, deleteProfile } = useUser();
@@ -37,6 +37,29 @@ export default function ProfileView({ onNavigate }) {
 
   return (
     <div className="flex-col gap-3">
+      {/* Top Navigation Row with Back button */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0.25rem 0 0.5rem' }}>
+        <button 
+          onClick={() => onNavigate ? onNavigate('home') : window.history.back()}
+          style={{
+            width: 40, height: 40, borderRadius: '12px',
+            background: 'var(--bg-glass)', border: '1px solid var(--border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: 'var(--text-main)',
+            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            transition: 'all 0.2s'
+          }}
+          title="Back to Dashboard"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <div style={{ flex: 1 }}>
+          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Profile & Settings</h2>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Manage your personal details & credentials</div>
+        </div>
+      </div>
+
       {/* Profile Header with Photo */}
       <div className="text-center mb-2">
         <div className="profile-photo-wrap" onClick={() => photoRef.current?.click()}>

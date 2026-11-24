@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { PhoneOff, Mic, MicOff, Volume2, VolumeX, User } from 'lucide-react';
+import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, User } from 'lucide-react';
 import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebase';
 
-export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEndCall }) {
+export default function InAppCall({ rideId, isCaller, peerName, peerPhone, peerPhoto, onEndCall }) {
   const [callStatus, setCallStatus] = useState(isCaller ? 'Calling...' : 'Incoming Call...');
   const [timer, setTimer] = useState(0);
   const [micMuted, setMicMuted] = useState(false);
@@ -17,8 +17,12 @@ export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEnd
   
   // Hang up logic
   const hangup = async () => {
-    if (pcRef.current) pcRef.current.close();
-    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    if (pcRef.current) {
+      try { pcRef.current.close(); } catch (e) {}
+    }
+    if (streamRef.current) {
+      try { streamRef.current.getTracks().forEach(t => t.stop()); } catch (e) {}
+    }
     
     // Clear call state in Firestore
     await updateDoc(rideRef.current, { call: null }).catch(e => console.error(e));
@@ -43,8 +47,14 @@ export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEnd
       ]
     };
     
-    const pc = new RTCPeerConnection(servers);
-    pcRef.current = pc;
+    let pc;
+    try {
+      pc = new RTCPeerConnection(servers);
+      pcRef.current = pc;
+    } catch (e) {
+      setCallStatus('WebRTC Unavailable');
+      return;
+    }
 
     // Stream remote audio
     pc.ontrack = (event) => {
@@ -66,7 +76,7 @@ export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEnd
     const startCall = async () => {
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-           setCallStatus('Audio Unavailable (HTTP)');
+           setCallStatus('Audio Unsupported (use Cellular)');
            return;
         }
 
@@ -83,9 +93,8 @@ export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEnd
           setCallStatus('Ringing...');
         }
       } catch (err) {
-        console.error('Mic access denied', err);
-        setCallStatus('Mic Access Denied');
-        setTimeout(hangup, 3000);
+        console.error('Mic access error', err);
+        setCallStatus('Mic Permission Denied');
       }
     };
 
@@ -133,7 +142,7 @@ export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEnd
 
     return () => {
       unsub();
-      pc.close();
+      try { pc.close(); } catch (e) {}
     };
   }, [accepted]);
 
@@ -151,43 +160,70 @@ export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEnd
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(5,10,25,0.85)', backdropFilter: 'blur(32px) saturate(1.8)', WebkitBackdropFilter: 'blur(32px) saturate(1.8)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
       <audio ref={remoteAudioRef} autoPlay muted={speakerMuted} />
       
-      {/* Avatar */}
-      <div style={{ width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '4px solid rgba(59,130,246,0.3)', marginBottom: '1.5rem', overflow: 'hidden', position: 'relative' }}>
+      {/* Avatar with pulse ring */}
+      <div style={{ width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px solid rgba(59,130,246,0.5)', marginBottom: '1.5rem', overflow: 'hidden', position: 'relative', boxShadow: '0 8px 32px rgba(59,130,246,0.2)' }}>
         {peerPhoto ? <img src={peerPhoto} alt="Caller" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <User size={48} color="#f8fafc" />}
-        {callStatus === 'Ringing...' && (
-          <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid #3b82f6', animation: 'ripple 1.5s infinite ease-out' }} />
+        {(callStatus === 'Ringing...' || callStatus === 'Calling...') && (
+          <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: '2px solid #3b82f6', animation: 'ripple 1.5s infinite ease-out' }} />
         )}
       </div>
 
-      <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.8rem', fontWeight: 800, color: '#f8fafc' }}>{peerName || 'Unknown Caller'}</h2>
-      <p style={{ margin: 0, fontSize: '1rem', color: callStatus === 'Connected' ? '#4ade80' : '#94a3b8', fontWeight: 600, letterSpacing: '0.05em' }}>
+      <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.75rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', textAlign: 'center' }}>{peerName || 'Driver / Passenger'}</h2>
+      
+      <p style={{ margin: 0, fontSize: '1rem', color: callStatus === 'Connected' ? '#4ade80' : '#94a3b8', fontWeight: 600, letterSpacing: '0.04em' }}>
         {callStatus === 'Connected' ? formatTime(timer) : callStatus}
       </p>
 
+      {/* Fallback cellular call option */}
+      {peerPhone && (
+        <a 
+          href={`tel:${peerPhone}`} 
+          style={{
+            marginTop: '1.5rem',
+            padding: '10px 22px',
+            borderRadius: '100px',
+            background: 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.15) 100%)',
+            border: '1px solid rgba(34,197,94,0.5)',
+            backdropFilter: 'blur(12px)',
+            color: '#4ade80',
+            textDecoration: 'none',
+            fontWeight: 700,
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            boxShadow: '0 4px 20px rgba(34,197,94,0.2)',
+            transition: 'all 0.2s'
+          }}
+        >
+          <Phone size={16} /> Direct Cellular Call ({peerPhone})
+        </a>
+      )}
+
       {/* Controls */}
-      <div style={{ display: 'flex', gap: '2rem', marginTop: '4rem' }}>
+      <div style={{ display: 'flex', gap: '1.75rem', marginTop: '3.5rem', alignItems: 'center' }}>
         {!accepted ? (
           <>
-            <button onClick={() => setAccepted(true)} style={{ width: 64, height: 64, borderRadius: '50%', background: '#22c55e', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 0 20px rgba(34,197,94,0.4)', transition: 'all 0.2s' }}>
-              <PhoneOff size={28} color="#fff" style={{ transform: 'rotate(225deg)' }} />
+            <button onClick={() => setAccepted(true)} style={{ width: 66, height: 66, borderRadius: '50%', background: '#22c55e', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 0 25px rgba(34,197,94,0.5)', transition: 'all 0.2s' }}>
+              <Phone size={30} color="#fff" />
             </button>
-            <button onClick={hangup} style={{ width: 64, height: 64, borderRadius: '50%', background: '#e11d48', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 0 20px rgba(225,29,72,0.4)', transition: 'all 0.2s' }}>
-              <PhoneOff size={28} color="#fff" />
+            <button onClick={hangup} style={{ width: 66, height: 66, borderRadius: '50%', background: '#e11d48', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 0 25px rgba(225,29,72,0.5)', transition: 'all 0.2s' }}>
+              <PhoneOff size={30} color="#fff" />
             </button>
           </>
         ) : (
           <>
-            <button onClick={toggleMic} style={{ width: 64, height: 64, borderRadius: '50%', background: micMuted ? '#fff' : 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-              {micMuted ? <MicOff size={28} color="#0f172a" /> : <Mic size={28} color="#f8fafc" />}
+            <button onClick={toggleMic} style={{ width: 60, height: 60, borderRadius: '50%', background: micMuted ? '#fff' : 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }} title={micMuted ? "Unmute Mic" : "Mute Mic"}>
+              {micMuted ? <MicOff size={24} color="#0f172a" /> : <Mic size={24} color="#f8fafc" />}
             </button>
-            <button onClick={hangup} style={{ width: 64, height: 64, borderRadius: '50%', background: '#e11d48', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 0 20px rgba(225,29,72,0.4)', transition: 'all 0.2s' }}>
-              <PhoneOff size={28} color="#fff" />
+            <button onClick={hangup} style={{ width: 68, height: 68, borderRadius: '50%', background: '#e11d48', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 0 25px rgba(225,29,72,0.5)', transition: 'all 0.2s' }} title="End Call">
+              <PhoneOff size={30} color="#fff" />
             </button>
-            <button onClick={() => setSpeakerMuted(!speakerMuted)} style={{ width: 64, height: 64, borderRadius: '50%', background: speakerMuted ? '#fff' : 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-              {speakerMuted ? <VolumeX size={28} color="#0f172a" /> : <Volume2 size={28} color="#f8fafc" />}
+            <button onClick={() => setSpeakerMuted(!speakerMuted)} style={{ width: 60, height: 60, borderRadius: '50%', background: speakerMuted ? '#fff' : 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }} title={speakerMuted ? "Unmute Speaker" : "Mute Speaker"}>
+              {speakerMuted ? <VolumeX size={24} color="#0f172a" /> : <Volume2 size={24} color="#f8fafc" />}
             </button>
           </>
         )}
@@ -196,7 +232,7 @@ export default function InAppCall({ rideId, isCaller, peerName, peerPhoto, onEnd
       <style>{`
         @keyframes ripple {
           0% { transform: scale(1); opacity: 1; }
-          100% { transform: scale(1.3); opacity: 0; }
+          100% { transform: scale(1.35); opacity: 0; }
         }
       `}</style>
     </div>

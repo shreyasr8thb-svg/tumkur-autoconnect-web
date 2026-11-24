@@ -191,6 +191,7 @@ function DriveMode({ active, setActive, onMenu }) {
       status: 'accepted',
       driverId: user.uid,
       driverName: profile?.fullName || 'Driver',
+      driverPhone: profile?.phone || user?.phoneNumber || '',
       driverPhoto: profile?.photoURL || null,
       vehicleType: profile?.driverType === 'company_driver' ? 'Bus' : (vehicleType || 'Mini'),
       vehicleNumber: vehicleNumber || 'KA-00-0000',
@@ -500,6 +501,7 @@ function DriveMode({ active, setActive, onMenu }) {
           rideId={activeRide.id}
           isCaller={activeRide.call.caller === user.uid}
           peerName={activeRide?.workerName || 'Passenger'} 
+          peerPhone={activeRide?.workerPhone}
           peerPhoto={null} 
         />
       )}

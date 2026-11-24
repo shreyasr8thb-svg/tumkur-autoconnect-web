@@ -51,7 +51,7 @@ export default function WorkerDashboard({ onSOS }) {
           {tab === 'passport' && <SkillPassport />}
           {tab === 'salary'   && <Salary />}
           {tab === 'access'   && <SmartAccess />}
-          {tab === 'companyBus' && <CompanyBus />}
+          {tab === 'companyBus' && <CompanyBus onBack={() => setTab('home')} />}
           {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
         </DashboardShell>
       )}

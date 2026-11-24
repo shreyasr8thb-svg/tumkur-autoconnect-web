@@ -73,7 +73,7 @@ export default function HRDashboard() {
           {tab === 'requests' && <JoinRequests company={company} user={user} />}
           {tab === 'workers'  && <EmployeeList company={company} />}
           {tab === 'announce' && <Announcements company={company} user={user} />}
-          {tab === 'companyBus' && <CompanyBus />}
+          {tab === 'companyBus' && <CompanyBus onBack={() => setTab('home')} />}
           {tab === 'antigravity' && <AntiGravityFleet company={company} user={user} />}
           {tab === 'profile'  && <ProfileView onNavigate={setTab} />}
         </DashboardShell>

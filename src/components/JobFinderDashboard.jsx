@@ -34,7 +34,7 @@ export default function JobFinderDashboard({ onSOS }) {
           {tab === 'home' && <JobList />}
           {tab === 'map' && <JobMap />}
           {tab === 'applications' && <Applications />}
-          {tab === 'companyBus' && <CompanyBus />}
+          {tab === 'companyBus' && <CompanyBus onBack={() => setTab('home')} />}
           {tab === 'profile' && <ProfileView onNavigate={setTab} />}
         </DashboardShell>
       )}
