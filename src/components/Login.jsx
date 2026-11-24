@@ -125,7 +125,8 @@ export default function Login({ onCreateProfile }) {
           // Fallback to Web Browser Auth
           setError('Native Google Sign-In unavailable. Opening secure browser login...');
           import('@capacitor/browser').then(({ Browser }) => {
-            Browser.open({ url: 'https://tumkur-autoconnect-web.vercel.app/native-login' });
+            const baseUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://tumkur-autoconnect.vercel.app';
+            Browser.open({ url: `${baseUrl}/native-login` });
           }).catch(err => {
             setError('Could not open browser fallback. Please use Email Login.');
           });
@@ -136,10 +137,11 @@ export default function Login({ onCreateProfile }) {
         setGLoading(false);
       }
     } else {
-      // ─── Web browser: popup flow works fine ───────────────────────────
+      // ─── Web browser: popup flow ─────────────────────────────────────
       const provider = new GoogleAuthProvider();
       provider.addScope('profile');
       provider.addScope('email');
+      provider.setCustomParameters({ prompt: 'select_account' });
       try {
         const cred = await signInWithPopup(auth, provider);
         sendSecurityEmail(cred.user.email, 'signin');
@@ -149,7 +151,11 @@ export default function Login({ onCreateProfile }) {
           err.code !== 'auth/popup-closed-by-user' &&
           err.code !== 'auth/cancelled-popup-request'
         ) {
-          setError(err.message || 'Google sign in failed.');
+          if (err.code === 'auth/unauthorized-domain') {
+            setError('Please authorize this domain in Firebase Console: Authentication > Settings > Authorized domains > Add "tumkur-autoconnect.vercel.app"');
+          } else {
+            setError(err.message || 'Google sign in failed.');
+          }
         }
       } finally {
         setGLoading(false);

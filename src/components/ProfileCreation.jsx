@@ -72,7 +72,8 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
     setGeneratedOtp(otp);
 
     try {
-      await fetch('https://tumkur-autoconnect-web.vercel.app/api/send-email', {
+      const baseUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://tumkur-autoconnect.vercel.app';
+      await fetch(`${baseUrl}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -112,7 +113,8 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
         await updateProfile(cred.user, { displayName: form.fullName, photoURL: form.photoURL || '' });
         currentUid = cred.user.uid;
         try {
-          await fetch('https://tumkur-autoconnect-web.vercel.app/api/send-email', {
+          const baseUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://tumkur-autoconnect.vercel.app';
+          await fetch(`${baseUrl}/api/send-email`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -122,13 +124,13 @@ export default function ProfileCreation({ onCancel, isCompleting = false }) {
               html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                   <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="https://tumkur-autoconnect-web.vercel.app/assets/logo.png" alt="Tumkuru Connect Logo" style="width: 80px; height: 80px; border-radius: 15px;" />
+                    <img src="${baseUrl}/assets/logo.png" alt="Tumkuru Connect Logo" style="width: 80px; height: 80px; border-radius: 15px;" />
                   </div>
                   <h2 style="color: #1e293b; text-align: center;">Welcome to Tumkuru Connect! 🎉</h2>
                   <p style="color: #475569; font-size: 16px;">Hello ${form.fullName},</p>
                   <p style="color: #475569; font-size: 16px;">Your profile has been created successfully. We're thrilled to have you onboard!</p>
                   <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://tumkur-autoconnect-web.vercel.app" style="background-color: #e11d48; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Open Dashboard</a>
+                    <a href="${baseUrl}" style="background-color: #e11d48; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Open Dashboard</a>
                   </div>
                   <p style="color: #475569; font-size: 14px;">If you have any questions, feel free to reply to this email.</p>
                   <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
