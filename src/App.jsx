@@ -20,6 +20,13 @@ function AppContent() {
   const [showSplash, setShowSplash] = useState(window.location.pathname !== '/native-login')
   const [showCreate, setShowCreate] = useState(false)
 
+  // Ensure browser address bar never retains '#' hash fragments
+  useEffect(() => {
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [])
+
   useEffect(() => {
     let backListener;
     if (window.Capacitor?.isNativePlatform?.()) {
