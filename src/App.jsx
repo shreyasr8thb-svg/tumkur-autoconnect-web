@@ -61,7 +61,7 @@ function AppContent() {
   useEffect(() => {
     const checkUpdate = async () => {
       try {
-        const res = await fetch('https://tumkur-autoconnect-web.vercel.app/version.json?t=' + Date.now());
+        const res = await fetch('https://tumkur-autoconnect.vercel.app/version.json?t=' + Date.now());
         const data = await res.json();
         const CURRENT_VERSION = '1.0.25'; // The hardcoded version of THIS build
         if (data.version && data.version !== CURRENT_VERSION) {
@@ -84,13 +84,13 @@ function AppContent() {
             // Fallback: If notifications are disabled or fail, show an in-app alert after a short delay
             setTimeout(() => {
               if (window.confirm("A new version of Tumkuru Connect is available! Would you like to update now to get the latest features and fixes?")) {
-                window.open(data.url || 'https://tumkur-autoconnect-web.vercel.app/download', '_system');
+                window.open(data.url || 'https://tumkur-autoconnect.vercel.app/download', '_system');
               }
             }, 3000);
           } catch(e) {
             // If LocalNotifications plugin fails entirely, show alert immediately
             if (window.confirm("A new version of Tumkuru Connect is available! Would you like to update now?")) {
-              window.open(data.url || 'https://tumkur-autoconnect-web.vercel.app/download', '_system');
+              window.open(data.url || 'https://tumkur-autoconnect.vercel.app/download', '_system');
             }
           }
         }
