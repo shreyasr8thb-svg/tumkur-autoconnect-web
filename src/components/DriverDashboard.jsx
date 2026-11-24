@@ -5,7 +5,7 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { useHashTab } from '../hooks/useHashTab';
-import { User, ClipboardList, Car, Star, CheckCircle, Navigation, MapPin, X, AlertTriangle, Activity, Eye, Mic } from 'lucide-react';
+import { User, ClipboardList, Car, Star, CheckCircle, Navigation, MapPin, X, AlertTriangle, Activity, Eye, Mic, Phone, Check } from 'lucide-react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useUser } from '../context/UserContext';

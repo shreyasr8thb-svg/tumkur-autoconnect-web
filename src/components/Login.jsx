@@ -9,6 +9,7 @@ import {
 import { Smartphone } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import logo from '../assets/logo.png';
+import DownloadPromo from './DownloadPromo';
 
 import { sendSecurityEmail } from '../utils/email';
 
